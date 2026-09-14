@@ -1,0 +1,123 @@
+# World and Building
+
+This page covers world sizes and seeds, the 8 regions and their boss gates, day/night and weather, digging, filling and mining, trees, forage and loose pickups, hazards, and building.
+
+← [Home](Home.md)
+
+## The world
+
+- A large, finite, seeded map of smooth (never blocky) voxel terrain. Every piece of terrain can be dug, filled and reshaped.
+- Surrounded by an impassable ocean edge. There is no sailing.
+- A bedrock layer at a fixed depth (per world size) cannot be dug through.
+- Caves generate underground in every region and hold that region's higher-tier ore. Caves are procedural only. There are no handcrafted dungeons.
+- Generation also places ruins (surface structures) and loot chests in caves and ruins.
+
+## Creating a world
+
+| Setting | Options |
+|---------|---------|
+| World name | Free text |
+| Seed | Integer, random by default |
+| Size | Small 4×4 km, Medium 8×8 km (default), Large 12×12 km |
+| Friendly fire | Off (default) or on |
+| LAN hosting | On (default) or off |
+| Password | Optional |
+
+The same seed, size and voxel resolution always generate identical terrain, regions, resources, ruins, loot chest positions and boss arenas on every machine. Voxel resolution is 25 cm (starting value, tunable) and is fixed per world at creation.
+
+## Regions
+
+The Temperate region is at the world center, which holds the world spawn point. Later regions sit farther from the center, so difficulty rises with distance.
+
+| Order | Region | Pressure | Boss gate |
+|-------|--------|----------|-----------|
+| 1 | Temperate Forest & Meadows | none (starting region) | Boss 1 → Temperate boss material (Tier-2) |
+| 2 | Swamp | poison, wet | Boss 2 → Swamp boss material (Tier-3) |
+| 3 | Savanna | heat, open terrain | Boss 3 → Savanna boss material (Tier-3) |
+| 4 | Desert | severe heat, thirst | Boss 4 → Desert boss material (Tier-4) |
+| 5 | Jungle | disease/poison, dense | Boss 5 → Jungle boss material (Tier-4) |
+| 6 | Tundra | cold | Boss 6 → Tundra boss material (Tier-5) |
+| 7 | Snowy Mountains | severe cold, altitude | Boss 7 → Snowy Mountains boss material (Tier-5) |
+| 8 | Volcanic | extreme heat, lava | Final boss → gates nothing (guaranteed Legendary item and trophy; re-summonable endgame content) |
+
+- Each of the 7 boss materials is a distinct item, even when two share a tier.
+- Each region has its own base temperature, comfort range, weather types, vegetation, ore types, enemies and loot item-level band.
+
+See [Combat and Loot](Combat-and-Loot.md) for bosses and [Survival](Survival.md) for temperature.
+
+## Day, night and weather
+
+- One in-game day lasts 30 real-time minutes (starting value, tunable).
+- Weather is chosen per region from its climate: clear, rain, storm, snow, sandstorm, ash fall.
+- Some enemies spawn only at night.
+- Tree regrowth, forage regrowth and loose pickup respawns run on in-game time, so time skipped by sleeping counts.
+
+## Digging, filling and mining
+
+### Shovel
+
+- Digs or fills terrain in a sphere of radius 0.5 m (starting value, tunable), bigger with higher tool tiers.
+- Digs only soft materials: soil, sand, gravel, snow, clay.
+- **Filling** uses one Soil, Sand, Gravel or Stone item per fill unit (the volume of a 0.5 m sphere, regardless of tool tier), rounded up. It places that material and marks it player-placed.
+- Filling is blocked where a player, enemy or building piece is standing, for those voxels only.
+
+### Pickaxe
+
+- Removes stone and ore in a sphere of radius 0.5 m, bigger with higher tool tiers.
+- Each material has a hardness and required tier. A lower-tier pickaxe cannot damage it (for example, a Tier-1 pickaxe cannot mine Tier-3 ore).
+
+### Yields
+
+- Removed terrain gives items per fill unit of volume (for example Stone voxels → Stone, Iron Ore voxels → Iron Ore). Mining skill raises the yield.
+- Partial yields build up per player per material, and you get an item each time the total reaches 1.
+- Player-placed voxels give exactly one item per fill unit, with no skill bonus and no Mining XP. Because filling rounds cost up and digging only gives whole items, fill-and-dig is never a net gain.
+- Ore never regrows.
+
+### Terrain rules
+
+- Liquids never flow. Digging next to a lake or lava pool leaves a dry hole.
+- Digging under a building piece or a tree leaves it in place.
+- Digging out ground under another player makes them fall and take fall damage.
+- Edits are shared with every player and saved with the world.
+
+## Trees
+
+- Each tree has health and a required axe tier.
+- Axe damage scales with axe tier, STR modifier and Woodcutting skill.
+- At 0 health the tree falls with physics, away from the player who landed the last hit. A falling log damages players and enemies it lands on, even with friendly fire off.
+- Chop the fallen log into Wood pickups. The stump can be dug out for extra wood.
+- A harvested tree regrows after 3 in-game days (starting value, tunable), unless someone placed a building piece or dug terrain within 3 m of it.
+
+## Forage and loose pickups
+
+- **Forage nodes:** berries, herbs, mushrooms and fiber plants. Harvest by interacting. They regrow on a timer. Fiber plants give Fiber.
+- **Loose Stick and Loose Stone:** on the ground in every region. Pick up by hand with interact, no tool needed, for one Stick or one Stone. They respawn at the same spot after a timer.
+
+Loose pickups and fiber are how a character with nothing starts crafting. See [Crafting and Jobs](Crafting-and-Jobs.md).
+
+## Hazards
+
+| Hazard | Where | Effect |
+|--------|-------|--------|
+| Poison Water | Swamp, Jungle | Each second of contact builds up Poison |
+| Poison Plant | Swamp, Jungle | Each second of contact builds up Poison |
+| Lava | Volcanic | Each second of contact deals Fire damage and builds up Burn |
+| Deep Snow | Tundra, Snowy Mountains (surface) | Movement speed −30% (starting value, tunable) |
+
+## Building
+
+- Hold a **Hammer** to open the build menu and place pieces: walls, floors, roofs, stairs, doors, windows, beams, fences.
+- Pieces come from Carpenter (wooden) and Mason (stone) recipes.
+- Crafting stations, station upgrade attachments, storage containers, beds, training dummies and other furniture are also building pieces.
+- Pieces snap to other pieces' snap points, or place freely on terrain when no snap point is in range.
+- There is **no structural integrity**. A piece never collapses from lack of support.
+- Each piece has health and a material tier (wood, stone, reinforced, etc.).
+- Only boss attacks, enemy area attacks and falling logs damage pieces. Player attacks, spells and area abilities never do, whatever the friendly-fire setting. Normal enemies do not target buildings, and there are no base raids.
+- A destroyed piece drops 50% of its materials (starting value, tunable).
+- A Hammer can deconstruct **any** piece, placed by any player, for a 100% refund.
+- Destroying or deconstructing a storage container drops its contents on the ground for anyone to take.
+- Building is blocked inside a boss arena and within 20 m of the world spawn point.
+
+## Source spec
+
+- [Voxel World](../../specs/voxel-world/voxel-world.md)
