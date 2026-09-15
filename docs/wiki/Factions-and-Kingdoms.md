@@ -22,6 +22,7 @@ The world holds six race kingdoms with towns, vendors and quest boards, plus two
 - Kingdom display names are placeholders for now.
 - Region monsters (the normal enemies of each region) belong to no faction and have no reputation.
 - Bandits, Beastmen and kingdom raiders count as Hostile enemies for every combat rule: XP, loot, gold, executions, perception. See [Combat and Loot](Combat-and-Loot.md).
+- Bandits and Beastmen fight each other, and region monsters fight both. Who fights whom is on [Enemies and AI](Enemies-and-AI.md).
 
 ## Reputation
 
@@ -78,7 +79,7 @@ Each town has a protected radius (tunable), measured flat from the town center, 
 
 | Role | What it does | Can be killed? |
 |------|--------------|----------------|
-| Guard | Attacks Hostile-tier players, raiders, and enemies inside the town. Fights back against anyone who hits it. | Yes, respawns after 1 in-game day |
+| Guard | Attacks Hostile-tier players, raiders, and region monsters, Bandits and Beastmen inside the town. Fights back against anyone who hits it. | Yes, respawns after 1 in-game day |
 | Vendor | Buys and sells items | No. It cowers when hit. |
 | Quest Giver | Turns in quests and offers the kingdom's questline (capital) | No. It cowers when hit. |
 | Citizen | Flees when hit | Yes, respawns after 1 in-game day |
@@ -87,7 +88,7 @@ Each town has a protected radius (tunable), measured flat from the town center, 
 (respawn time is a starting value, tunable)
 
 - NPCs stand at fixed posts in their town. They have no daily schedules.
-- NPCs fight with the same combat system as enemies, and enemies attack NPCs too. Guards use their own attack values, and NPC health and damage don't scale with the number of players.
+- NPCs fight with the same combat system as enemies. Region monsters, Bandits and Beastmen attack Guards and other NPCs; kingdom raiders attack only Guards. An NPC killed by an enemy costs nobody reputation. Guards use their own attack values, and NPC health and damage don't scale with the number of players.
 - Guards don't chase anyone beyond the town's protected radius.
 - Killing or hitting NPCs gives no XP, loot or gold.
 - Talk to an NPC or use a Quest Board with Interact. Each screen opens in your own viewport and does not pause the world.
@@ -97,7 +98,9 @@ Each town has a protected radius (tunable), measured flat from the town center, 
 - Bandit camps and Beastmen camps generate in every region (density set per region per faction).
 - Each camp has a camp radius (tunable). You can't build inside it, but you can still dig, fill and mine there.
 - Each camp has enemy spawn points and loot chests. Camp chests follow the normal chest rules: each player opens each chest once, and it never refills.
+- Camp enemies patrol, loot and fight around their camp, including against the other outlaw faction and region monsters.
 - A camp is **cleared** when every enemy spawned there is dead. It respawns its enemies 1 in-game day later (starting value, tunable). Every spawn point always refills, even with players or building pieces nearby.
+- If a camp enemy became a **Veteran**, the camp isn't cleared until that Veteran dies, and its spawn point doesn't refill while it lives. See [Enemies and AI](Enemies-and-AI.md).
 
 ## Gold
 
@@ -183,3 +186,4 @@ Example: with CHA modifier +2 and Honored tier, an item worth 100 costs 100 × 0
 ## Source spec
 
 - [Factions and Kingdoms](../../specs/factions-kingdoms/factions-kingdoms.md)
+- [Enemy AI](../../specs/enemy-ai/enemy-ai.md) (hostility, camp Veterans)

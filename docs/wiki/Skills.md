@@ -56,7 +56,7 @@ Hitting an enemy with a tool (axe, pickaxe, shovel or Hammer) gives no skill XP 
 | Stealth | Each second crouched, undetected, inside a hostile enemy's perception radius |
 
 - **Climbing:** any terrain or building surface steeper than 60° can be climbed by holding jump against it. Climbing drains stamina per second, and at 0 stamina you fall. Climb speed is covered in [Survival](Survival.md).
-- **Stealth:** each enemy has its own perception radius. Crouching halves it, and Stealth skill shrinks it further. A Hundari's Loud trait then makes the final radius 25% larger. "Undetected" means the enemy has not perceived or aggroed you. A Hostile enemy detects you when you are inside that radius and in its line of sight (see [Combat and Loot](Combat-and-Loot.md)).
+- **Stealth:** each enemy has its own perception radius. Crouching halves it, and Stealth skill shrinks it further. A Hundari's Loud trait then makes the final radius 25% larger. "Undetected" means the enemy has not detected or aggroed you. An enemy that is only investigating you hasn't detected you (see [Enemies and AI](Enemies-and-AI.md)). A Hostile enemy detects you when you are inside that radius and in its line of sight (see [Combat and Loot](Combat-and-Loot.md)).
 
 ## Magic schools
 

@@ -62,7 +62,8 @@ Two-handing state is not saved: every character loads holding its Right Hand wea
 | Time and weather | Current in-game time of day, the world's total elapsed in-game time, each region's current weather |
 | Terrain | Per-chunk edit deltas over the generated base, including each changed voxel's player-placed flag |
 | Building | Placed building pieces, including crafting stations with bound attachments and tier, storage containers with their contents, and doors with their open or closed state |
-| Pickups | Shared world pickups, including dropped gold (per-player loot actors are not saved) |
+| Pickups | Shared world pickups, including dropped gold, per-player loot that has converted into shared pickups (with each one's remaining despawn time), and the picked-up items and gold of every live non-Veteran enemy, written as pickups where it stands. Unconverted per-player loot actors are not saved. |
+| Veterans | One record per living Veteran: Veteran GUID, enemy row ID, faction, current level, XP, current health (saved without player-count scaling), equipped and carried items, gold, home position, name, title, kill counts, and camp and spawn point for a camp Veteran |
 | Gathering | Tree harvest states, forage timers, Loose Stick and Loose Stone collected states and respawn timers |
 | Respawn | Bed respawn points per character GUID |
 | Loot chests | Opened state per character GUID |
@@ -70,13 +71,16 @@ Two-handing state is not saved: every character loads holding its Right Hand wea
 | Towns | Town NPC respawn timers, Vendor stock quantities, Quest Board offers with each offer's accepted character GUID set |
 | Camps | Bandit and Beastmen camp per-spawn-point dead states, cleared state, respawn timer |
 
-Not saved: character positions (every world entry spawns at the bed or world spawn point); NPC health (living NPCs load at full health); escort NPCs; active raids. An autosave does not change an active raid, and when a world loads no raid is active and raiders from before the host exited are not restored. Pieces destroyed during a raid stay destroyed.
+Not saved: character positions (every world entry spawns at the bed or world spawn point); NPC health (living NPCs load at full health); escort NPCs; non-Veteran enemies; active raids. An autosave does not change an active raid, and when a world loads no raid is active and raiders from before the host exited are not restored. Pieces destroyed during a raid stay destroyed.
 
 ### Notes
 
 - Voxel resolution is written at world creation. Generation and edit-delta replay read it from the save, never from the tuning table.
 - When a chunk's edit delta list exceeds a size threshold, the server re-bakes it into a compressed full-chunk snapshot in the save.
 - Defeating a boss triggers a world save.
+- A killed Veteran is removed at once and never written again. A Veteran record whose enemy row no longer exists is skipped on load with a log entry and dropped from the next save, and a Veteran item whose definition no longer exists is skipped with a log entry.
+- On load, a Veteran whose home is inside a base area or a town's protected radius is re-homed to the nearest valid point outside it. A Veteran that led a raid when the host exited is saved at its home.
+- A world save during an enemy's pickup saves the item as still on the ground.
 
 ## `UNamecSettingsSave` contents
 
@@ -133,3 +137,4 @@ For remote players, the host sends the character payload on each autosave and a 
 - [Character Creation](../../specs/character-creation/character-creation.md) (Requirements 6, 13, 16, 24 and 28, Data Flow 3, Edge Cases 1, 2, 10 and 11)
 - [Factions and Kingdoms](../../specs/factions-kingdoms/factions-kingdoms.md) (Requirements 11, 19, 25, 28, 34, 37, 40, 48 and 59, Edge Case 1)
 - [Crafting Jobs](../../specs/crafting-jobs/crafting-jobs.md) (Requirement 11, Edge Case 9)
+- [Enemy AI](../../specs/enemy-ai/enemy-ai.md) (Requirements 20, 34, 46 and 53, Edge Cases 4, 6, 7, 8 and 18)

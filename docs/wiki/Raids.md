@@ -61,6 +61,13 @@ Raid chance = base chance + coefficient × base value + hostility factor of ever
 - **Size** (number of raiders) and **difficulty** (a level bonus on each raider) are rolled randomly within bands that grow with base value and with the region's order.
 - The level bonus raises raider health and damage, and the item level of their loot.
 - Normal player-count scaling applies on top.
+- Raiders can also gain levels during the raid, but never become Veterans.
+
+## Veteran raid leaders
+
+- When the source is Bandits or Beastmen and one of that faction's Veterans has its home within 300 m (starting value, tunable) of the base, the nearest one joins as **raid leader**, on top of the rolled raid size.
+- It keeps its own level, health and gear, and counts as a raider for how the raid ends.
+- After the raid it retreats with the others and later reappears at its home. If it dies, it's gone for good. See [Enemies and AI](Enemies-and-AI.md).
 
 ## Spawning
 
@@ -73,7 +80,8 @@ Raid chance = base chance + coefficient × base value + hostility factor of ever
 - When raiders spawn, the server takes a **snapshot** of the base's building pieces and its center. New pieces join the snapshot only if the base merges with another group during the raid.
 - Raiders go for the pieces in the snapshot first, including crafting stations, storage containers, beds and doors.
 - Raiders can't open doors. A closed door blocks their path, so they have to destroy it to get through.
-- A raider you hit turns on you, and returns to the base once you're Downed, dead or out of its sight range.
+- A raider you hit turns on you, and returns to the base once you're Downed, dead or out of its sight range. Enemies and Guards that hit a raider get the same treatment.
+- When nobody is attacking it, a raider can pick up items on the ground, including a destroyed chest's spilled contents.
 - Raider attacks damage building pieces. Normal enemies never do.
 - Destroyed containers drop their contents as shared pickups. A destroyed bed clears its respawn point. A destroyed station cancels its crafting queues.
 - Killing raiders gives normal loot, gold, kill XP and Hunt quest credit.
@@ -83,13 +91,14 @@ Raid chance = base chance + coefficient × base value + hostility factor of ever
 | Ending | What happens |
 |--------|--------------|
 | Every raider is dead | The raid ends |
-| 10 real-time minutes pass (starting value, tunable) | Survivors retreat and despawn |
+| 10 real-time minutes pass (starting value, tunable) | Survivors retreat and despawn, dropping any items they picked up where they vanish |
 | Every piece in the snapshot is destroyed | Survivors retreat and despawn |
 | No player within 100 m of the snapshot's base center | Survivors despawn at once |
 
 - Destroying the base's beds and crafting stations doesn't end the raid early. Raiders keep going for the rest of the snapshot.
 - A base has at most one raid at a time.
 - Nobody can sleep through a raid: "Cannot sleep — a raid is in progress".
+- A Veteran raid leader that survives keeps its items and goes home.
 - Raids are not saved. After loading a world no raid is running, but anything destroyed stays destroyed.
 
 ## Source specs
@@ -97,3 +106,4 @@ Raid chance = base chance + coefficient × base value + hostility factor of ever
 - [Factions and Kingdoms](../../specs/factions-kingdoms/factions-kingdoms.md) (Requirements 50–60)
 - [Voxel World](../../specs/voxel-world/voxel-world.md) (Requirements 11, 26 and 45)
 - [Combat and Loot](../../specs/combat-loot/combat-loot.md) (Requirement 43)
+- [Enemy AI](../../specs/enemy-ai/enemy-ai.md) (Requirements 10, 23, 33 and 52)

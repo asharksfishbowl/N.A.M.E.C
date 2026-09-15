@@ -6,7 +6,7 @@ Players create a character by choosing a name, one of six races, a sex, an appea
 ## Goals
 - Six races that look and play distinctly, with strengths balanced by downsides.
 - Character creation is fully usable with a gamepad inside one split-screen viewport.
-- Every wearable item renders correctly on every race and sex.
+- Every wearable item renders correctly on every race and sex, and on every humanoid enemy skeleton family (`specs/enemy-ai/enemy-ai.md` Requirement 31).
 - Appearance can be changed later without affecting progression.
 
 ## Non-Goals
@@ -75,9 +75,9 @@ Players create a character by choosing a name, one of six races, a sex, an appea
 17. Height and build sliders are cosmetic only. Collision capsule, reach, and movement speed are identical across all slider values within a race. Collision capsule size per race is defined in `DT_Character_Races` and is the same for both sexes.
 
 ### Equipment Fit
-18. Every wearable item (armor, clothing, bags, cloaks) must provide a visual variant for each of the 12 race × sex body combinations, using Mutable per `specs/engine-tech/engine-tech.md` Requirement 3. The Researcher records how each item's variants are authored as Mutable inputs in the roadmap. Characters and wearables are standard skeletal meshes, never Nanite (`specs/engine-tech/engine-tech.md` Requirement 4).
+18. Every wearable item (armor, clothing, bags, cloaks) must provide a visual variant for each of the 12 race × sex body combinations, using Mutable per `specs/engine-tech/engine-tech.md` Requirement 3. The Researcher records how each item's variants are authored as Mutable inputs in the roadmap. Characters and wearables are standard skeletal meshes, never Nanite (`specs/engine-tech/engine-tech.md` Requirement 4). Humanoid enemy skeleton families wear the same 12 body variants: each names one race × sex body in `DT_EnemyAI_SkeletonFamilies` (`specs/enemy-ai/enemy-ai.md` Requirements 26 and 31).
 19. Helmets and head armor define per-race visibility for ears, frills, crests, manes, and hair (Human hair style and Vanari head fur style, Requirement 15) (hide, show, or use a cutout mesh). Chest armor, leg armor, cloaks, and Back-slot items (bags) define tail visibility (show through, or hide).
-20. An editor data validator (Data Validation per `specs/engine-tech/engine-tech.md` Requirement 3) fails the content build when a wearable item is missing any of the 12 body variants, any Requirement 19 visibility setting for its slot (ear, frill, crest, mane, and hair visibility for head items; tail visibility for chest, leg, cloak, and Back-slot items), or, for hand armor, any of the 12 first-person variants (Requirement 21), or when any dye zone defined on the item (`specs/crafting-jobs/crafting-jobs.md` Requirement 20) is missing from the material mask of any of the 12 body variants or, for hand armor, any of the 12 first-person variants, so every dye zone works on every body variant.
+20. An editor data validator (Data Validation per `specs/engine-tech/engine-tech.md` Requirement 3) fails the content build when a wearable item is missing any of the 12 body variants, any Requirement 19 visibility setting for its slot (ear, frill, crest, mane, and hair visibility for head items; tail visibility for chest, leg, cloak, and Back-slot items), or, for hand armor, any of the 12 first-person variants (Requirement 21), or when any dye zone defined on the item (`specs/crafting-jobs/crafting-jobs.md` Requirement 20) is missing from the material mask of any of the 12 body variants or, for hand armor, any of the 12 first-person variants, so every dye zone works on every body variant. The same validator also fails the content build when a `DT_EnemyAI_SkeletonFamilies` row with the Humanoid flag set (`specs/enemy-ai/enemy-ai.md` Requirement 26) names a race ID and sex that is not one of the 12 body combinations, has an appearance preset with an option index outside that race and sex's range in `DT_Character_AppearanceOptions`, or has no IK Retargeter asset, so every wearable fits every humanoid enemy.
 21. First-person arms use the race and sex's first-person arm mesh with the equipped hand armor's first-person variant for that race × sex combination, rendered with First Person Rendering (an Evaluate-marked row with a fallback in `specs/engine-tech/engine-tech.md` Requirement 3).
 
 ### Mirror
@@ -138,6 +138,7 @@ Players create a character by choosing a name, one of six races, a sex, an appea
 - [ ] Changing race on step 1 resets appearance to that race's default preset.
 - [ ] A content build with a chest armor item missing its Felari female variant fails validation.
 - [ ] A content build with a chest armor item whose Trim dye zone is missing from its Ursan male variant's material mask fails validation.
+- [ ] A content build with a humanoid `DT_EnemyAI_SkeletonFamilies` row that names no valid race × sex body, or has no IK Retargeter asset, fails validation.
 - [ ] Changing appearance at a Mirror updates the character on every connected client, and the change survives save → quit → load.
 - [ ] A Mirror cannot change race, sex, or name.
 - [ ] A newly created character holds exactly a Plain Shirt equipped in Chest and Plain Trousers equipped in Legs, each with 0 Armor, 0 Insulation, and 2 dye zones, neither can be sold to a Vendor, and the "starting clothes" preview outfit shows those two items.
@@ -152,7 +153,7 @@ Players create a character by choosing a name, one of six races, a sex, an appea
 - `Source/NAMEC/UI/OnScreenKeyboard/NamecOnScreenKeyboardWidget.h` — new; per-viewport gamepad on-screen keyboard for name entry, used through `INamecPlatform` (Requirement 5).
 - `Source/NAMEC/Character/Races/NamecNightEyesComponent.h` — new; owning-viewport night vision post-process, night and underground activation, Settings toggle read from the local player slot's section of `UNamecSettingsSave` (Requirement 13).
 - `Source/NAMEC/Character/Races/Abilities/` — new; `GA_Race_SecondWind`, `GA_Race_Pounce`, `GA_Race_RallyHowl`, `GA_Race_ShedSkin`, `GA_Race_SwingLeap`, `GA_Race_MaulingRoar`.
-- `Source/NAMECEditor/NamecWearableVariantValidator.h` — new; editor-only module `NAMECEditor`; data validator for 12 body variants, Requirement 19 visibility settings, 12 first-person hand armor variants, and dye zone masks on every variant (Requirement 20).
+- `Source/NAMECEditor/NamecWearableVariantValidator.h` — new; editor-only module `NAMECEditor`; data validator for 12 body variants, Requirement 19 visibility settings, 12 first-person hand armor variants, dye zone masks on every variant, and humanoid `DT_EnemyAI_SkeletonFamilies` rows (body race and sex, appearance preset, IK Retargeter asset) (Requirement 20).
 - `Source/NAMEC/World/Building/NamecMirrorPiece.h` — new; Mirror build piece that opens the appearance editor.
 - `Content/Character/Mutable/` — new; Mutable Customizable Object assets for the six race bodies, appearance options, the 12 body variants of every wearable (including the Plain Shirt and Plain Trousers, Requirement 28), and materials that keep each dye zone's mask channel as a runtime material parameter (Requirements 15–18; `specs/crafting-jobs/crafting-jobs.md` Requirement 20).
 - `Content/Character/Races/Effects/` — new; passive and downside gameplay effects for all six races.

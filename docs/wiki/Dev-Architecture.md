@@ -14,7 +14,7 @@ This page covers the engine and GAS approach, module layout, the C++ vs Blueprin
 ## Gameplay Ability System (GAS)
 
 - Stats, abilities, damage and status effects are built on GAS.
-- Each character owns one `UAbilitySystemComponent`. Each enemy also owns one, with `UNamecEnemyAttributeSet`.
+- Each character owns one `UAbilitySystemComponent`. Each enemy also owns one, with `UNamecEnemyAttributeSet` (Health, MaxHealth, Poise, MaxPoise, Armor, resistances; Armor and extra resistances and Poise come from items a humanoid enemy has equipped).
 - Player attributes are split across two sets:
   - `UNamecAttributeSet`: STR, DEX, CON, INT, WIS, CHA, Health, MaxHealth, HealthRegen, Mana, MaxMana, ManaRegen, MaxCarryWeight, MaxEquipLoad, Poise, MaxPoise, Armor, StatusResistance, and SlashResistance, PierceResistance, BluntResistance, FireResistance, FrostResistance, LightningResistance, PoisonResistance, HolyResistance, ShadowResistance.
   - `UNamecSurvivalAttributeSet`: Hunger, Thirst, BodyTemperature, Fatigue, Stamina, MaxStamina, StaminaRegen, Breath.
@@ -41,9 +41,15 @@ This page covers the engine and GAS approach, module layout, the C++ vs Blueprin
 
 ## Module folder layout
 
-`Source/NAMEC/` has these subfolders: `Core/`, `Character/`, `Progression/`, `Crafting/`, `Survival/`, `World/`, `Combat/`, `Loot/`, `Inventory/`, `Multiplayer/`, `Factions/`, `UI/`, `Save/`.
+`Source/NAMEC/` has these subfolders: `Core/`, `Character/`, `Progression/`, `Crafting/`, `Survival/`, `World/`, `Combat/`, `Loot/`, `Inventory/`, `Multiplayer/`, `Factions/`, `EnemyAI/`, `UI/`, `Save/`.
 
 Editor-only code (data validators) lives in a separate editor module, `Source/NAMECEditor/`.
+
+## Enemy AI
+
+- Every enemy and town NPC runs its row's StateTree **on the host only**. Clients get replicated movement, animation, AI state, level, Veteran name and title, and equipped gear visuals.
+- States: Idle/Patrol, Investigate, Combat, Loot, Flee, Return, Raid. AI LOD uses StateTree scheduled ticking and a slower perception interval beyond 50 m from every player (starting value), and nothing simulates in unstreamed chunks.
+- Hostility between groups comes from the `DT_EnemyAI_Hostility` matrix. Enemies pick up lootable shared world pickups through Smart Object claims, humanoid enemies equip by Item Score, and Veterans are saved by `UNamecVeteranSubsystem`. See [Enemies and AI](Enemies-and-AI.md).
 
 ## Platform abstraction
 
@@ -159,8 +165,8 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 | `NamecExecutionComponent.h` | Execution candidate detection, owning-viewport prompt, server validation, invulnerability, rewards |
 | `NamecExecutionCamera.h` | Third-person execution camera used for first-person executions |
 | `NamecDownedComponent.h` | Downed state, bleed-out, revive interaction |
-| `AI/NamecEnemyBase.h` | Enemy base character with threat table, taunt forced-target handling, and perception detection |
-| `AI/NamecEnemyAttributeSet.h` | Enemy GAS attributes (Health, MaxHealth, Poise, MaxPoise, resistances) |
+| `AI/NamecEnemyBase.h` | Enemy base character with threat table, taunt forced-target handling, and perception detection; hosts the enemy AI, loot, equipment and progression components |
+| `AI/NamecEnemyAttributeSet.h` | Enemy GAS attributes (Health, MaxHealth, Poise, MaxPoise, Armor, resistances) |
 | `AI/NamecBossBase.h` | Boss base with phases, arena barrier, summon |
 
 ### `Source/NAMEC/Loot/`
@@ -169,7 +175,7 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 |------|---------|
 | `NamecLootSubsystem.h` | Per-player drop rolling, including jewelry rolling Magic or above |
 | `NamecItemInstance.h` | Item instance with rarity, affixes, durability (none for jewelry), item level, dye colors, consumable potency value, rune tier, waterskin remaining drinks |
-| `NamecLootPickup.h` | Per-player pickup actor (owner-only relevance, rendering and pickup), shared world pickup mode, and gold amount |
+| `NamecLootPickup.h` | Per-player pickup actor (owner-only relevance, rendering and pickup), shared world pickup mode, gold amount, lootable flag and Smart Object slot, and conversion of per-player loot into shared pickups after 2 real-time minutes |
 | `NamecLootChest.h` | Generated loot chest with per-character-GUID opened state and per-player rolls |
 
 ### `Source/NAMEC/Inventory/`
@@ -207,6 +213,18 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 | `NamecCampActor.h` | Bandit and Beastmen camp spawn points, cleared state, respawn timer |
 | `NamecRaidSubsystem.h` | Base detection, base value, real-time raid roll clock and roll, raider source and band selection, spawning, the raid's building piece snapshot and merges, retreat and end |
 
+### `Source/NAMEC/EnemyAI/`
+
+| File | Purpose |
+|------|---------|
+| `NamecEnemyAIComponent.h` | StateTree host, home position, home radius and leash, the seven AI states, replicated AI state, AI LOD perception intervals |
+| `NamecHostilityQuery.h` | Hostility group lookup, `DT_EnemyAI_Hostility` cell lookup, hostile-target and damage filter |
+| `NamecEnemyLootComponent.h` | Lootable pickup perception, Smart Object claims, pickup requests, carried items and gold, drops on death, despawn and world save |
+| `NamecEnemyEquipmentComponent.h` | Humanoid equipment slots, Item Score, equip decision, attribute changes, Mutable-built equipped visuals |
+| `NamecEnemyProgressionComponent.h` | Enemy XP sources, gained levels, per-level multipliers, current level, level-up event, name plate data |
+| `NamecVeteranSubsystem.h` | Veteran promotion, caps, names and titles, records and save/load, home spawning and home validity, camp Veterans, raid leader selection |
+| `StateTree/` | StateTree tasks, conditions and evaluators for the AI states |
+
 ### `Source/NAMEC/Save/`
 
 | File | Purpose |
@@ -228,6 +246,7 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 | `GuardCaptain/` | Guard Captain fine screen |
 | `Quests/` | Quest board screen, quest giver screen, Quests tab with Reputation section, HUD quest tracker |
 | `HUD/NamecExecutionPromptWidget.h` | Per-viewport execution prompt |
+| `HUD/NamecEnemyNamePlateWidget.h` | Per-viewport enemy name plate with level, and Veteran name and title |
 | `Lobby/` | Join LAN Game list, character select per local player |
 | `Settings/InputRemapScreen/` | Per-local-player binding remap screen, saving to that local player slot's section of the settings save |
 | `OnScreenKeyboard/NamecOnScreenKeyboardWidget.h` | Per-viewport gamepad on-screen keyboard for name entry, used through `INamecPlatform` |
@@ -236,7 +255,8 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 
 | File | Purpose |
 |------|---------|
-| `NamecWearableVariantValidator.h` | Data validator: fails the content build when a wearable item is missing any of the 12 race × sex body variants, a required ear/frill/crest/mane/hair or tail visibility setting, or (hand armor) any of the 12 first-person variants, or when a defined dye zone is missing from any variant's material mask |
+| `NamecWearableVariantValidator.h` | Data validator: fails the content build when a wearable item is missing any of the 12 race × sex body variants, a required ear/frill/crest/mane/hair or tail visibility setting, or (hand armor) any of the 12 first-person variants, or when a defined dye zone is missing from any variant's material mask, or when a humanoid `DT_EnemyAI_SkeletonFamilies` row has no valid race × sex body, an out-of-range appearance preset, or no IK Retargeter asset |
+| `NamecHostilityValidator.h` | Data validator: fails the content build when `DT_EnemyAI_Hostility` is missing a group, is not symmetric for Hostile cells between fighting groups, or misuses Flee, Reputation or the Town NPC row |
 | `NamecVendorStockValidator.h` | Data validator: fails the content build when a `DT_Factions_VendorStock` row names a boss material |
 | `NamecCampEnemyValidator.h` | Data validator: fails the content build when a Bandits or Beastmen camp density above 0 has no matching enemy row for that region |
 | `NamecNaniteAuthoringValidator.h` | Data validator: fails the content build when a Nanite mesh uses translucency, Lighting Channels, unclamped WPO or Nanite Tessellation |
@@ -256,9 +276,10 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 | `Content/Character/Mutable/` | Mutable assets for race bodies, appearance options, the 12 body variants of every wearable, and materials that keep dye zones as runtime parameters |
 | `Content/AI/Enemies/` | StateTree assets for enemies, bosses, Bandits, Beastmen and raiders |
 | `Content/AI/TownNPCs/` | StateTree and Smart Object assets for town and escort NPCs |
+| `Content/AI/SmartObjects/` | Smart Object definition for lootable pickups |
 | `Content/World/PCG/` | Runtime seeded PCG graphs for placement |
 | `Content/Maps/Benchmark/L_Benchmark_SplitScreen.umap` | Benchmark milestone scene |
 
 ## Source specs
 
-- [Game Foundation](../../specs/game-foundation/game-foundation.md), [Engine Tech](../../specs/engine-tech/engine-tech.md), and the Key Files section of every system spec (see [Specs and Pipeline](Dev-Specs-and-Pipeline.md))
+- [Game Foundation](../../specs/game-foundation/game-foundation.md), [Engine Tech](../../specs/engine-tech/engine-tech.md), [Enemy AI](../../specs/enemy-ai/enemy-ai.md), and the Key Files section of every system spec (see [Specs and Pipeline](Dev-Specs-and-Pipeline.md))

@@ -20,6 +20,7 @@ The wiki is a readable summary. The specs in `specs/` are authoritative (see [Sp
 - [Survival](Survival.md): hunger, thirst, temperature, stamina, fatigue, sleep, breath
 - [World and Building](World-and-Building.md): world generation, 8 regions, terrain editing and dig depth, towns and camps, gathering, hazards, building
 - [Combat and Loot](Combat-and-Loot.md): Souls-style combat, executions, downed and death, enemies, bosses, loot
+- [Enemies and AI](Enemies-and-AI.md): enemy behaviour, who fights whom, enemies looting and wearing gear, enemy levels, Veterans
 - [Inventory](Inventory.md): weight, equip load, slots, gold, dyes, favorites, hotkeys, containers
 - [Factions and Kingdoms](Factions-and-Kingdoms.md): factions, reputation, kingdoms and towns, NPCs, camps, gold and vendors, quests
 - [Raids](Raids.md): what counts as a base, raid chance, raiders, how raids end, the Raids setting

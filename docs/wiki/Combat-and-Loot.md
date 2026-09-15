@@ -2,6 +2,8 @@
 
 This page covers Souls-style combat, heavy attacks, block and parry sources, dual-wielding, torch bashes, bows and arrows, two-handing, tool hits on enemies, executions, damage types and status effects, fall damage, downed/revive/death, enemies and factions, town NPCs and raiders, perception and taunts, scaling, bosses and summoning, per-player loot and gold, rarity and affixes, chests, and durability.
 
+Enemy behaviour, enemies fighting each other, enemies picking up and wearing loot, enemy levels and Veterans are on [Enemies and AI](Enemies-and-AI.md).
+
 ← [Home](Home.md)
 
 Combat is deliberate: stamina-gated attacks, dodge rolls, blocking, parrying and lock-on. Hits are physical, decided by weapon hitboxes during attack animations (or, for bows, by server-side projectiles), not dice rolls. There is no PvP and no mounted combat.
@@ -104,7 +106,7 @@ An execution is a finishing move on a weakened enemy.
 
 **When the prompt appears** (only in your own viewport):
 
-- The enemy is a Hostile enemy (including Bandits, Beastmen and raiders). Never a Boss, Wildlife or town NPC.
+- The enemy is a Hostile enemy (including Bandits, Beastmen, raiders and Veterans). Never a Boss, Wildlife or town NPC.
 - It is within 2.5 m and in front of you (starting value, tunable).
 - It is below 20% health (starting value, tunable), **or** it is in the riposte window after **your** parry.
 - You aren't Downed, already executing, in the air, climbing or swimming, and you have no menu or interaction screen open (any menu or screen counts, for example the inventory, pause menu, build menu, a crafting station, a vendor, or the Guard Captain's fine screen).
@@ -134,6 +136,7 @@ An execution is a finishing move on a weakened enemy.
 - Players and enemies have Poise. Hits deal poise damage. At 0 Poise the target staggers.
 - Poise regenerates after 3 seconds (starting value, tunable) without taking hits.
 - A player's max Poise = a base value + the Poise of every equipped armor piece.
+- An enemy's max Poise = its own poise (×1.05 per gained level) + the Poise of armor it has equipped.
 - Poise damage comes from:
   - the weapon (or the unarmed profile) for weapon hits, ×2.0 for a heavy attack (starting value, tunable)
   - each class ability's own poise damage
@@ -170,8 +173,13 @@ Damage = (WeaponBase + StatScaling + AffixFlat)
 Incoming enemy damage:
 
 ```
-IncomingDamage = EnemyDamage × PlayerScaling × (1 − TargetResistance) × (1 − BlockPercent)
+IncomingDamage = (EnemyDamage + EquippedWeaponBase) × LevelDamageMultiplier
+               × PlayerScaling × (1 − TargetResistance) × (1 − BlockPercent)
 ```
+
+- **EquippedWeaponBase:** the base damage of a weapon a humanoid enemy has picked up and equipped, added to its weapon attacks (which then deal that weapon's damage type). Otherwise 0.
+- **LevelDamageMultiplier:** ×1.05 per level the enemy has gained (starting value, tunable). See [Enemies and AI](Enemies-and-AI.md).
+- Enemies hitting other enemies or town NPCs use the same formula with no block.
 
 - Enemy and Guard attacks never deal critical damage.
 - Class ability healing has no Weakened penalty.
@@ -188,7 +196,7 @@ IncomingDamage = EnemyDamage × PlayerScaling × (1 − TargetResistance) × (1 
 - Players have an Armor value plus one resistance per damage type. Equipped items (and resistance affixes) add to them.
 - Against Slash, Pierce or Blunt: resistance = Armor ÷ (Armor + 100) + the matching subtype resistance. The constant 100 is a starting value, tunable.
 - Against other types: the matching resistance only.
-- Enemies have per-type resistances but no Armor.
+- Enemies have per-type resistances. Their Armor is 0 unless they've equipped armor they picked up, and then the same formula applies.
 - Resistance is capped at 90%.
 
 ### Status effects
@@ -245,13 +253,14 @@ A world setting, off by default. When off, player attacks, spells and area effec
 
 | Category | Behaviour |
 |----------|-----------|
-| Hostile | Attacks players. Drops loot, gold and boss offerings. Includes Bandits, Beastmen and kingdom raiders. |
-| Wildlife | Never attacks, flees when damaged. Gives no weapon or magic XP. Can be skinned. |
+| Hostile | Attacks players, and other groups it's hostile to. Drops loot, gold and boss offerings. Includes Bandits, Beastmen, kingdom raiders and Veterans. Picks up loot and gains levels. |
+| Wildlife | Never attacks, flees from any player, enemy or NPC it notices or that hurts it. Gives no weapon or magic XP. Can be skinned. |
 | Boss | One per region, summoned at an arena altar. |
 
 - Each enemy has a category, a faction (none, Bandits, Beastmen or a kingdom), a skeleton type, a level, health, poise, resistances, damage, attacks, perception radius, loot table, optional hunting yield, region and XP rewards.
 - Region monsters (Hostile and Wildlife rows with faction none) spawn from their region's list, filtered by time of day. Bosses never spawn this way: they appear only when summoned at their arena altar. Spawn density and the maximum live enemies per streamed chunk are set per region.
 - Bandits and Beastmen spawn only at their camps and in raids. Kingdom raiders spawn only in raids. See [Factions and Kingdoms](Factions-and-Kingdoms.md) and [Raids](Raids.md).
+- Newly spawned enemies start at their normal level with nothing picked up. Veterans reappear from the world save instead of spawning.
 - Enemies never spawn within 25 m of a placed building piece, within 40 m of a player (starting values, tunable), or inside a town's protected radius. Raiders ignore the building-piece rule but keep the 40 m rule. Camp spawn points ignore both rules, so camps always refill.
 
 ### Town NPCs
@@ -260,25 +269,26 @@ A world setting, off by default. When off, player attacks, spells and area effec
 - Your attacks always hurt them, whatever the friendly-fire setting, and cost reputation.
 - Lock-on can target a Guard that is attacking you.
 - Guard attacks use the Guard's own attack values, and town NPCs (including escort NPCs) don't get player-count scaling.
-- Hostile enemies attack town NPCs and escort NPCs just like players.
+- Region monsters, Bandits and Beastmen attack Guards, town NPCs and escort NPCs just like players. Kingdom raiders attack Guards but leave other town NPCs alone. See [Enemies and AI](Enemies-and-AI.md).
 
 ### Raiders
 
 - Raiders go for the pieces in the raid's snapshot of the base first (including stations, containers and beds), moving to the next nearest piece when one is destroyed. See [Raids](Raids.md).
-- A raider you damage turns on you, and goes back to the base once you're Downed, dead or out of its perception radius. Taunts work as usual.
+- A raider you damage turns on you, and goes back to the base once you're Downed, dead or out of its perception radius. An enemy or Guard that damages a raider gets the same treatment. Taunts work as usual.
 - Only raiders attack building pieces. Normal enemies never do.
 
 ### Perception and aggro
 
-- A Hostile enemy notices and attacks a player who is inside its perception radius **and** in its line of sight.
+- A Hostile enemy notices and attacks a player, or anything else it's hostile to, that is inside its perception radius **and** in its line of sight. Something in range but out of sight, or in sight just outside range, makes it investigate instead.
 - Each enemy has its own perception radius. How the radius is worked out:
   1. Crouching halves it.
   2. Stealth skill shrinks it further (see [Skills](Skills.md)).
   3. A Hundari's Loud trait then makes the final radius 25% larger.
+- These modifiers only apply to players. Against other enemies and NPCs, the plain radius is used.
 
 ### Threat and taunts
 
-- Enemies target the player with the highest threat, built from damage dealt, healing done and taunt abilities.
+- Enemies target whatever has the highest threat, built from being detected, damage dealt, healing done and taunt abilities.
 - A **taunt** forces the enemy to target the taunting player for its duration. When it ends, the enemy goes back to normal threat targeting.
 - Ursan Mauling Roar taunts Hostile enemies for 6 seconds and Bosses for 3 seconds (starting values, tunable).
 
@@ -323,8 +333,8 @@ Any boss can be re-summoned for more loot with a new offering.
 - When an enemy dies, each eligible player gets their own independently rolled drops, visible and pickable only by them. Split-screen players on the same machine can't see each other's drops either.
 - **Eligible:** within 50 m (starting value, tunable) of the enemy when it dies, or dealt damage to it. For bosses, only players inside the barrier.
 - Every eligible player also gets the enemy's full kill XP.
-- Unclaimed drops disappear after 10 minutes.
-- Items you drop from your inventory become shared pickups anyone can see and take. This is how players share items. There is no trade screen.
+- Drops left unclaimed for **2 real-time minutes** (starting value, tunable) turn into shared pickups that everyone can see and take, and enemies can pick up. They disappear 10 minutes after the original drop. See [Enemies and AI](Enemies-and-AI.md).
+- Items you drop from your inventory become shared pickups anyone can see and take. This is how players share items. There is no trade screen. Enemies can pick them up too.
 - **Gold:** each Hostile enemy (and each chest type) has a gold range. Each eligible player rolls their own gold, which comes in their own drop. Wildlife and bosses drop no gold. Gold dropped with Drop Gold becomes a shared pickup. See [Factions and Kingdoms](Factions-and-Kingdoms.md).
 - If you execute an enemy, you are always eligible for its kill.
 
@@ -346,7 +356,7 @@ Any boss can be re-summoned for more loot with a new offering.
 
 - Rarity odds depend on the item-level band and are improved by Magic Find affixes.
 - **Jewelry** (rings and amulets) dropped by enemies or found in chests never rolls Common, so it always has at least 1 affix. Jewelry has no base stats, only affixes. See [Inventory](Inventory.md).
-- **Item level:** the enemy's level, or for a chest a random level within its region's band (rolled per player), or the crafted item level.
+- **Item level:** the enemy's current level (including levels it has gained), or for a chest a random level within its region's band (rolled per player), or the crafted item level.
 - Affix values scale with item level. No affix appears twice on one item.
 - Affix examples: +STR/DEX/CON/INT/WIS/CHA, +% damage of a type, +resistance, +max health, +stamina regen, +Insulation/Cooling, +skill XP gain for a skill, +Magic Find, life on hit.
 
@@ -363,3 +373,4 @@ Any boss can be re-summoned for more loot with a new offering.
 - [Character Progression](../../specs/character-progression/character-progression.md) (weapon categories and their skills)
 - [Inventory](../../specs/inventory/inventory.md) (jewelry)
 - [Factions and Kingdoms](../../specs/factions-kingdoms/factions-kingdoms.md) (factions, town NPCs, gold, raids)
+- [Enemy AI](../../specs/enemy-ai/enemy-ai.md) (enemy behaviour, hostility, loot pickup, enemy levels, Veterans)

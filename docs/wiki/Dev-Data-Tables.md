@@ -8,7 +8,7 @@ This page lists every `DT_*` DataTable named in the specs, grouped by system, wi
 
 - All tables live in `Content/Data/` and are named `DT_<System>_<Purpose>`.
 - Every numeric balance value is a starting value in a table and is editable without a C++ rebuild.
-- Each system has a catch-all rules table: a value the specs mark "tuning value" without naming a table lives in that system's rules table (`DT_Character_Races`, `DT_Progression_Rules`, `DT_Crafting_Rules`, `DT_Survival_Penalties`, `DT_World_Building`, `DT_Combat_Rules`, `DT_Inventory_Rules`, `DT_MP_Session`, `DT_Factions_Rules`, `DT_Engine_Benchmark`).
+- Each system has a catch-all rules table: a value the specs mark "tuning value" without naming a table lives in that system's rules table (`DT_Character_Races`, `DT_Progression_Rules`, `DT_Crafting_Rules`, `DT_Survival_Penalties`, `DT_World_Building`, `DT_Combat_Rules`, `DT_Inventory_Rules`, `DT_MP_Session`, `DT_Factions_Rules`, `DT_Engine_Benchmark`, `DT_EnemyAI_Rules`).
 - Per-item values (weight, `Value`, dye zones, quest item flag, damage, `ArrowDamage` for arrows, insulation, armor category, `Poise`, `PoiseDamage`, bag bonus, food/drink restore values, block percentage, stat requirements, scaling stat and grade) are on item definition data assets, not DataTables.
 - "Columns mentioned" lists only what the specs name. Tables will have more once implemented.
 
@@ -81,12 +81,12 @@ This page lists every `DT_*` DataTable named in the specs, grouped by system, wi
 
 | Table | Purpose | Columns / values mentioned |
 |-------|---------|----------------------------|
-| `DT_Combat_Enemies` | Enemy rows | Category (`Hostile`, `Wildlife`, `Boss`), Faction (`None`, `Bandits`, `Beastmen` or a kingdom), skeleton family, level, health, poise, resistances, damage, attack set (per attack: damage, damage type, `PoiseDamage`), perception radius, loot table ID, Hunting yield (optional), region, KillXP, FirstKillXP (Boss rows only), AI StateTree asset |
+| `DT_Combat_Enemies` | Enemy rows | Category (`Hostile`, `Wildlife`, `Boss`), Faction (`None`, `Bandits`, `Beastmen` or a kingdom), skeleton family (a `DT_EnemyAI_SkeletonFamilies` row), level, health, poise, resistances, damage, attack set (per attack: damage, damage type, `PoiseDamage`, `UsesWeapon` flag), perception radius, FleeHealthThreshold (optional), loot table ID, Hunting yield (optional), region, KillXP, FirstKillXP (Boss rows only), AI StateTree asset |
 | `DT_Combat_Movement` | Dodge tuning | I-frame window and roll recovery per equip load tier (Light / Medium / Heavy) |
 | `DT_Combat_StatusEffects` | Status effects | Buildup and duration for Poison, Bleed, Burn, Frostbite; Poison buildup for drinking Poison water, Poison Water/Poison Plant contact, Lava Burn buildup, torch bash Burn buildup |
 | `DT_Combat_Spawning` | Enemy spawning | Spawn density and max live enemies per streamed chunk, by region |
 | `DT_Combat_PlayerScaling` | Player-count scaling | Health (+60% per extra player), damage (+10% per extra player) |
-| `DT_Combat_Rules` | Combat tuning | Bleed-out (30 s, 1 s per 1% max health), revive (4 s, 2 m, 30% health), Revivify range (15 m), respawn (5 s, 50% Hunger/Thirst, Weakened 5 min, −20% damage, −20% max stamina, −10% durability), lock-on range (20 m), poise regen delay (3 s), loot eligibility (50 m), loot despawn (10 min), repair cost (25%), requirement penalty (0.5), crit multiplier (player ripostes only), TwoHandingMultiplier (×1.25), two-handing STR contribution multiplier (×1.5), QuickShotDamageMultiplier (×0.5), ToolEnemyDamageMultiplier (×0.5), HeavyAttackDamageMultiplier (×1.6), HeavyAttackPoiseMultiplier (×2.0), EmptyOffHandBlockMultiplier (×0.5), BlockPoiseMultiplier (×0.5), Unarmed weapon profile (WeaponBase, STR scaling, One-Handed skill, `PoiseDamage`), ArmorConstant (100), resistance cap (0.9), spawn exclusion (25 m from buildings, 40 m from players), minimum fall height and fall damage per meter, execution range (2.5 m), forward execution angle, execution health threshold (20%), execution stamina restore (20%), execution skill XP multiplier (×3) |
+| `DT_Combat_Rules` | Combat tuning | Bleed-out (30 s, 1 s per 1% max health), revive (4 s, 2 m, 30% health), Revivify range (15 m), respawn (5 s, 50% Hunger/Thirst, Weakened 5 min, −20% damage, −20% max stamina, −10% durability), lock-on range (20 m), poise regen delay (3 s), loot eligibility (50 m), converted loot despawn (10 min after the original drop), repair cost (25%), requirement penalty (0.5), crit multiplier (player ripostes only), TwoHandingMultiplier (×1.25), two-handing STR contribution multiplier (×1.5), QuickShotDamageMultiplier (×0.5), ToolEnemyDamageMultiplier (×0.5), HeavyAttackDamageMultiplier (×1.6), HeavyAttackPoiseMultiplier (×2.0), EmptyOffHandBlockMultiplier (×0.5), BlockPoiseMultiplier (×0.5), Unarmed weapon profile (WeaponBase, STR scaling, One-Handed skill, `PoiseDamage`), ArmorConstant (100), resistance cap (0.9), spawn exclusion (25 m from buildings, 40 m from players), minimum fall height and fall damage per meter, execution range (2.5 m), forward execution angle, execution health threshold (20%), execution stamina restore (20%), execution skill XP multiplier (×3) |
 | `DT_Combat_Executions` | Execution animations | Paired attacker and victim animation sets keyed by weapon category (with an Unarmed set) and skeleton family, plus a generic set per skeleton family |
 | `DT_Loot_RarityWeights` | Rarity odds | Weights by item-level band, for drops and crafts (dropped jewelry excludes the Common weight; crafted Plain jewelry skips the roll) |
 | `DT_Loot_Affixes` | Affix pools | Per-slot affix pools, value ranges by item level, Legendary unique powers (excluded from slots where invalid) |
@@ -124,9 +124,22 @@ All numbers above are starting values, tunable.
 
 | Table | Purpose | Columns / values mentioned |
 |-------|---------|----------------------------|
-| `DT_Engine_Benchmark` | Benchmark milestone run | Run length (120 s), per-character dig/fill interval (2 s), building piece count (200), pieces destroyed in the Chaos replication evaluation (50) |
+| `DT_Engine_Benchmark` | Benchmark milestone run | Run length (120 s), per-character dig/fill interval (2 s), building piece count (200), AI enemy count (30) and humanoid enemy count (10), pieces destroyed in the Chaos replication evaluation (50) |
 
 All numbers above are starting values, tunable. See [Engine and Rendering](Dev-Engine-and-Rendering.md).
+
+## Enemy AI (enemy-ai)
+
+| Table | Purpose | Columns / values mentioned |
+|-------|---------|----------------------------|
+| `DT_EnemyAI_Hostility` | Hostility matrix | One row per AI group (Region Monster, Wildlife, Boss, Bandits, Beastmen, Kingdom Raider, Guard, Town NPC) and one column per group including Player; each cell `Hostile`, `Neutral`, `Flee` or `Reputation` |
+| `DT_EnemyAI_SkeletonFamilies` | Skeleton families | Family ID, Humanoid flag; for humanoid rows: body race ID and sex (one of the 12 bodies), appearance preset, IK Retargeter asset |
+| `DT_EnemyAI_ItemScore` | Item Score weights | WeaponBaseWeight (1.0), ArmorWeight (1.0), ResistanceWeight (100), AffixWeight per affix type (1.0), LegendaryPowerScore (25) |
+| `DT_EnemyAI_XP` | Enemy XP and levels | Down a player (50), kill a player (100), kill a town NPC (40), hostile enemy kill factor (×0.5 of the victim's KillXP), survival XP (5 per real-time minute), XP per gained level (100 × level), HealthPerLevel (×1.10), DamagePerLevel (×1.05), PoisePerLevel (×1.05) |
+| `DT_EnemyAI_Names` | Veteran names and titles | Name lists per faction (Bandits, Beastmen) and per skeleton family (Faction None), title lists per XP source (Players, Town NPCs, Enemies, Survival); placeholder content |
+| `DT_EnemyAI_Rules` | Enemy AI tuning | Home radius (15 m), leash distance (40 m), Veteran roam multiplier (×3), patrol wait (8–20 s), investigate multiplier (×1.5) and timeout (10 s), detection threat (1), target loss time (5 s), flee calm time (8 s), return timeout (30 s), AI LOD distance (50 m) and perception intervals (0.2 s / 1.0 s), loot conversion time (2 real-time minutes), loot radius (12 m), pickup reach (1.5 m) and montage (1 s), gained-level cap (10), KillXP per gained level (+10%), name plate distance (15 m), Veteran threshold (3 gained levels), caps (5 per region, 20 per world), Veteran bonus KillXP (×1.0) and minimum rarity (Rare), raid leader range (300 m) |
+
+All numbers above are starting values, tunable. See [Enemies and AI](Enemies-and-AI.md).
 
 ## Source specs
 

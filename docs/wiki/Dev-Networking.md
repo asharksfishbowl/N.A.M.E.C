@@ -8,6 +8,7 @@ This page covers listen-server authority, the host/find/join session flow, chara
 
 - The session is a **listen server** on the host machine using Unreal's legacy replication (Iris is only being evaluated; see [Engine and Rendering](Dev-Engine-and-Rendering.md)). In pure split-screen play the host is the only machine.
 - All gameplay state is server-authoritative: terrain edits, combat, loot rolls, crafting, progression XP.
+- **AI runs only on the host.** StateTrees, perception, threat, enemy loot and equip decisions, enemy XP and Veteran promotion never run on clients. Clients receive movement, montages, the current AI state, enemy level, Veteran name and title, equipped gear visuals with dye colors, and the level-up event. Enemy name plates render per viewport.
 - Bow projectiles are spawned by the server, which resolves their hits. A client may show a cosmetic predicted arrow that never deals damage.
 - Characters are saved locally and trusted. There is no anti-cheat.
 - No internet play, NAT traversal, relay, matchmaking, dedicated servers, host migration or cross-platform play.
@@ -79,6 +80,8 @@ Split-screen players share one connection, so loot ownership is per player (char
 - `bOnlyOwnerSee` on its primitives: it renders only in the owning local player's viewport, so other local players on the same machine, including the host, never see it.
 - The server accepts a pickup (`ServerPickup(PickupId)`) only from the owning player.
 - Items dropped from an inventory use the shared world pickup mode, visible and pickable by everyone.
+- A per-player loot actor left unclaimed for 2 real-time minutes (starting value, tunable) converts into shared world pickups, which replicate to every client and render in every viewport.
+- Pickup contention: the server processes pickup requests in receive order, whether a player's `ServerPickup` or an enemy's pickup notify. The first one wins.
 - Loot chests roll only for the opener and record the opener's GUID in the chest's opened set.
 - Gold from kills and chests is rolled per eligible player and carried in that player's own loot actor. Gold dropped with Drop Gold uses the shared world pickup mode.
 
@@ -110,6 +113,7 @@ Split-screen players share one connection, so loot ownership is per player (char
 | Other local player leaves via pause menu | Character saves, viewport removed, layout re-flows. |
 | Controller disconnect | That player's input pauses with "Reconnect controller" in their viewport. World pauses only if every player is on the host machine. |
 | Disconnect inside a boss arena | Character removed from the fight. Boss scaling stays locked from summon. |
+| Disconnect near enemies | The player is removed from every threat table and investigation. AI is otherwise unaffected, and that player's per-player loot still converts after 2 minutes. |
 | Disconnect mid-craft | Current craft cancelled, reserved materials returned before saving. |
 | Clean disconnect while Downed | Character saves with the dead-respawn flag. |
 
@@ -123,3 +127,4 @@ Pause menu: the world pauses only in a session with one player total.
 - [Character Creation](../../specs/character-creation/character-creation.md) (Requirements 13 and 24, Data Flow 4–6, Edge Case 3)
 - [Factions and Kingdoms](../../specs/factions-kingdoms/factions-kingdoms.md) (Data Flow 3–6)
 - [Crafting Jobs](../../specs/crafting-jobs/crafting-jobs.md) (Data Flow 8)
+- [Enemy AI](../../specs/enemy-ai/enemy-ai.md) (Requirements 2, 20, 24 and 41, Edge Case 5)

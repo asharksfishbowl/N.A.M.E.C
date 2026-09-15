@@ -33,15 +33,15 @@ Rows marked *(Evaluate)* are provisional. The benchmark decides whether they kee
 | Virtual Shadow Maps | Production-Ready | All shadows | Lower VSM quality |
 | Substrate | Production-Ready, on by default | All materials. Dye zone colors are material parameters set at runtime on Mutable-built character meshes and held weapons and shields, not Mutable inputs. | Blendable GBuffer path |
 | PCG Framework (runtime, seeded) | Production-Ready | Placing trees, forage, loose pickups, rocks, props and vegetation from the world seed | Seeded placement in C++ |
-| Mutable | Production-Ready | Appearance presets, armor fit across the 12 race × sex bodies. Generated materials keep dye zones as runtime parameters. | Per-variant armor meshes with skeletal mesh merging |
-| IK Retargeter | Production-Ready | Sharing animation across races and sexes | Authored animation sets per body |
+| Mutable | Production-Ready | Appearance presets, armor fit across the 12 race × sex bodies, and visible gear on humanoid enemies (which use those same bodies). Generated materials keep dye zones as runtime parameters. | Per-variant armor meshes with skeletal mesh merging |
+| IK Retargeter | Production-Ready | Sharing animation across races and sexes, and retargeting humanoid enemy families to their player body | Authored animation sets per body |
 | Motion Matching (core only) | Production-Ready | Player and NPC locomotion | State-machine locomotion |
 | Motion Warping | Production-Ready | Execution and attack alignment | Unwarped root-motion montages |
 | Gameplay Ability System | Production-Ready | Stats, abilities, damage, status effects | None (required) |
-| StateTree and Smart Objects | Production-Ready | Enemy, boss, town NPC, escort and raider AI | Behavior Trees |
+| StateTree and Smart Objects | Production-Ready | Enemy, boss, town NPC, escort and raider AI on the host, with scheduled ticking for AI LOD. Smart Objects for NPC posts, raider attack positions and enemy claims on lootable pickups. See [Enemies and AI](Enemies-and-AI.md). | Behavior Trees |
 | Enhanced Input + Common UI (unified) | Production-Ready | Split-screen input and every menu and HUD | The two systems separately |
 | MetaSounds + Audio Insights | Production-Ready | Combat, ambience and raid audio | Sound Cues |
-| Data Validation | Not stated | Wearable variant, vendor stock, camp enemy and Nanite authoring validators | None needed |
+| Data Validation | Not stated | Wearable variant (including humanoid enemy families), vendor stock, camp enemy, hostility matrix and Nanite authoring validators | None needed |
 | Legacy replication + Online Subsystem Null LAN | Existing path / not verified in the research | Listen server and LAN discovery | None |
 | PlayerCameraManager + SpringArm | Not stated | First/third-person cameras, lock-on, execution camera | None needed |
 | First Person Rendering *(Evaluate)* | Beta (conflicting doc metadata says Production-Ready) | First-person arms and weapon | Normal rendering without separate FOV or clipping prevention |
@@ -136,8 +136,11 @@ The **first required milestone**. No content production starts until a passing r
 - A base of 200 Nanite building pieces, with one destructible piece destroyed during the run.
 - Nanite rocks and trees at Temperate region density, with one tree felled during the run.
 - 4 animated characters (Mutable, Motion Matching, IK Retargeter), one in first-person view.
+- 30 AI enemies running their StateTrees with AI LOD, some beyond the AI LOD distance, 10 of them humanoid with Mutable-built gear, each picking up and equipping one item during the run.
 
-(2 seconds, 200 pieces and the 120-second run are starting values, tunable)
+(2 seconds, 200 pieces, 30 and 10 enemies and the 120-second run are starting values, tunable)
+
+The research doesn't cover the cost of runtime Mutable rebuilds for many enemies changing gear, so when enemy rebuilds run and whether they're cached is a Researcher decision recorded in the engine-tech roadmap and measured here.
 
 **Measured at 1, 2, 3 and 4 viewports:** average and 1% low fps, `stat gpu`, `NaniteStats`, VSM page invalidation, and draw calls. It also runs the **lighting check**: re-meshed terrain chunks must be lit correctly in both tiers. Lumen off with a skylight always counts as lit correctly.
 
@@ -159,3 +162,4 @@ If every step is applied and a target is still missed, the performance targets g
 - [Engine Tech](../../specs/engine-tech/engine-tech.md)
 - [Game Foundation](../../specs/game-foundation/game-foundation.md) (Requirements 1 and 13)
 - [Voxel World](../../specs/voxel-world/voxel-world.md) (Requirement 2)
+- [Enemy AI](../../specs/enemy-ai/enemy-ai.md) (Requirements 11 and 31)
