@@ -60,7 +60,7 @@ N.A.M.E.C is a first/third-person 3D fantasy survival RPG for up to 4 players in
 4. The game module `Source/NAMEC/` is organized into subfolders: `Core/`, `Character/`, `Progression/`, `Crafting/`, `Survival/`, `World/`, `Combat/`, `Loot/`, `Inventory/`, `Multiplayer/`, `Factions/`, `UI/`, `Save/`. Editor-only code (data validators) lives in a separate editor module `Source/NAMECEditor/`.
 5. All balance numbers live in DataTables under `Content/Data/`, one or more tables per system, and are named `DT_<System>_<Purpose>` (e.g., `DT_Progression_SkillXPCurve`). Per-item values (weight, damage, insulation) live in item definition data assets (see `specs/inventory/inventory.md`). Both are editable without recompiling.
 6. Save data is split into two independent save types:
-   - `UNamecCharacterSave` — one per character, stored in the local user's save directory on the machine that owns the character. Contents: character GUID and name; race, sex, and `FNamecAppearance` (character-creation spec); stats and spent/unspent stat points, classes, class levels, skill XP, boss first-kill flags, and ability bar (character-progression spec); Job levels and XP (crafting-jobs spec); survival meter values (survival spec; Breath is not saved); every item instance, equipped slots, favorites, hotkeys, and sort choice (inventory spec), including each item instance's dye colors (`specs/inventory/inventory.md` Requirement 23); gold, reputation per faction, and quest state (active quests with objective parameters, progress, and tracked flags, and completed questline steps per kingdom) (`specs/factions-kingdoms/factions-kingdoms.md` Requirements 11, 28, and 48); the dead-respawn flag, set by any save written while the character is Downed or dead (combat-loot spec Edge Case 1); and the remaining duration of each active timed effect (Weakened, meal buff, Wet, Salty).
+   - `UNamecCharacterSave` — one per character, stored in the local user's save directory on the machine that owns the character. Contents: character GUID and name; race, sex, and `FNamecAppearance` (character-creation spec); stats and spent/unspent stat points, classes, class levels, skill XP, boss first-kill flags, and ability bar (character-progression spec); Job levels and XP (crafting-jobs spec); survival meter values (survival spec; Breath is not saved); every item instance, equipped slots, favorites, hotkeys, and sort choice (inventory spec), including each item instance's dye colors (`specs/inventory/inventory.md` Requirement 23) and each consumable's potency value (`specs/crafting-jobs/crafting-jobs.md` Requirement 11); the shovel Dig/Fill mode and selected fill material (`specs/voxel-world/voxel-world.md` Requirement 42); two-handing state is not saved, and every character loads one-handed (`specs/combat-loot/combat-loot.md` Requirement 57); gold, reputation per faction, and quest state (active quests with objective parameters, progress, and tracked flags, and completed questline steps per kingdom) (`specs/factions-kingdoms/factions-kingdoms.md` Requirements 11, 28, and 48); the dead-respawn flag, set by any save written while the character is Downed or dead (combat-loot spec Edge Case 1); and the remaining duration of each active timed effect (Weakened, meal buff, Wet, Salty).
    - `UNamecWorldSave` — one per world, stored on the host machine. Contents: world name, seed, size, voxel resolution (voxel-world spec Requirement 3), and world settings (friendly fire, LAN hosting, password, Raids); current in-game time of day, the world's total elapsed in-game time, and each region's current weather; terrain chunk edit deltas; placed building pieces, including crafting stations with their bound attachments and tier, and storage containers with their contents; shared world pickups (per-player loot actors are not saved); tree harvest states and forage timers; Loose Stick and Loose Stone pickup collected states and respawn timers; bed respawn points per character GUID; loot chest opened state per character GUID; boss defeat flags; town NPC respawn timers, Vendor stock quantities, Quest Board offers with each offer's accepted character GUID set, and Bandit and Beastmen camp states (per-spawn-point dead states, cleared state, and respawn timer) (`specs/factions-kingdoms/factions-kingdoms.md` Requirements 19, 25, 34, 37, and 42). Gold dropped by players is saved as a shared world pickup. Active raids and the real-time raid roll clock are not saved: an autosave does not change an active raid, and when a world loads no raid is active and raiders from before the host exited are not restored (`specs/factions-kingdoms/factions-kingdoms.md` Requirement 59). Character positions are not saved (multiplayer spec Requirement 16).
 7. Every save type carries an integer `SaveVersion`. Loading a save with an older `SaveVersion` runs a migration function; loading a newer `SaveVersion` than the build supports is refused with a user-facing message.
 8. The world autosaves every 5 minutes (tuning value, in `DT_Core_Save`) and on host exit. Character saves write on autosave, on disconnect, and on exit.
@@ -69,24 +69,45 @@ N.A.M.E.C is a first/third-person 3D fantasy survival RPG for up to 4 players in
 11. The main menu offers: New World, Load World, Join LAN Game, Characters (create/delete/view), Settings, Quit.
 12. Camera supports first-person and third-person, toggled per local player with the camera toggle input (Requirement 14). The default is third-person. Cameras use PlayerCameraManager + SpringArm per `specs/engine-tech/engine-tech.md` Requirement 3.
 13. Performance targets on the reference PC (NVIDIA RTX 3060-class GPU, 6-core CPU, 16 GB RAM) at 1080p: 60 fps with 1–2 local viewports, 30 fps with 3–4 local viewports, using the High and Split rendering scalability tiers in `DT_MP_SplitScreenScalability` (`specs/engine-tech/engine-tech.md` Requirement 6). These targets are first measured by the benchmark milestone (`specs/engine-tech/engine-tech.md` Requirement 11).
-14. All input uses Enhanced Input. Every binding below is the default and is remappable per local player in Settings. Chorded bindings (LB held + a button, Left Alt + RMB) take priority over the unchorded binding of the same button, so an unchorded action never fires while its chord modifier is held. While an execution prompt is shown in a local player's viewport (`specs/combat-loot/combat-loot.md` Requirement 45), that player's unchorded Y (gamepad) or R (keyboard) executes instead of toggling two-handing; LB + Y still casts ability 4.
+14. All input uses Enhanced Input. Every binding below is the default and is remappable per local player in Settings. Chorded bindings (LB held + a button, Left Alt + RMB) take priority over the unchorded binding of the same button, so an unchorded action never fires while its chord modifier is held. While an execution prompt is shown in a local player's viewport (`specs/combat-loot/combat-loot.md` Requirement 45), that player's unchorded Y (gamepad) or R (keyboard) executes instead of toggling two-handing; LB + Y still casts ability 4. Context bindings replace the unchorded default binding of the same button only while their context is active, and chord priority still applies inside every context:
+    - **Tool in the Right Hand** (axe, pickaxe, shovel, or Hammer): RB (left mouse button) swings the tool instead of a light attack (tool hits on enemies follow `specs/combat-loot/combat-loot.md` Requirement 56). With an axe or pickaxe in the Right Hand, RT (middle mouse button) does nothing instead of a heavy attack.
+    - **Shovel in the Right Hand:** RT (middle mouse button) toggles Dig/Fill mode instead of a heavy attack (`specs/voxel-world/voxel-world.md` Requirement 40). D-pad Left and D-pad Right (mouse wheel) cycle the fill material instead of the right-hand and left-hand hotkey cycles. This override applies only while a shovel is equipped in the Right Hand.
+    - **Hammer in the Right Hand:** RT (middle mouse button) opens the build menu instead of a heavy attack (`specs/voxel-world/voxel-world.md` Requirement 41).
+    - **Hammer placement mode:** RB (left mouse button) places the piece, D-pad Left and D-pad Right (mouse wheel) rotate it, B (right mouse button) cancels placement, and holding X (holding F) for 1 s (tuning value in `DT_Core_Input`) while aiming at a placed piece deconstructs it. These bindings override the hotkey cycles, consumable use, and every other unchorded binding they share (the tool swing, dodge roll and sprint, and block) only while placement mode is active. Deconstruction works only in placement mode: outside it, X (F) uses the selected consumable. Placement mode stays active after placing while the player still has that piece's item, and returns to the build menu when none is left (`specs/voxel-world/voxel-world.md` Requirement 43).
+    - **Bow in the Right Hand** (a bow is a two-handed item occupying both hand slots): a bow can't block, so LT (right mouse button) aims instead of blocking, RB (left mouse button) fires an aimed shot while aiming and a quick shot at 50% of an aimed shot's damage (tuning value in `DT_Combat_Rules`) while not aiming, and RT (middle mouse button) does nothing instead of a heavy attack (`specs/combat-loot/combat-loot.md` Requirements 53 and 55). Parry (LB + LT, Left Alt + right mouse button) is not available with a bow.
+    - **Fishing Rod in the Right Hand:** RB (left mouse button) casts (`specs/character-progression/character-progression.md` Requirement 21). During the bite window, A (E) reels in, even when no interactable is targeted. This is the one exception to A's jump and interact context rule: during the bite window, A reels in instead of jumping or interacting.
+    - **In bed** (`specs/survival/survival.md` Requirement 18): B (Space) leaves the bed instead of dodge rolling, sprinting, or jumping.
 
     | Action | Gamepad | Keyboard & mouse (local player 1 only) |
     |--------|---------|----------------------------------------|
     | Move | Left stick | W A S D |
     | Look | Right stick | Mouse |
     | Jump | A (when no interactable is targeted) | Space |
-    | Interact (including revive hold, fishing bite, Vendors, Quest Givers, Guard Captains, Quest Boards, and the Dye Station) | A (when an interactable is targeted) | E |
+    | Interact (including revive hold, Vendors, Quest Givers, Guard Captains, Quest Boards, and the Dye Station) | A (when an interactable is targeted) | E |
     | Climb (hold against a surface steeper than 60°; `specs/character-progression/character-progression.md` Requirement 21) | Hold A | Hold Space |
     | Dodge roll | B (tap) | Left Shift (tap) |
     | Sprint | B (hold) | Left Shift (hold) |
     | Use selected consumable (`specs/inventory/inventory.md` Requirement 16) | X | F |
-    | Toggle two-handing the Right Hand weapon | Y (when no execution prompt is shown) | R (when no execution prompt is shown) |
+    | Toggle two-handing the Right Hand weapon (`specs/combat-loot/combat-loot.md` Requirement 54) | Y (when no execution prompt is shown) | R (when no execution prompt is shown) |
     | Execute (`specs/combat-loot/combat-loot.md` Requirement 46) | Y (only while an execution prompt is shown) | R (only while an execution prompt is shown) |
     | Light attack | RB | Left mouse button |
-    | Heavy attack | RT | Middle mouse button |
-    | Block (`specs/combat-loot/combat-loot.md` Requirement 4) | LT | Right mouse button |
-    | Parry (`specs/combat-loot/combat-loot.md` Requirement 5) | LB + LT | Left Alt + right mouse button |
+    | Heavy attack (does nothing with a bow, axe, or pickaxe in the Right Hand) | RT | Middle mouse button |
+    | Block (`specs/combat-loot/combat-loot.md` Requirement 4; not with a bow) | LT | Right mouse button |
+    | Parry (`specs/combat-loot/combat-loot.md` Requirement 5; not with a bow) | LB + LT | Left Alt + right mouse button |
+    | Swing the Right Hand tool (axe, pickaxe, shovel, Hammer) | RB (tool in the Right Hand) | Left mouse button (tool in the Right Hand) |
+    | Toggle shovel Dig/Fill mode (`specs/voxel-world/voxel-world.md` Requirement 40) | RT (shovel in the Right Hand) | Middle mouse button (shovel in the Right Hand) |
+    | Cycle shovel fill material (Soil, Sand, Gravel, Stone) | D-pad Left / D-pad Right (shovel in the Right Hand) | Mouse wheel (shovel in the Right Hand) |
+    | Open the build menu (`specs/voxel-world/voxel-world.md` Requirement 41) | RT (Hammer in the Right Hand) | Middle mouse button (Hammer in the Right Hand) |
+    | Place piece | RB (placement mode) | Left mouse button (placement mode) |
+    | Rotate piece | D-pad Left / D-pad Right (placement mode) | Mouse wheel (placement mode) |
+    | Cancel placement | B (placement mode) | Right mouse button (placement mode) |
+    | Deconstruct the aimed-at piece | Hold X for 1 s (placement mode) | Hold F for 1 s (placement mode) |
+    | Aim bow (`specs/combat-loot/combat-loot.md` Requirement 53) | LT (bow in the Right Hand) | Right mouse button (bow in the Right Hand) |
+    | Fire bow, aimed shot | RB (while aiming) | Left mouse button (while aiming) |
+    | Fire bow, quick shot (`specs/combat-loot/combat-loot.md` Requirement 55) | RB (bow in the Right Hand, not aiming) | Left mouse button (bow in the Right Hand, not aiming) |
+    | Cast fishing rod | RB (Fishing Rod in the Right Hand) | Left mouse button (Fishing Rod in the Right Hand) |
+    | Reel in (fishing bite window) | A (during the bite window, whether or not an interactable is targeted) | E (during the bite window) |
+    | Leave bed (`specs/survival/survival.md` Requirement 18) | B (in bed) | Space (in bed) |
     | Abilities 1–4 (`specs/character-progression/character-progression.md` Requirement 18) | LB + A / B / X / Y | Z / X / C / V |
     | Abilities 5–6 | LB + RB / LB + RT | B / N |
     | Lock-on toggle (`specs/combat-loot/combat-loot.md` Requirement 6) | R3 | Tab |
@@ -126,6 +147,14 @@ N.A.M.E.C is a first/third-person 3D fantasy survival RPG for up to 4 players in
 - [ ] Every menu screen can be completed start-to-finish with a gamepad only.
 - [ ] Camera toggles between first- and third-person per local player.
 - [ ] Every default binding in Requirement 14 performs its action, a remapped binding persists after restart, pressing LB + A casts ability 1 without jumping, and pressing Y while an execution prompt is shown starts an execution without toggling two-handing.
+- [ ] With a shovel in the Right Hand, D-pad Right cycles the fill material without cycling left-hand hotkeyed items, and after unequipping the shovel D-pad Right cycles left-hand hotkeyed items again.
+- [ ] In Hammer placement mode, B cancels placement without a dodge roll, and holding X for 1 s on a placed piece deconstructs it without using the selected consumable.
+- [ ] With a bow in the Right Hand, LT aims instead of blocking, LB + LT does not parry, RB without aiming fires a quick shot, and RT does nothing.
+- [ ] With an axe or pickaxe in the Right Hand, RT does nothing.
+- [ ] Outside Hammer placement mode, holding X uses the selected consumable and never deconstructs a piece.
+- [ ] A character's shovel Dig/Fill mode and selected fill material survive save → quit → load, and a character saved while two-handing loads one-handed.
+- [ ] During a fishing bite window with no interactable targeted, A reels in without jumping.
+- [ ] In bed, B leaves the bed without a dodge roll.
 
 ## Key Files
 - `NAMEC.uproject` — new; project descriptor with the pinned engine version (5.8, Requirement 1) and enabled plugins (GameplayAbilities, EnhancedInput, OnlineSubsystem, OnlineSubsystemNull, and the plugin of every adopted feature in `specs/engine-tech/engine-tech.md` Requirement 3 that ships as a plugin).
@@ -138,8 +167,9 @@ N.A.M.E.C is a first/third-person 3D fantasy survival RPG for up to 4 players in
 - `Source/NAMEC/Character/NamecCameraComponent.h` — new; first/third-person toggle.
 - `Content/Data/` — new; all `DT_*` tuning tables.
 - `Content/Data/DT_Core_Save.uasset` — new; autosave interval and other save tuning values.
-- `Content/Data/DT_Core_Input.uasset` — new; hold and tap thresholds (View hold for camera toggle, stick flick threshold) and other input tuning values.
+- `Content/Data/DT_Core_Input.uasset` — new; hold and tap thresholds (View hold for camera toggle, Hammer deconstruct hold, stick flick threshold) and other input tuning values.
 - `Content/Input/IMC_Gamepad.uasset` — new; Enhanced Input mapping context with the Requirement 14 gamepad defaults.
 - `Content/Input/IMC_KeyboardMouse.uasset` — new; Enhanced Input mapping context with the Requirement 14 keyboard and mouse defaults.
+- `Content/Input/Contexts/` — new; one higher-priority Enhanced Input mapping context per Requirement 14 context (tool, shovel, Hammer, placement mode, bow, Fishing Rod, fishing bite window, bed), each for gamepad and keyboard and mouse, added while its context is active and removed when it ends.
 - `Content/Input/Actions/` — new; one `UInputAction` asset per Requirement 14 action.
 - `Source/NAMEC/UI/Settings/InputRemapScreen/` — new; per-local-player binding remap screen in Settings.

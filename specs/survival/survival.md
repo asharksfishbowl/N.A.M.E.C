@@ -42,10 +42,10 @@ Characters manage four survival pressures — hunger, thirst, temperature, and s
 14. The Wet status applies while swimming or standing in rain without shelter, and lasts until 60 seconds after the character is last in water or unsheltered rain (tuning value). While Wet, effective ambient temperature is 8 °C lower.
 
 ### Stamina & Fatigue
-15. Stamina is spent by dodge rolls, attacks, blocking hits, sprinting, climbing, and swimming (costs in `DT_Survival_StaminaCosts`). Stamina regenerates after a 1-second delay without spending (tuning value).
+15. Stamina is spent by dodge rolls, attacks, bow shots (each aimed or quick shot; `specs/combat-loot/combat-loot.md` Requirement 55), blocking hits, sprinting, climbing, and swimming (costs in `DT_Survival_StaminaCosts`, tuning values). Stamina regenerates after a 1-second delay without spending (tuning value).
 16. Fatigue rises over time awake (starting value: 0 → 100 over 40 real-time minutes) and rises faster with stamina use: each stamina point spent adds Fatigue at the rate in `DT_Survival_DrainRates` (tuning value). A racial Fatigue multiplier (`specs/character-creation/character-creation.md` Requirement 12, Human Fleeting Vigor ×1.15) multiplies both sources.
 17. Effective MaxStamina = base MaxStamina × (1 − Fatigue / 200) × ThirstMultiplier × WeakenedMultiplier. ThirstMultiplier is the Requirement 7 max stamina multiplier (starting value 0.5) at Thirst 0, otherwise 1. WeakenedMultiplier is 1 minus the Weakened max stamina penalty from `specs/combat-loot/combat-loot.md` Requirement 17 (penalty starting value 0.2, so the multiplier is 0.8) while Weakened, otherwise 1. The multipliers stack multiplicatively. At Fatigue 100 with no other multiplier active, max stamina is 50%.
-18. Interacting with a placed bed sets that bed as the character's respawn point and puts the character in bed. The respawn point is stored in `UNamecWorldSave`, keyed by character GUID, so each world keeps its own bed per character. When that bed is destroyed or deconstructed, the respawn point is cleared, and the character respawns at the world spawn point.
+18. Interacting with a placed bed sets that bed as the character's respawn point and puts the character in bed. The leave-bed input (gamepad B, keyboard Space; `specs/game-foundation/game-foundation.md` Requirement 14) gets the character out of bed. The respawn point is stored in `UNamecWorldSave`, keyed by character GUID, so each world keeps its own bed per character. When that bed is destroyed or deconstructed, the respawn point is cleared, and the character respawns at the world spawn point.
 19. When every player in the session is in a bed at the same time, time skips to the next morning (06:00 in-game) and every player's Fatigue resets to 0. When at least one player is not in a bed, time does not skip, and each player in a bed loses 5 Fatigue per second (tuning value).
 
 ### HUD
@@ -89,6 +89,7 @@ Characters manage four survival pressures — hunger, thirst, temperature, and s
 - [ ] Equipping higher-Insulation clothing lowers the character's comfort range lower bound by the coefficient in `DT_Survival_Temperature`.
 - [ ] At Fatigue 100, max stamina is 50% of base.
 - [ ] With 2 players both in beds, time skips to 06:00. With only 1 in bed, time does not skip.
+- [ ] Pressing B (keyboard Space) in bed gets the character out of bed, and the bed stays the respawn point.
 - [ ] Hunger/Thirst/Temperature/Fatigue icons appear only past their warning thresholds.
 - [ ] Survival meters are unchanged across save → quit → load.
 - [ ] Swimming at 0 stamina loses 2% max health per second, and a non-Sauren character staying underwater for 30 seconds empties Breath and then loses 5% max health per second.
@@ -99,10 +100,10 @@ Characters manage four survival pressures — hunger, thirst, temperature, and s
 - `Source/NAMEC/Survival/NamecSurvivalComponent.h` — new; per-tick survival computation and status effects.
 - `Source/NAMEC/Survival/NamecShelterQuery.h` — new; shelter detection against voxel data.
 - `Source/NAMEC/Survival/NamecHeatSourceComponent.h` — new; attachable heat source for fires, forges, torches.
-- `Source/NAMEC/Survival/NamecSleepSubsystem.h` — new; bed tracking and time skip.
+- `Source/NAMEC/Survival/NamecSleepSubsystem.h` — new; bed tracking, entering and leaving bed (Requirement 18), and time skip.
 - `Content/Survival/Effects/` — new; `GE_Freezing`, `GE_Cold`, `GE_Hot`, `GE_Overheating`, `GE_Wet`, `GE_Salty`, starvation and dehydration effects.
 - `Content/Data/DT_Survival_DrainRates.uasset` — new.
 - `Content/Data/DT_Survival_Temperature.uasset` — new.
-- `Content/Data/DT_Survival_StaminaCosts.uasset` — new.
+- `Content/Data/DT_Survival_StaminaCosts.uasset` — new; stamina costs per action, including the per-shot bow shot cost (Requirement 15).
 - `Content/Data/DT_Survival_Movement.uasset` — new; base swim speed and base climb speed as fractions of base walk speed (Requirement 25).
 - `Content/Data/DT_Survival_Penalties.uasset` — new; starvation, dehydration, temperature, Wet, sleep, swimming exhaustion, and Breath tuning values.

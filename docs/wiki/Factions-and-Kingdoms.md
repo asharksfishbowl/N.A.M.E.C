@@ -47,7 +47,7 @@ Each character has a reputation value with every faction, from −100 to +100. I
 
 **Losing reputation** (starting values, tunable):
 
-- Damaging a kingdom's Guard, Vendor, Quest Giver or Citizen: −10. This applies once per NPC, and again only after that NPC has gone a while without taking damage from you.
+- Damaging a kingdom's Guard, Vendor, Quest Giver or Citizen (including with a tool swing): −10. This applies once per NPC, and again only after that NPC has gone a while without taking damage from you.
 - Killing a Guard or Citizen: a further −25.
 - Area attacks count too, and the friendly-fire setting does not protect NPCs.
 
@@ -128,7 +128,7 @@ Example: with CHA modifier +2 and Honored tier, an item worth 100 costs 100 × 0
 - The rarity multiplier doesn't apply when you buy. Vendor equipment is always Common, so it would make no difference anyway.
 - Items worth 0, quest items and equipped items can't be sold. Items you sell don't go into the Vendor's stock.
 - Each Vendor has a stock list. Stock is shared by every player in the world, restocks every day at 06:00 in-game, and is saved with the world.
-- Equipment bought from a Vendor is Common with no affixes.
+- Equipment bought from a Vendor is Common with no affixes, including jewelry. Bought arrows, potions and meals have Job level 1 potency.
 - Vendors never sell boss materials.
 - If two players buy the last unit at once, the first request wins and the other sees "Out of stock".
 
@@ -163,7 +163,7 @@ Example: with CHA modifier +2 and Honored tier, an item worth 100 costs 100 × 0
 ### Turning in and rewards
 
 - Board quests turn in at any Quest Giver of the kingdom that issued them. Deliver quests turn in at the destination town's Quest Giver.
-- Rewards: gold, reputation with that kingdom, character XP, and sometimes an item.
+- Rewards: gold, reputation with that kingdom, character XP, and sometimes an item. A reward arrow, potion or meal has Job level 1 potency.
 
 ### Kingdom questlines
 

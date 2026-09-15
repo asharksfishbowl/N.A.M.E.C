@@ -59,8 +59,13 @@ See [Combat and Loot](Combat-and-Loot.md) for bosses and [Survival](Survival.md)
 ### Shovel
 
 - Digs or fills terrain in a sphere of radius 0.5 m (starting value, tunable), bigger with higher tool tiers.
+- The first shovel is the **Stone Shovel**, hand-crafted from Stick, Stone and Fiber (Carpenter level 1). It is Tier 0. See [Crafting and Jobs](Crafting-and-Jobs.md).
+- **Controls:** RB (left mouse) swings. RT (middle mouse) toggles Dig/Fill mode. D-pad Left/Right (mouse wheel) cycles the fill material: Soil, Sand, Gravel, Stone. While a shovel is equipped, those D-pad buttons don't cycle hand hotkeys. See [Co-op and Controls](Co-op-and-Controls.md).
+- **Defaults:** Dig mode with Soil selected. Your mode and selected material belong to your character, apply to any shovel you hold, and are saved with your character.
 - Digs only soft materials: soil, sand, gravel, snow, clay.
-- **Filling** uses one Soil, Sand, Gravel or Stone item per fill unit (the volume of a 0.5 m sphere, regardless of tool tier), rounded up. It places that material and marks it player-placed.
+- **Filling** uses one item of the selected fill material (Soil, Sand, Gravel or Stone) per fill unit (the volume of a 0.5 m sphere, regardless of tool tier), rounded up. It places that material and marks it player-placed.
+- When you have none of the selected fill material left, filling stops, and "No <material>" (for example "No Sand") shows in your viewport.
+- When you have some but fewer items than a fill needs, the fill is blocked: nothing is placed or used, and "Not enough <material>" shows in your viewport.
 - Filling is blocked where a player, enemy or building piece is standing, for those voxels only.
 
 ### Pickaxe
@@ -127,6 +132,9 @@ Loose pickups and fiber are how a character with nothing starts crafting. See [C
 ## Building
 
 - Hold a **Hammer** to open the build menu and place pieces: walls, floors, roofs, stairs, doors, windows, beams, fences.
+- **Hammer controls:** RT (middle mouse) opens the build menu. Choosing a piece enters placement mode: RB (left mouse) places, D-pad Left/Right (mouse wheel) rotates, B (right mouse) cancels, and holding X (F) for 1 second (starting value, tunable) on a placed piece deconstructs it. These replace the normal bindings of those buttons only while placement mode is on.
+- **After placing,** you stay in placement mode with the same piece while you still have that piece's item. Placing your last one takes you back to the build menu.
+- **Deconstructing works only in placement mode.** Outside it, holding X (F) uses your selected consumable.
 - Pieces come from Carpenter (wooden) and Mason (stone) recipes.
 - Crafting stations, station upgrade attachments, storage containers, beds, training dummies, Mirrors and other furniture are also building pieces. A Mirror lets you change your appearance (see [Races and Character Creation](Races-and-Character-Creation.md)).
 - Pieces snap to other pieces' snap points, or place freely on terrain when no snap point is in range.
@@ -134,7 +142,7 @@ Loose pickups and fiber are how a character with nothing starts crafting. See [C
 - Each piece has health and a material tier (wood, stone, reinforced, etc.).
 - Only boss attacks, enemy area attacks, raider attacks and falling logs damage pieces. Player attacks, spells and area abilities never do, whatever the friendly-fire setting. Only raiders target buildings. See [Raids](Raids.md).
 - A destroyed piece drops 50% of its materials (starting value, tunable).
-- A Hammer can deconstruct **any** piece, placed by any player, for a 100% refund.
+- A Hammer can deconstruct **any** piece, placed by any player, for a 100% refund, using the hold in placement mode.
 - Destroying or deconstructing a storage container drops its contents on the ground for anyone to take.
 - Building is blocked inside a boss arena, within 20 m of the world spawn point, inside a town's protected radius, and inside a Bandit or Beastmen camp's radius.
 
@@ -142,3 +150,4 @@ Loose pickups and fiber are how a character with nothing starts crafting. See [C
 
 - [Voxel World](../../specs/voxel-world/voxel-world.md)
 - [Factions and Kingdoms](../../specs/factions-kingdoms/factions-kingdoms.md) (towns, camps, raids)
+- [Game Foundation](../../specs/game-foundation/game-foundation.md) (controls)

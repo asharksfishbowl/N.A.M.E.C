@@ -27,7 +27,7 @@ This page covers use-based skill leveling, every skill and how it earns XP, mile
 | Fishing | Each fish caught |
 | Hunting | Skinning a Wildlife or Hostile creature that has a Hunting yield |
 
-**Fishing:** equip a Fishing Rod (Carpenter recipe), cast into water, and wait for a bite (random 5–20 s, starting value, tunable; shortened by Fishing skill). Press interact within the 1-second bite window to catch. A miss catches nothing.
+**Fishing:** equip a Fishing Rod (Carpenter recipe) in your Right Hand, cast into water with RB (left mouse), and wait for a bite (random 5–20 s, starting value, tunable; shortened by Fishing skill). Press A (E) within the 1-second bite window to reel in and catch. During the bite window A reels in even if nothing interactable is targeted, so it won't make you jump. A miss catches nothing. See [Co-op and Controls](Co-op-and-Controls.md).
 
 **Hunting (skinning):** interact with the creature's corpse. Each player can skin a given corpse once and gets their own yield items and their own Hunting XP.
 
@@ -35,14 +35,16 @@ This page covers use-based skill leveling, every skill and how it earns XP, mile
 
 | Skill | Earns XP for |
 |-------|--------------|
-| One-Handed | Each hit that damages a hostile enemy (including unarmed hits and the Felari's Pounce) |
-| Two-Handed | Each hit that damages a hostile enemy |
-| Archery | Each hit that damages a hostile enemy |
-| Block | Each blocked hit that would have dealt damage |
+| One-Handed | Each hit with a One-Handed Sword, One-Handed Axe, One-Handed Mace, Dagger, Spear or Staff that damages a hostile enemy (including unarmed hits, the Felari's Pounce, and a one-handed weapon held two-handed) |
+| Two-Handed | Each hit with a Two-Handed Sword, Two-Handed Axe or Two-Handed Hammer that damages a hostile enemy |
+| Archery | Each bow hit that damages a hostile enemy (hits are decided by the server) |
+| Block | Each blocked hit that would have dealt damage (shields train Block) |
 | Light Armor | Each hit taken from a hostile enemy while wearing 3 or more Leather pieces |
 | Heavy Armor | Each hit taken from a hostile enemy while wearing 3 or more Metal pieces |
 
-Cloth pieces train no armor skill.
+Cloth pieces train no armor skill, and neither do capes or jewelry. Weapon categories are listed on [Stats and Classes](Stats-and-Classes.md).
+
+Hitting an enemy with a tool (axe, pickaxe, shovel or Hammer) gives no skill XP at all: no weapon skill and no Woodcutting or Mining.
 
 ## Movement and utility
 
@@ -80,3 +82,4 @@ Each skill unlocks a perk at levels 25, 50, 75 and 100. Example from the spec: W
 ## Source spec
 
 - [Character Progression](../../specs/character-progression/character-progression.md)
+- [Combat and Loot](../../specs/combat-loot/combat-loot.md) (tool hits on enemies)

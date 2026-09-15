@@ -22,10 +22,13 @@ A character is portable: the same character save loads into any world. Save file
 | Progression | Stats, spent and unspent stat points, classes, class levels, skill XP, boss first-kill flags, ability bar | character-progression |
 | Jobs | Job levels and XP | crafting-jobs |
 | Survival | Survival meter values (Breath is not saved) | survival |
-| Inventory | Every item instance (definition ID, quantity, rarity, affixes, durability, item level, dye colors), equipped slots, favorites, hotkeys, sort choice | inventory |
+| Inventory | Every item instance (definition ID, quantity, rarity, affixes, durability (none for jewelry), item level, dye colors, consumable potency value), equipped slots, favorites, hotkeys, sort choice | inventory |
+| Shovel | Dig/Fill mode and selected fill material (default Dig and Soil), per character | voxel-world |
 | Factions | Gold, reputation per faction, active quests (objective parameters, progress, tracked flag), completed questline steps per kingdom | factions-kingdoms |
 | Death | Dead-respawn flag | combat-loot |
 | Timed effects | Remaining duration of each active timed effect: Weakened, meal buff, Wet, Salty (racial passives and downsides are not saved; they are reapplied on spawn) | game-foundation |
+
+Two-handing state is not saved: every character loads holding its Right Hand weapon one-handed (combat-loot).
 
 ### Race and appearance
 
@@ -111,8 +114,10 @@ For remote players, the host sends the character payload on each autosave and a 
 ## Source specs
 
 - [Game Foundation](../../specs/game-foundation/game-foundation.md) (Requirements 6–8, Edge Cases 1–4)
-- [Combat and Loot](../../specs/combat-loot/combat-loot.md) (Edge Case 1)
+- [Combat and Loot](../../specs/combat-loot/combat-loot.md) (Requirement 57, Edge Case 1)
+- [Voxel World](../../specs/voxel-world/voxel-world.md) (Requirement 42)
+- [Inventory](../../specs/inventory/inventory.md) (Data Flow 4)
 - [Multiplayer](../../specs/multiplayer/multiplayer.md) (Requirements 16–17)
 - [Character Creation](../../specs/character-creation/character-creation.md) (Requirements 6, 16 and 24, Data Flow 3, Edge Cases 1, 2, 10 and 11)
 - [Factions and Kingdoms](../../specs/factions-kingdoms/factions-kingdoms.md) (Requirements 11, 19, 25, 28, 34, 37, 40, 48 and 59, Edge Case 1)
-- [Crafting Jobs](../../specs/crafting-jobs/crafting-jobs.md) (Edge Case 9)
+- [Crafting Jobs](../../specs/crafting-jobs/crafting-jobs.md) (Requirement 11, Edge Case 9)

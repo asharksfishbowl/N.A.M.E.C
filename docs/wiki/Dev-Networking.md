@@ -8,6 +8,7 @@ This page covers listen-server authority, the host/find/join session flow, chara
 
 - The session is a **listen server** on the host machine using Unreal's legacy replication (Iris is only being evaluated; see [Engine and Rendering](Dev-Engine-and-Rendering.md)). In pure split-screen play the host is the only machine.
 - All gameplay state is server-authoritative: terrain edits, combat, loot rolls, crafting, progression XP.
+- Bow projectiles are spawned by the server, which resolves their hits. A client may show a cosmetic predicted arrow that never deals damage.
 - Characters are saved locally and trusted. There is no anti-cheat.
 - No internet play, NAT traversal, relay, matchmaking, dedicated servers, host migration or cross-platform play.
 - Max 4 players total across all machines (starting value, tunable; hard cap 4). Each machine supports up to 4 local players, limited by remaining capacity.

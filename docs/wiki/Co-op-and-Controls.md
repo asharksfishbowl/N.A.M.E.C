@@ -74,22 +74,46 @@ This page covers split-screen layouts, joining, LAN play, portable characters, d
 
 All bindings are defaults and can be remapped per local player in Settings. Chorded bindings (LB held + a button, Left Alt + RMB) take priority, so the plain action never fires while its chord modifier is held. While an execution prompt is showing in your viewport, Y (or R) executes instead of toggling two-handing, and LB + Y still casts ability 4. Every menu and the HUD work with a gamepad alone.
 
+Some bindings change with what you're holding or doing. Each one replaces the normal binding of that button only while its situation lasts, and chords still take priority:
+
+- **Tool in your Right Hand** (axe, pickaxe, shovel, Hammer): RB (left mouse) swings the tool instead of a light attack. With an axe or pickaxe, RT does nothing.
+- **Shovel:** RT (middle mouse) toggles Dig/Fill mode. D-pad Left/Right (mouse wheel) cycles the fill material: Soil, Sand, Gravel, Stone. While a shovel is equipped, the D-pad Left/Right hand hotkey cycles don't work.
+- **Hammer:** RT (middle mouse) opens the build menu. Choosing a piece enters placement mode.
+- **Placement mode:** RB (left mouse) places, D-pad Left/Right (mouse wheel) rotates, B (right mouse) cancels, and holding X (F) for 1 second (starting value, tunable) on a placed piece deconstructs it. While placement mode is on, these replace the hotkey cycles, using a consumable, dodge roll and sprint, and block. Deconstructing works only in placement mode. After placing, you stay in placement mode while you still have that piece's item.
+- **Bow** (a two-handed item): a bow can't block, so LT (right mouse) aims, RB (left mouse) fires an aimed shot while aiming, and RB without aiming fires a quick shot at 50% damage. RT does nothing. There is no parry with a bow.
+- **Fishing Rod:** RB (left mouse) casts. During the bite window, A (E) reels in, even if you aren't looking at anything you can interact with. This is the one time A doesn't jump or interact.
+- **In bed:** B (Space) gets you out of bed.
+
 | Action | Gamepad | Keyboard & mouse (local player 1 only) |
 |--------|---------|----------------------------------------|
 | Move | Left stick | W A S D |
 | Look | Right stick | Mouse |
 | Jump | A (when no interactable is targeted) | Space |
-| Interact (including revive hold, fishing bite, Vendors, Quest Givers, Guard Captains, Quest Boards and the Dye Station) | A (when an interactable is targeted) | E |
+| Interact (including revive hold, Vendors, Quest Givers, Guard Captains, Quest Boards and the Dye Station) | A (when an interactable is targeted) | E |
 | Climb (hold against a surface steeper than 60°) | Hold A | Hold Space |
 | Dodge roll | B (tap) | Left Shift (tap) |
 | Sprint | B (hold) | Left Shift (hold) |
 | Use selected consumable | X | F |
-| Toggle two-handing the Right Hand weapon | Y (when no execution prompt is shown) | R (when no execution prompt is shown) |
+| Toggle two-handing the Right Hand weapon (see [Combat and Loot](Combat-and-Loot.md)) | Y (when no execution prompt is shown) | R (when no execution prompt is shown) |
 | Execute (see [Combat and Loot](Combat-and-Loot.md)) | Y (only while an execution prompt is shown) | R (only while an execution prompt is shown) |
 | Light attack | RB | Left mouse button |
-| Heavy attack | RT | Middle mouse button |
-| Block | LT | Right mouse button |
-| Parry | LB + LT | Left Alt + right mouse button |
+| Heavy attack (does nothing with a bow, axe or pickaxe) | RT | Middle mouse button |
+| Block (not with a bow) | LT | Right mouse button |
+| Parry (not with a bow) | LB + LT | Left Alt + right mouse button |
+| Swing the Right Hand tool (axe, pickaxe, shovel, Hammer) | RB (tool in hand) | Left mouse button (tool in hand) |
+| Toggle shovel Dig/Fill mode (see [World and Building](World-and-Building.md)) | RT (shovel in hand) | Middle mouse button (shovel in hand) |
+| Cycle shovel fill material (Soil, Sand, Gravel, Stone) | D-pad Left / Right (shovel in hand) | Mouse wheel (shovel in hand) |
+| Open the build menu | RT (Hammer in hand) | Middle mouse button (Hammer in hand) |
+| Place piece | RB (placement mode) | Left mouse button (placement mode) |
+| Rotate piece | D-pad Left / Right (placement mode) | Mouse wheel (placement mode) |
+| Cancel placement | B (placement mode) | Right mouse button (placement mode) |
+| Deconstruct the piece you're aiming at | Hold X for 1 s (placement mode) | Hold F for 1 s (placement mode) |
+| Aim bow | LT (bow in hand) | Right mouse button (bow in hand) |
+| Fire bow, aimed shot | RB (while aiming) | Left mouse button (while aiming) |
+| Fire bow, quick shot (50% damage) | RB (bow in hand, not aiming) | Left mouse button (bow in hand, not aiming) |
+| Cast fishing rod (see [Skills](Skills.md)) | RB (Fishing Rod in hand) | Left mouse button (Fishing Rod in hand) |
+| Reel in (fishing bite window) | A (during the bite window) | E (during the bite window) |
+| Leave bed (see [Survival](Survival.md)) | B (in bed) | Space (in bed) |
 | Abilities 1–4 | LB + A / B / X / Y | Z / X / C / V |
 | Abilities 5–6 (one bar slot always holds your racial ability) | LB + RB / LB + RT | B / N |
 | Lock-on toggle | R3 | Tab |
@@ -106,11 +130,11 @@ All bindings are defaults and can be remapped per local player in Settings. Chor
 | Pause menu | Menu | Esc |
 | Join as a new local player | Start (Menu) on a controller not assigned to a local player | — |
 
-Some controls are not decided yet (tools, shovel mode, build menu, bow, fishing cast, leaving a bed). See [Open Decisions](Open-Decisions.md).
-
 ## Source spec
 
 - [Multiplayer](../../specs/multiplayer/multiplayer.md)
 - [Game Foundation](../../specs/game-foundation/game-foundation.md) (controls)
 - [Factions and Kingdoms](../../specs/factions-kingdoms/factions-kingdoms.md) (what travels with a character)
+- [Voxel World](../../specs/voxel-world/voxel-world.md) (shovel and Hammer controls)
+- [Combat and Loot](../../specs/combat-loot/combat-loot.md) (bow and two-handing)
 - [Character Creation](../../specs/character-creation/character-creation.md) ("Create New")

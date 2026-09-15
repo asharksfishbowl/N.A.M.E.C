@@ -1,14 +1,14 @@
 # Combat and Loot
 
-This page covers Souls-style combat, executions, damage types and status effects, fall damage, downed/revive/death, enemies and factions, town NPCs and raiders, perception and taunts, scaling, bosses and summoning, per-player loot and gold, rarity and affixes, chests, and durability.
+This page covers Souls-style combat, bows and arrows, two-handing, tool hits on enemies, executions, damage types and status effects, fall damage, downed/revive/death, enemies and factions, town NPCs and raiders, perception and taunts, scaling, bosses and summoning, per-player loot and gold, rarity and affixes, chests, and durability.
 
 ← [Home](Home.md)
 
-Combat is deliberate: stamina-gated attacks, dodge rolls, blocking, parrying and lock-on. Hits are physical, decided by weapon hitboxes during attack animations, not dice rolls. There is no PvP and no mounted combat.
+Combat is deliberate: stamina-gated attacks, dodge rolls, blocking, parrying and lock-on. Hits are physical, decided by weapon hitboxes during attack animations (or, for bows, by server-side projectiles), not dice rolls. There is no PvP and no mounted combat.
 
 ## Stamina costs
 
-Light attacks, heavy attacks, dodge rolls, blocking (per hit absorbed) and sprinting (per second) cost stamina. Class abilities cost mana and/or stamina set per ability. See [Survival](Survival.md) for stamina regen.
+Light attacks, heavy attacks, dodge rolls, blocking (per hit absorbed), sprinting (per second) and each bow shot cost stamina. Class abilities cost mana and/or stamina set per ability. See [Survival](Survival.md) for stamina regen.
 
 ## Dodge roll
 
@@ -26,8 +26,41 @@ An Over-Encumbered character (carrying too much weight) also cannot dodge roll.
 
 ## Block and parry
 
-- **Block** with a shield or weapon to cut incoming damage by the item's block percentage. Each blocked hit drains stamina. If stamina hits 0 while blocking, your guard breaks and you are staggered.
-- **Parry** needs a parry-capable item (shields, some weapons). A parry inside the parry window staggers the attacker and opens a riposte window. A riposte is a critical hit.
+- **Block** with a shield or weapon to cut incoming damage by the item's block percentage. A shield of a category none of your classes allows blocks at half its percentage. Each blocked hit drains stamina. If stamina hits 0 while blocking, your guard breaks and you are staggered.
+- Blocking also halves the poise damage you take (×0.5, starting value, tunable).
+- A bow can't block, and a stowed Left Hand item (see Two-handing) can't block or parry.
+- **Parry** needs a parry-capable item (shields, some weapons). A parry inside the parry window staggers the attacker and opens a riposte window. A riposte is a critical hit. Parry isn't available with a bow.
+
+## Bows and arrows
+
+- A bow is a **two-handed item**: it takes both hand slots, so you can't hold a shield or torch with it, and the two-handing toggle does nothing.
+- LT (right mouse) aims instead of blocking, and RB (left mouse) fires an aimed shot while aiming. See [Co-op and Controls](Co-op-and-Controls.md).
+- **Quick shot:** RB without aiming fires a quick shot at 50% of an aimed shot's damage (starting value, tunable). It flies where your camera points, or at your lock-on target, with no other aim assist.
+- RT does nothing with a bow.
+- **Each shot costs stamina**, aimed or quick (starting value, tunable).
+- **Each shot uses 1 arrow** from your Ammo slot. With no arrows equipped the bow can't fire, and "No arrows" shows in your viewport.
+- **Damage:** the normal damage formula, with the bow's base damage plus the arrow's own ArrowDamage. Arrows are Carpenter recipes, and the crafter's Carpenter level raises ArrowDamage. Looted or bought arrows have Job level 1 potency (see [Crafting and Jobs](Crafting-and-Jobs.md)).
+- **Hits are decided by the server.** The server spawns the arrow and resolves what it hits. Your game may show a predicted arrow straight away, but that arrow never deals damage.
+- Hits that damage a hostile enemy train Archery. See [Skills](Skills.md).
+
+## Two-handing
+
+Press Y (keyboard R) with a one-handed weapon in your Right Hand to hold it in both hands. Press it again to go back. (While an execution prompt is showing, Y executes instead.)
+
+- Your **Left Hand item is stowed**. It stays equipped and still counts toward equip load, but gives none of its effects (for example a stowed shield gives no Armor and can't block).
+- Weapon damage ×1.25, and the STR part of the weapon's stat scaling ×1.5 (starting values, tunable).
+- Hits still train the weapon's own skill, One-Handed.
+- Two-handed weapons and bows are always held in two hands, so the toggle does nothing for them. Shields can't be two-handed.
+- Two-handing ends by itself when your Right Hand weapon changes or you equip something into your Left Hand.
+- Two-handing isn't saved. Every character loads into a world holding its weapon one-handed.
+
+## Tools against enemies
+
+- Tools (axe, pickaxe, shovel, Hammer) have their own base damage but no weapon category.
+- With an axe or pickaxe in your Right Hand, RT does nothing.
+- A tool swing that hits a Hostile (including Bandits, Beastmen and raiders), Boss or Wildlife enemy deals 50% (starting value, tunable) of the damage the formula gives with the tool's base damage and the unarmed profile's scaling and damage type.
+- Tool hits on enemies give **no skill XP at all**: no weapon skill, and no Woodcutting or Mining.
+- A tool hit on a town NPC counts as an attack: it costs the same reputation and makes Guards react the same way.
 
 ## Lock-on
 
@@ -76,6 +109,7 @@ An execution is a finishing move on a weakened enemy.
   - each class ability's own poise damage
   - racial abilities: Felari Pounce 60, Ursan Mauling Roar 100 (a Boss takes 25% of Mauling Roar's)
   - each enemy attack's poise damage
+- While you block, poise damage you take is halved (×0.5, starting value, tunable).
 - Stagger comes only from Poise reaching 0, a guard break, or a parry.
 
 ## Damage
@@ -87,13 +121,16 @@ Damage = (WeaponBase + StatScaling + AffixFlat)
        × (1 + SkillBonus + AffixPercent)
        × (1 − TargetResistance)
        × RequirementPenalty × (1 − WeakenedPenalty) × CritMultiplier
+       × TwoHandingMultiplier
 ```
 
-- **StatScaling:** the weapon's scaling stat(s) and grade. For spells, INT (Destruction, Arcane) or WIS (Restoration, Nature).
-- **SkillBonus:** the weapon's skill (One-Handed, Two-Handed, Archery) or the spell's school.
+- **WeaponBase:** the weapon's base damage. For a bow shot, the bow's base damage plus the arrow's ArrowDamage. For spells, the spell's base damage.
+- **StatScaling:** the weapon's scaling stat(s) and grade. For spells, INT (Destruction, Arcane) or WIS (Restoration, Nature). While two-handing, the STR part is ×1.5.
+- **SkillBonus:** the skill of the weapon's category (One-Handed, Two-Handed, Archery; see [Stats and Classes](Stats-and-Classes.md)) or the spell's school. Tool hits get none.
 - **RequirementPenalty:** ×0.5 for each that applies: below the weapon's stat requirements, weapon category allowed by no held class, below a class ability's required stat. They multiply.
-- **WeakenedPenalty:** 0.2 while Weakened, otherwise 0.
-- **CritMultiplier:** applies only to riposte critical hits.
+- **WeakenedPenalty:** 0.2 while Weakened, otherwise 0. Weakened only lowers damage dealt, never healing.
+- **CritMultiplier:** applies only to a player's riposte critical hits. Enemies never land critical hits.
+- **TwoHandingMultiplier:** ×1.25 while two-handing a one-handed weapon, otherwise 1.
 - **Unarmed:** with an empty Right Hand, or a tool or torch in it, the unarmed profile is used (Blunt damage, STR scaling, One-Handed skill).
 - **Non-spell class abilities** deal a percentage of this damage (for example 150%) using the Right Hand weapon, or the unarmed profile.
 - **Felari Pounce** always uses the unarmed profile at 100%, with every penalty above applied. See [Races and Character Creation](Races-and-Character-Creation.md).
@@ -103,6 +140,9 @@ Incoming enemy damage:
 ```
 IncomingDamage = EnemyDamage × PlayerScaling × (1 − TargetResistance) × (1 − BlockPercent)
 ```
+
+- Enemy and Guard attacks never deal critical damage.
+- Class ability healing has no Weakened penalty.
 
 ### Damage types and resistance
 
@@ -163,8 +203,8 @@ A world setting, off by default. When off, player attacks, spells and area effec
 - You die when bleed-out ends. If every player is downed or dead at once, all downed players die.
 - In a single-player session there is no Downed state. 0 health means death.
 - You respawn 5 seconds later at your bed in this world, or at the world spawn point if you have no bed or it was destroyed.
-- On respawn: full health, 50% Hunger and Thirst, body temperature 37 °C, Fatigue 0, and **Weakened** for 5 minutes (−20% damage dealt, −20% max stamina).
-- Equipped gear loses 10% durability. **No items are dropped and no gold is lost.**
+- On respawn: full health, 50% Hunger and Thirst, body temperature 37 °C, Fatigue 0, and **Weakened** for 5 minutes (−20% damage dealt, −20% max stamina; healing isn't reduced).
+- Equipped gear loses 10% durability (jewelry has no durability). **No items are dropped and no gold is lost.**
 - Leaving cleanly while Downed (or any save written while Downed or dead) counts as a death: you respawn with the death effects on your next world entry. If your connection drops unexpectedly instead, your character keeps its last autosave.
 
 ## Enemies
@@ -271,13 +311,14 @@ Any boss can be re-summoned for more loot with a new offering.
 | Legendary | 5 + one unique Legendary power |
 
 - Rarity odds depend on the item-level band and are improved by Magic Find affixes.
+- **Jewelry** (rings and amulets) dropped by enemies or found in chests never rolls Common, so it always has at least 1 affix. Jewelry has no base stats, only affixes. See [Inventory](Inventory.md).
 - **Item level:** the enemy's level, or for a chest a random level within its region's band (rolled per player), or the crafted item level.
 - Affix values scale with item level. No affix appears twice on one item.
 - Affix examples: +STR/DEX/CON/INT/WIS/CHA, +% damage of a type, +resistance, +max health, +stamina regen, +Insulation/Cooling, +skill XP gain for a skill, +Magic Find, life on hit.
 
 ### Durability and requirements
 
-- Equipment loses durability with use. At 0 it is unusable, not destroyed, and keeps its hotkey.
+- Equipment loses durability with use. At 0 it is unusable, not destroyed, and keeps its hotkey. Jewelry has no durability.
 - Repair at the item's crafting station or with a Repair Kit. See [Crafting and Jobs](Crafting-and-Jobs.md).
 - Gear may have stat requirements (for example STR 16). You can still equip it, at 50% damage or 50% Armor and resistance.
 
@@ -285,4 +326,6 @@ Any boss can be re-summoned for more loot with a new offering.
 
 - [Combat and Loot](../../specs/combat-loot/combat-loot.md)
 - [Character Creation](../../specs/character-creation/character-creation.md) (racial combat traits)
+- [Character Progression](../../specs/character-progression/character-progression.md) (weapon categories and their skills)
+- [Inventory](../../specs/inventory/inventory.md) (jewelry)
 - [Factions and Kingdoms](../../specs/factions-kingdoms/factions-kingdoms.md) (factions, town NPCs, gold, raids)

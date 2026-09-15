@@ -24,7 +24,7 @@ REFERENCE: `research/unreal-5.6-5.8-features.md` (research date 2026-09-15) is t
 1. The engine is Unreal Engine 5.8, pinned at 5.8.2, and the project takes later 5.8 hotfix releases (`specs/game-foundation/game-foundation.md` Requirement 1). Every feature status in this spec is the 5.8 status from the research file.
 
 ### Feature Readiness Rule
-2. No feature that is Experimental in 5.8 ships in a core system. A core system is any system defined by a spec in the System Spec Index of `specs/game-foundation/game-foundation.md`. A Beta feature is used only where Requirement 3 lists it with a fallback. A feature on the Evaluate list (Requirement 5) is not used in shipped code until its evaluation criterion passes, the result is recorded in `specs/engine-tech/engine-tech-roadmap.md`, and this spec moves the feature to Requirement 3.
+2. No feature that is Experimental in 5.8 ships in a core system. A core system is any system defined by a spec in the System Spec Index of `specs/game-foundation/game-foundation.md`. A Beta feature is used only where Requirement 3 lists it with a fallback. A feature on the Evaluate list (Requirement 5) is not used in shipped code until its evaluation criterion passes, the result is recorded in `specs/engine-tech/engine-tech-roadmap.md` (created by the Researcher), and this spec moves the feature to Requirement 3.
 
 ### Adopted Features
 3. N.A.M.E.C adopts these features. Rows marked **(Evaluate)** are adopted provisionally: the benchmark milestone (Requirement 11) decides whether each keeps its primary path or switches to its fallback.
@@ -67,7 +67,7 @@ REFERENCE: `research/unreal-5.6-5.8-features.md` (research date 2026-09-15) is t
    - **Procedural Vegetation Editor.** Experimental, and its output depends on Nanite Foliage.
 
 ### Evaluate
-5. These features are evaluated before any system uses them. Each evaluation runs on 5.8 on the reference PC, and its result is recorded in `specs/engine-tech/engine-tech-roadmap.md`. Until a criterion passes, the fallback is the shipped path.
+5. These features are evaluated before any system uses them. Each evaluation runs on 5.8 on the reference PC, and its result is recorded in `specs/engine-tech/engine-tech-roadmap.md` (created by the Researcher). Until a criterion passes, the fallback is the shipped path.
 
    | Feature | Engine status in 5.8 | Evaluation criterion | Fallback |
    |---------|----------------------|----------------------|----------|
@@ -128,8 +128,8 @@ REFERENCE: `research/unreal-5.6-5.8-features.md` (research date 2026-09-15) is t
     - **Measurements** at each viewport count: average frame rate and 1% low frame rate, `stat gpu`, `NaniteStats`, VSM page invalidation, and draw calls.
     - **Checks** at each viewport count: terrain chunks are lit correctly after every re-mesh (no unlit or black chunks), under the GI method each tier uses in that run (Requirements 6 and 13).
     - **Pass:** the average frame rate over the run is at least 60 fps at 1 and 2 viewports and at least 30 fps at 3 and 4 viewports.
-    - **Record:** the results table for 1, 2, 3, and 4 viewports, the tier settings used, and the pass or fail result are recorded in `specs/engine-tech/engine-tech-roadmap.md`. When the project moves to a new 5.8 hotfix, the benchmark runs again and the new results are recorded before the hotfix is merged.
-12. After a passing run, `DT_MP_SplitScreenScalability` is tuned from the recorded results: each tier gets the highest settings that still pass at every viewport count it covers. The provisional (Evaluate) rows of Requirement 3 keep their primary path when the run passes with them on. The keep-primary or fallback decision for each Requirement 3 (Evaluate) row is recorded in `specs/engine-tech/engine-tech-roadmap.md`.
+    - **Record:** the results table for 1, 2, 3, and 4 viewports, the tier settings used, and the pass or fail result are recorded in `specs/engine-tech/engine-tech-roadmap.md` (created by the Researcher). When the project moves to a new 5.8 hotfix, the benchmark runs again and the new results are recorded before the hotfix is merged.
+12. After a passing run, `DT_MP_SplitScreenScalability` is tuned from the recorded results: each tier gets the highest settings that still pass at every viewport count it covers. The provisional (Evaluate) rows of Requirement 3 keep their primary path when the run passes with them on. The keep-primary or fallback decision for each Requirement 3 (Evaluate) row is recorded in `specs/engine-tech/engine-tech-roadmap.md` (created by the Researcher).
 13. When a target is missed, fallbacks are applied one step at a time, in this order, and the benchmark runs again after each step until every target passes. Each step applies only to the tier that failed.
     1. Lower foliage density and view distance.
     2. Lower VSM quality by one level, and shorten the WPO Disable Distance on trees and foliage.
@@ -148,7 +148,7 @@ REFERENCE: `research/unreal-5.6-5.8-features.md` (research date 2026-09-15) is t
 2. A terrain edit replicates (`specs/voxel-world/voxel-world.md` Data Flow 4) → the client re-meshes the chunk with tightly fitted bounds → the new non-Nanite chunk mesh updates in the ray tracing scene for Lumen HWRT → VSM invalidates only the pages overlapping the chunk bounds.
 3. A tree reaches 0 health (`specs/voxel-world/voxel-world.md` Data Flow 5) → the server replaces the tree instance with a replicated simulating actor using the same Nanite static mesh → every client renders the falling mesh (Nanite unless Requirement 13 step 4 replaced Nanite trees).
 4. A building piece reaches 0 health → the server replicates the destroyed state → each client plays the local Nanite Geometry Collection fracture, or the damage-state fallback (Requirement 3).
-5. The Researcher runs `L_Benchmark_SplitScreen` → `ANamecBenchmarkDirector` reads run parameters from `DT_Engine_Benchmark` → runs the scripted run at 1, 2, 3, and 4 viewports → writes the measurements per viewport count to a results file under `Saved/Benchmark/` → the Researcher records the results table in `specs/engine-tech/engine-tech-roadmap.md` → tunes `DT_MP_SplitScreenScalability` (Requirement 12) or applies the Requirement 13 fallbacks.
+5. The Researcher runs `L_Benchmark_SplitScreen` → `ANamecBenchmarkDirector` reads run parameters from `DT_Engine_Benchmark` → runs the scripted run at 1, 2, 3, and 4 viewports → writes the measurements per viewport count to a results file under `Saved/Benchmark/` → the Researcher records the results table in `specs/engine-tech/engine-tech-roadmap.md` (created by the Researcher) → tunes `DT_MP_SplitScreenScalability` (Requirement 12) or applies the Requirement 13 fallbacks.
 
 ## Edge Cases
 1. When a machine goes from 2 to 3 local viewports, it switches to the Split tier at once, and switches back to the High tier when a local player leaves and the count drops to 2.
@@ -163,7 +163,7 @@ REFERENCE: `research/unreal-5.6-5.8-features.md` (research date 2026-09-15) is t
 ## Acceptance Criteria
 - [ ] `NAMEC.uproject` names Unreal Engine 5.8, the project builds on 5.8.2, and no plugin for a Requirement 4 feature is enabled.
 - [ ] No core system uses a feature that is Experimental in 5.8.
-- [ ] `specs/engine-tech/engine-tech-roadmap.md` holds a passing benchmark run's results for 1, 2, 3, and 4 viewports, with average and 1% low frame rate, `stat gpu`, `NaniteStats`, VSM page invalidation, and draw calls, before any content production milestone starts.
+- [ ] `specs/engine-tech/engine-tech-roadmap.md` (created by the Researcher) holds a passing benchmark run's results for 1, 2, 3, and 4 viewports, with average and 1% low frame rate, `stat gpu`, `NaniteStats`, VSM page invalidation, and draw calls, before any content production milestone starts.
 - [ ] On the reference PC, the benchmark averages at least 60 fps at 1 and 2 viewports and at least 30 fps at 3 and 4 viewports while all 4 characters edit terrain.
 - [ ] Terrain chunks re-meshed during the benchmark are lit correctly by the GI method each tier uses in that run (Lumen HWRT in the High tier unless a Requirement 13 fallback step replaced it), with no unlit chunks.
 - [ ] Adding a third local player switches that machine to the Split tier, and removing it switches back to the High tier.
@@ -176,7 +176,7 @@ REFERENCE: `research/unreal-5.6-5.8-features.md` (research date 2026-09-15) is t
 
 ## Key Files
 - `research/unreal-5.6-5.8-features.md` — existing; evidence source for every engine claim in this spec (REFERENCE).
-- `specs/engine-tech/engine-tech-roadmap.md` — new (Researcher); benchmark results table, tier settings used, fallback steps applied, Requirement 3 (Evaluate) row decisions, and Evaluate criterion results (Requirements 5 and 11–13).
+- `specs/engine-tech/engine-tech-roadmap.md` — new, created by the Researcher (not present until the Researcher writes the roadmap); benchmark results table, tier settings used, fallback steps applied, Requirement 3 (Evaluate) row decisions, and Evaluate criterion results (Requirements 5 and 11–13).
 - `NAMEC.uproject` — changed; engine version 5.8 and enabled plugins for every Requirement 3 feature that ships as a plugin (`specs/game-foundation/game-foundation.md` Requirement 1).
 - `Config/DefaultEngine.ini` — changed; renderer settings for Lumen with hardware ray tracing, Virtual Shadow Maps, Substrate, and Nanite.
 - `Source/NAMEC/Multiplayer/NamecSplitScreenScalabilitySubsystem.h` — new; selects and applies the High or Split tier from the machine's local viewport count, and regenerates cosmetic PCG placement at the tier's foliage density (Requirements 6–7).

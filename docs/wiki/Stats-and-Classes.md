@@ -1,6 +1,6 @@
 # Stats and Classes
 
-This page covers the six stats, character level and stat points, class slots, the 11 classes, armor categories, class levels and abilities, and the ability bar.
+This page covers the six stats, character level and stat points, class slots, the 11 classes and their allowed armor and weapon categories, armor categories, weapon categories, class levels and abilities, and the ability bar.
 
 ← [Home](Home.md)
 
@@ -76,21 +76,21 @@ Modifier = floor((score - 10) / 2)
 
 ## The 11 classes
 
-| Class | Allowed armor categories |
-|-------|--------------------------|
-| Warrior | Cloth, Leather, Metal |
-| Knight | Cloth, Leather, Metal |
-| Paladin | Cloth, Leather, Metal |
-| Barbarian | Cloth, Leather |
-| Ranger | Cloth, Leather |
-| Rogue | Cloth, Leather |
-| Druid | Cloth, Leather |
-| Bard | Cloth, Leather |
-| Mage | Cloth |
-| Cleric | Cloth |
-| Warlock | Cloth |
+| Class | Allowed armor categories | Allowed weapon categories |
+|-------|--------------------------|---------------------------|
+| Warrior | Cloth, Leather, Metal | One-Handed Sword, One-Handed Axe, One-Handed Mace, Two-Handed Sword, Two-Handed Axe, Shield |
+| Knight | Cloth, Leather, Metal | One-Handed Sword, One-Handed Mace, Spear, Shield |
+| Paladin | Cloth, Leather, Metal | One-Handed Sword, One-Handed Mace, Two-Handed Hammer, Shield |
+| Barbarian | Cloth, Leather | Two-Handed Axe, Two-Handed Hammer, Two-Handed Sword, One-Handed Axe |
+| Ranger | Cloth, Leather | Bow, One-Handed Sword, Dagger |
+| Rogue | Cloth, Leather | Dagger, One-Handed Sword, Bow |
+| Druid | Cloth, Leather | Staff, Spear, Dagger |
+| Bard | Cloth, Leather | One-Handed Sword, Dagger, Bow |
+| Mage | Cloth | Staff, Dagger |
+| Cleric | Cloth | One-Handed Mace, Staff, Shield |
+| Warlock | Cloth | Staff, Dagger, One-Handed Sword |
 
-Each class also has stat bonuses (starting class only), an ability list and allowed weapon categories. The specs give Warrior's bonus (+2 STR, +1 CON) as an example and name one ability, the Cleric's "Revivify" (instant revive within 15 m). Other bonuses, weapon categories and ability names are not yet listed in the specs.
+Each class also has stat bonuses (starting class only) and an ability list. The specs give Warrior's bonus (+2 STR, +1 CON) as an example and name one ability, the Cleric's "Revivify" (instant revive within 15 m). Other bonuses and ability names are not yet listed in the specs.
 
 ## Armor categories
 
@@ -102,10 +102,34 @@ Every armor piece has exactly one category.
 | Leather | Leatherworker | Light Armor |
 | Metal | Armorsmith | Heavy Armor |
 
+Capes (Cloak slot) and jewelry (Neck and Ring slots) are not armor. They have no armor category, take no category penalty, train no armor skill, and don't count toward the 3 pieces an armor skill needs. See [Inventory](Inventory.md).
+
+## Weapon categories
+
+Every weapon and shield has exactly one category.
+
+| Category | Hands | Trains skill | Made by |
+|----------|-------|--------------|---------|
+| One-Handed Sword | One | One-Handed | Blacksmith |
+| One-Handed Axe | One | One-Handed | Blacksmith |
+| One-Handed Mace | One | One-Handed | Blacksmith |
+| Dagger | One | One-Handed | Blacksmith |
+| Spear | One | One-Handed | Blacksmith (metal spear head) |
+| Two-Handed Sword | Both hand slots | Two-Handed | Blacksmith |
+| Two-Handed Axe | Both hand slots | Two-Handed | Blacksmith |
+| Two-Handed Hammer | Both hand slots | Two-Handed | Blacksmith |
+| Staff | One (Right Hand) | One-Handed | Carpenter |
+| Bow | Both hand slots | Archery | Carpenter |
+| Shield | Left Hand | Block | Armorsmith |
+
+- A spear is wielded one-handed, so you can carry a shield with it.
+- A staff is a melee focus in your Right Hand. Your Left Hand can hold a shield or torch with it. Its melee hits train One-Handed. Spells still come only from class abilities.
+- Tools (axes, pickaxes, shovels, Hammers, Fishing Rods) and torches have no weapon category. See [Combat and Loot](Combat-and-Loot.md) for tool hits on enemies.
 ## Wearing or wielding outside your classes
 
 - Any character can equip any weapon or armor.
-- A weapon of a category no held class allows deals 50% damage (starting value, tunable).
+- A weapon of a category no held class allows deals 50% damage (starting value, tunable). Example: a Mage with a One-Handed Sword deals 50% damage, a Warlock with the same sword deals full damage.
+- A shield of a category no held class allows has its block percentage halved.
 - An armor piece of a category no held class allows gives 50% of its Armor and resistance values.
 - Gear below its stat requirements (for example STR 16) takes the same 50% penalty.
 - Penalties multiply. An armor piece both outside your classes and below requirements gives 25%.
@@ -149,6 +173,6 @@ A level-up of any skill, class or character level shows a toast on the owning pl
 
 ## Source spec
 
-- [Character Progression](../../specs/character-progression/character-progression.md)
+- [Character Progression](../../specs/character-progression/character-progression.md) (including weapon categories)
 - [Character Creation](../../specs/character-creation/character-creation.md) (racial stat bonuses and the racial ability slot)
 - [Factions and Kingdoms](../../specs/factions-kingdoms/factions-kingdoms.md) (Vendor prices and quest XP)

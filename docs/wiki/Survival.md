@@ -96,7 +96,7 @@ You are in at most one state at a time.
 
 ## Stamina
 
-- Spent by dodge rolls, attacks, blocking hits, sprinting, climbing and swimming. Vanari pay 50% less to climb, and Felari pay 50% more to swim.
+- Spent by dodge rolls, attacks, bow shots (aimed or quick), blocking hits, sprinting, climbing and swimming. Vanari pay 50% less to climb, and Felari pay 50% more to swim.
 - Regenerates after 1 second (starting value, tunable) without spending.
 - Base max stamina comes from CON.
 
@@ -118,6 +118,7 @@ At Fatigue 100 with nothing else active, max stamina is 50%.
 ## Sleep and beds
 
 - Interacting with a placed bed sets it as your respawn point **in this world** and puts you in bed. Each world keeps its own bed per character.
+- Press B (keyboard Space) to get out of bed.
 - If that bed is destroyed or deconstructed, the respawn point is cleared and you respawn at the world spawn point.
 - **Everyone in bed at once:** time skips to the next morning (06:00 in-game) and everyone's Fatigue resets to 0.
 - **Not everyone in bed:** time does not skip, and each player in bed loses 5 Fatigue per second (starting value, tunable).

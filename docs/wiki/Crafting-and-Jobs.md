@@ -10,14 +10,14 @@ Every character can level every Job, independent of class. Jobs level 1–100 (s
 
 | Job | Makes | Station |
 |-----|-------|---------|
-| Blacksmith | Metal weapons, metal tools (axes, pickaxes, shovels), Repair Kits | Forge |
-| Armorsmith | Metal armor (Metal category), shields | Forge |
-| Carpenter | Wooden building pieces, furniture (including beds and Mirrors, Carpenter level 5), storage containers (chests, barrels, crates), training dummies, torches, bows, arrows, wooden tools (including Hammers and Fishing Rods), stone tools (Stone Axe, Stone Pickaxe), Workbenches, Campfires, Stonecutters, Alchemy Tables, Looms, Tanning Racks, Dye Stations | Workbench |
+| Blacksmith | Metal weapons (One-Handed Sword, One-Handed Axe, One-Handed Mace, Dagger, Spear, Two-Handed Sword, Two-Handed Axe, Two-Handed Hammer), metal tools (axes, pickaxes, shovels), Repair Kits, Plain Rings and Plain Amulets | Forge |
+| Armorsmith | Metal armor (Metal category), shields (Shield category) | Forge |
+| Carpenter | Wooden building pieces, furniture (including beds and Mirrors, Carpenter level 5), storage containers (chests, barrels, crates), training dummies, torches, bows, staves, arrows, wooden tools (including Hammers and Fishing Rods), stone tools (Stone Axe, Stone Pickaxe, Stone Shovel), Workbenches, Campfires, Stonecutters, Alchemy Tables, Looms, Tanning Racks, Dye Stations | Workbench |
 | Mason | Stone building pieces, Forges, Enchanting Altars, stone fortifications | Stonecutter |
 | Alchemist | Potions (healing, mana, resistance), poisons, weapon oils, dyes | Alchemy Table |
 | Cook | Meals that restore hunger and thirst and grant timed buffs | Cooking Fire (the Campfire is the tier-1 Cooking Fire) |
-| Tailor | Cloth armor, cold-weather and hot-weather clothing (all Cloth category), bags | Loom |
-| Leatherworker | Leather armor (Leather category), waterskins | Tanning Rack |
+| Tailor | Cloth armor, cold-weather and hot-weather clothing (all Cloth category), cloth capes (no armor category), bags | Loom |
+| Leatherworker | Leather armor (Leather category), leather cloaks (no armor category), waterskins | Tanning Rack |
 | Enchanter | Runes that add or reroll affixes on existing gear | Enchanting Altar |
 
 ## Job XP, recipes and perks
@@ -47,18 +47,19 @@ A hand-crafting menu, opened from the inventory screen, crafts without any stati
 |-------------|--------|
 | Stone Axe | Stick, Stone, Fiber |
 | Stone Pickaxe | Stick, Stone, Fiber |
+| Stone Shovel | Stick, Stone, Fiber |
 | Workbench | Stick, Stone, Fiber (one recipe) or Wood (a second recipe) |
 | Hammer | drawn only from Stick, Stone, Fiber and Wood |
 | Campfire | drawn only from Stick, Stone, Fiber and Wood |
 | Torch | drawn only from Stick, Stone, Fiber and Wood |
 
-All six are Carpenter recipes at Job level 1 and give Carpenter XP. The specs fix which of the four materials the Stone Axe, Stone Pickaxe and Workbench use. Exact inputs for the Hammer, Campfire and Torch, and all quantities, are set per recipe in data.
+All seven are Carpenter recipes at Job level 1 and give Carpenter XP. The specs fix which of the four materials the Stone Axe, Stone Pickaxe, Stone Shovel and Workbench use. The Stone Shovel is a Tier 0 shovel and, like every shovel, digs only soft materials (see [World and Building](World-and-Building.md)). Exact inputs for the Hammer, Campfire and Torch, and all quantities, are set per recipe in data.
 
 **Bootstrap path for a character with no items:**
 
 1. Pick up Loose Sticks and Loose Stones by hand, and harvest Fiber from fiber plants.
-2. Hand-craft a Stone Axe and Stone Pickaxe.
-3. Gather Wood and Stone with them.
+2. Hand-craft a Stone Axe, a Stone Pickaxe and a Stone Shovel.
+3. Gather Wood and Stone with the axe and pickaxe, and dig soft ground (such as Soil) with the shovel.
 4. Hand-craft a Workbench and a Hammer (and a Campfire and Torches).
 5. At the Workbench (Carpenter): craft a Stonecutter, Alchemy Table, Loom and Tanning Rack.
 6. At the Stonecutter (Mason): craft a Forge and an Enchanting Altar.
@@ -84,10 +85,11 @@ Each boss material is a distinct item. Each recipe names the specific boss mater
 
 ## Crafted gear quality
 
-Equipment outputs (weapons, armor, tools, clothing) roll rarity and affixes like dropped loot (see [Combat and Loot](Combat-and-Loot.md)), with two crafting rules:
+Equipment outputs (weapons, armor, tools, clothing, capes) roll rarity and affixes like dropped loot (see [Combat and Loot](Combat-and-Loot.md)), with two crafting rules:
 
 - **Rarity floor:** higher Job level raises the minimum rarity. Example from the spec: Job 50+ never crafts Common.
 - **Item level** = recipe tier × 10 + floor(Job level / 10).
+- **Jewelry exception:** the Blacksmith's Plain Ring and Plain Amulet skip the rarity roll. They are always Common with 0 affixes, as bases for an Enchanter's add rune. Their item level still uses the formula.
 
 | Recipe tier | Item level at Job 1 | Item level at Job 100 |
 |-------------|---------------------|-----------------------|
@@ -97,13 +99,15 @@ Equipment outputs (weapons, armor, tools, clothing) roll rarity and affixes like
 | 4 | 40 | 50 |
 | 5 | 50 | 60 |
 
-Consumables (potions, meals, arrows) do not roll affixes. Their potency scales with Job level.
+Consumables (potions, meals, arrows) do not roll affixes. Their potency scales with Job level. For arrows (a Carpenter recipe), the crafter's Carpenter level raises the arrow's ArrowDamage. See [Combat and Loot](Combat-and-Loot.md).
+
+Arrows, potions and meals with no crafter (looted, bought from a Vendor, or found) have the potency of a Job level 1 craft. Consumables with different potency don't stack together: they show as separate inventory rows (see [Inventory](Inventory.md)).
 
 ## Enchanter runes
 
 Runes are applied at an Enchanting Altar and do one of two things:
 
-- **Add** one affix to an item that has fewer affixes than its rarity's maximum. The affix type is random from the slot's pool, excluding types already on the item.
+- **Add** one affix to an item that has fewer affixes than its rarity's maximum. The affix type is random from the slot's pool, excluding types already on the item. Exception: an add rune also works on a Common Plain Ring or Plain Amulet with 0 affixes, and the new affix makes it Magic.
 - **Reroll** one chosen affix. It becomes a different random type from the slot's pool, excluding every type already on the item (including the one being rerolled).
 
 Both roll the new affix's value. A rune's tier is the tier of the Enchanting Altar it was crafted at. The value rolls as if the item level were the lower of the item's own level and the rune's max item level:
@@ -116,7 +120,7 @@ Both roll the new affix's value. A rune's tier is the tier of the Enchanting Alt
 
 ## Repair
 
-Equipment loses durability with use. At 0 it is unusable but not destroyed.
+Equipment loses durability with use. At 0 it is unusable but not destroyed. Jewelry has no durability and never needs repair.
 
 - **Station repair:** at the station of the item's crafting Job, restore full durability for 25% (starting value, tunable) of the item's recipe materials, rounded up. Dropped items with no recipe use their base item type's recipe.
 - **Repair Kit:** a Blacksmith recipe (Job level 1). Repairs any item to full at any crafting station, with no Job level requirement, using one kit.
@@ -136,7 +140,7 @@ Equipment loses durability with use. At 0 it is unusable but not destroyed.
 
 ### Dye zones
 
-Armor, clothing, cloaks, bags, shields and weapons each have 1–4 dye zones: **Primary, Secondary, Accent, Trim**. Every dye zone works on every race and sex. A zone's color is a material parameter set on the item as rendered, so dyeing never rebuilds the character's appearance.
+Armor, clothing, cloaks, bags, shields and weapons each have 1–4 dye zones: **Primary, Secondary, Accent, Trim**. Jewelry has none. Every dye zone works on every race and sex. A zone's color is a material parameter set on the item as rendered, so dyeing never rebuilds the character's appearance.
 
 ### Dyeing an item
 
@@ -152,3 +156,5 @@ Armor, clothing, cloaks, bags, shields and weapons each have 1–4 dye zones: **
 ## Source spec
 
 - [Crafting Jobs](../../specs/crafting-jobs/crafting-jobs.md)
+- [Character Progression](../../specs/character-progression/character-progression.md) (which Job crafts each weapon category)
+- [Inventory](../../specs/inventory/inventory.md) (capes and jewelry)

@@ -9,7 +9,7 @@ This page lists every `DT_*` DataTable named in the specs, grouped by system, wi
 - All tables live in `Content/Data/` and are named `DT_<System>_<Purpose>`.
 - Every numeric balance value is a starting value in a table and is editable without a C++ rebuild.
 - Each system has a catch-all rules table: a value the specs mark "tuning value" without naming a table lives in that system's rules table (`DT_Character_Races`, `DT_Progression_Rules`, `DT_Crafting_Rules`, `DT_Survival_Penalties`, `DT_World_Building`, `DT_Combat_Rules`, `DT_Inventory_Rules`, `DT_MP_Session`, `DT_Factions_Rules`, `DT_Engine_Benchmark`).
-- Per-item values (weight, `Value`, dye zones, quest item flag, damage, insulation, armor category, `Poise`, `PoiseDamage`, bag bonus, food/drink restore values, block percentage, stat requirements, scaling stat and grade) are on item definition data assets, not DataTables.
+- Per-item values (weight, `Value`, dye zones, quest item flag, damage, `ArrowDamage` for arrows, insulation, armor category, `Poise`, `PoiseDamage`, bag bonus, food/drink restore values, block percentage, stat requirements, scaling stat and grade) are on item definition data assets, not DataTables.
 - "Columns mentioned" lists only what the specs name. Tables will have more once implemented.
 
 ## Core (game-foundation)
@@ -17,7 +17,7 @@ This page lists every `DT_*` DataTable named in the specs, grouped by system, wi
 | Table | Purpose | Columns / values mentioned |
 |-------|---------|----------------------------|
 | `DT_Core_Save` | Save tuning | Autosave interval (5 min) |
-| `DT_Core_Input` | Input thresholds | View hold time for camera toggle (0.5 s), stick flick threshold |
+| `DT_Core_Input` | Input thresholds | View hold time for camera toggle (0.5 s), Hammer deconstruct hold (1 s), stick flick threshold |
 
 ## Character (character-creation)
 
@@ -30,7 +30,7 @@ This page lists every `DT_*` DataTable named in the specs, grouped by system, wi
 
 | Table | Purpose | Columns / values mentioned |
 |-------|---------|----------------------------|
-| `DT_Progression_Classes` | 11 class rows | Stat bonuses (starting class only), ability list, allowed armor categories, allowed weapon categories |
+| `DT_Progression_Classes` | 11 class rows | Stat bonuses (starting class only), ability list, allowed armor categories, allowed weapon categories (per-class lists on [Stats and Classes](Stats-and-Classes.md)) |
 | `DT_Progression_ClassAbilities` | Class abilities | Owning class, unlock class level, base XP, school (spells only), mana cost, stamina cost, cooldown, base damage (spells only), WeaponDamagePercent (non-spell damaging abilities), BaseHealing (healing abilities), PoiseDamage, RequiredStat, RequiredValue |
 | `DT_Progression_SkillXPSources` | Meaningful-use XP per skill | Base XP per action, difficulty multipliers by target tier (ore tier, tree tier, enemy level relative to character level) |
 | `DT_Progression_SkillXPCurve` | XP per skill level | Levels 1–100 |
@@ -49,7 +49,7 @@ This page lists every `DT_*` DataTable named in the specs, grouped by system, wi
 | `DT_Crafting_Recipes` | All recipes, including dye items | Owning Job, required Job level, required station ("None" for hand-crafting), station tier (recipe tier), input items and quantities, output item and quantity, craft time (s), base XP, TierMultiplier |
 | `DT_Crafting_JobXPCurve` | XP per Job level | Levels 1–100 |
 | `DT_Crafting_QualityByLevel` | Rarity floors by Job level | e.g. Job 50+ never Common |
-| `DT_Crafting_ConsumablePotency` | Consumable potency scaling by Job level | Potions, meals, arrows |
+| `DT_Crafting_ConsumablePotency` | Consumable potency scaling by Job level | Potions, meals, arrows (Carpenter Job level scales `ArrowDamage`); the Job level 1 potency used by looted, bought and found consumables |
 | `DT_Crafting_JobPerks` | Job milestone perks at 25/50/75/100 | e.g. Cook 50 meals last 25% longer |
 | `DT_Crafting_DyeColors` | Dye palette | 48 rows: color ID, display name, linear color value, dye item definition |
 | `DT_Crafting_Rules` | Crafting tuning | Attachment bind range (5 m), material pull range (10 m), craft range (10 m), queue size (10), low-level XP penalty (20 levels below → 10%), RuneMaxItemLevel per rune tier (20/30/40/50/60), Job level cap (100), Dye Station interaction range |
@@ -60,7 +60,7 @@ This page lists every `DT_*` DataTable named in the specs, grouped by system, wi
 |-------|---------|----------------------------|
 | `DT_Survival_DrainRates` | Meter drain | Hunger and Thirst drain per minute, activity multipliers, Fatigue per stamina point spent |
 | `DT_Survival_Temperature` | Temperature model | Insulation, Cooling and WIS coefficients for comfort range, inside-range and outside-range drift rates, heat source max contributions |
-| `DT_Survival_StaminaCosts` | Stamina costs | Light attack, heavy attack, dodge roll, block per hit, sprint per second, climbing, swimming |
+| `DT_Survival_StaminaCosts` | Stamina costs | Light attack, heavy attack, dodge roll, block per hit, sprint per second, bow shot (per aimed or quick shot), climbing, swimming |
 | `DT_Survival_Movement` | Swim and climb speed | Base swim speed and base climb speed as fractions of base walk speed (0.5 each) |
 | `DT_Survival_Penalties` | Survival tuning | Survival tick (1 s); starvation (1% / 5 s, regen stop); dehydration (1% / 3 s, max stamina ×0.5); temperature state penalties; Wet duration (60 s); stamina regen delay (1 s); sleep (06:00 skip, −5 Fatigue/s, 10 s combat block); swimming exhaustion (2%/s); Breath (30 s, 2 s refill, 5%/s) |
 
@@ -86,9 +86,9 @@ This page lists every `DT_*` DataTable named in the specs, grouped by system, wi
 | `DT_Combat_StatusEffects` | Status effects | Buildup and duration for Poison, Bleed, Burn, Frostbite; Poison buildup for drinking Poison water, Poison Water/Poison Plant contact, Lava Burn buildup |
 | `DT_Combat_Spawning` | Enemy spawning | Spawn density and max live enemies per streamed chunk, by region |
 | `DT_Combat_PlayerScaling` | Player-count scaling | Health (+60% per extra player), damage (+10% per extra player) |
-| `DT_Combat_Rules` | Combat tuning | Bleed-out (30 s, 1 s per 1% max health), revive (4 s, 2 m, 30% health), Revivify range (15 m), respawn (5 s, 50% Hunger/Thirst, Weakened 5 min, −20% damage, −20% max stamina, −10% durability), lock-on range (20 m), poise regen delay (3 s), loot eligibility (50 m), loot despawn (10 min), repair cost (25%), requirement penalty (0.5), crit multiplier, Unarmed weapon profile (WeaponBase, STR scaling, One-Handed skill, `PoiseDamage`), ArmorConstant (100), resistance cap (0.9), spawn exclusion (25 m from buildings, 40 m from players), minimum fall height and fall damage per meter, execution range (2.5 m), forward execution angle, execution health threshold (20%), execution stamina restore (20%), execution skill XP multiplier (×3) |
+| `DT_Combat_Rules` | Combat tuning | Bleed-out (30 s, 1 s per 1% max health), revive (4 s, 2 m, 30% health), Revivify range (15 m), respawn (5 s, 50% Hunger/Thirst, Weakened 5 min, −20% damage, −20% max stamina, −10% durability), lock-on range (20 m), poise regen delay (3 s), loot eligibility (50 m), loot despawn (10 min), repair cost (25%), requirement penalty (0.5), crit multiplier (player ripostes only), TwoHandingMultiplier (×1.25), two-handing STR contribution multiplier (×1.5), QuickShotDamageMultiplier (×0.5), ToolEnemyDamageMultiplier (×0.5), BlockPoiseMultiplier (×0.5), Unarmed weapon profile (WeaponBase, STR scaling, One-Handed skill, `PoiseDamage`), ArmorConstant (100), resistance cap (0.9), spawn exclusion (25 m from buildings, 40 m from players), minimum fall height and fall damage per meter, execution range (2.5 m), forward execution angle, execution health threshold (20%), execution stamina restore (20%), execution skill XP multiplier (×3) |
 | `DT_Combat_Executions` | Execution animations | Paired attacker and victim animation sets keyed by weapon category (with an Unarmed set) and skeleton family, plus a generic set per skeleton family |
-| `DT_Loot_RarityWeights` | Rarity odds | Weights by item-level band, for drops and crafts |
+| `DT_Loot_RarityWeights` | Rarity odds | Weights by item-level band, for drops and crafts (dropped jewelry excludes the Common weight; crafted Plain jewelry skips the roll) |
 | `DT_Loot_Affixes` | Affix pools | Per-slot affix pools, value ranges by item level, Legendary unique powers (excluded from slots where invalid) |
 | `DT_Loot_Tables` | Drop tables | Item categories and drop counts per enemy and chest type, gold ranges (Hostile enemies and chests), boss offering drop rates |
 
