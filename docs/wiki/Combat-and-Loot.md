@@ -183,6 +183,8 @@ IncomingDamage = EnemyDamage × PlayerScaling × (1 − TargetResistance) × (1 
 | Physical | Slash, Pierce, Blunt |
 | Elemental and other | Fire, Frost, Lightning, Poison, Holy, Shadow |
 
+- Every weapon has one damage type. Weapon hits, off-hand attacks and non-spell class abilities deal the weapon's type, and bow shots deal the bow's type. Unarmed hits and tool swings deal Blunt. Each spell has its own damage type.
+
 - Players have an Armor value plus one resistance per damage type. Equipped items (and resistance affixes) add to them.
 - Against Slash, Pierce or Blunt: resistance = Armor ÷ (Armor + 100) + the matching subtype resistance. The constant 100 is a starting value, tunable.
 - Against other types: the matching resistance only.

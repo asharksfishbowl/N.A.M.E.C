@@ -178,7 +178,7 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 |------|---------|
 | `NamecInventoryComponent.h` | Item storage (one row per item definition plus potency value, rune tier and waterskin remaining drinks), weight, equip slots, favorites, hotkeys |
 | `NamecItemCategories.h` | Armor category enum and weapon category enum (hand use, trained skill) |
-| `NamecItemDefinition.h` | Item definition data asset (weight, `Value`, category, slot, armor category, weapon category, `Poise` for armor, `PoiseDamage` for weapons, block percentage and parry-capable flag for weapons and shields, `WeaponBase` for weapons and every tool except the Fishing Rod, `ArrowDamage` for arrows, Insulation or Cooling for capes, `DrinkCapacity` for waterskins, jewelry's no-durability flag, dye zones and mask channels, quest item flag, effects) |
+| `NamecItemDefinition.h` | Item definition data asset (weight, `Value`, category, slot, armor category, weapon category, `Poise` for armor, `PoiseDamage` and damage type for weapons, block percentage and parry-capable flag for weapons and shields, `WeaponBase` for weapons and every tool except the Fishing Rod, `ArrowDamage` for arrows, Insulation or Cooling for capes, `DrinkCapacity` for waterskins, jewelry's no-durability flag, dye zones and mask channels, quest item flag, effects) |
 | `NamecContainerActor.h` | Placeable storage container (subclass of `ANamecBuildPiece`) with weight capacity |
 
 ### `Source/NAMEC/Multiplayer/`
@@ -236,7 +236,7 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 
 | File | Purpose |
 |------|---------|
-| `NamecWearableVariantValidator.h` | Data validator: fails the content build when a wearable item is missing any of the 12 race × sex body variants, a required ear/frill/crest/mane or tail visibility setting, or (hand armor) any of the 12 first-person variants, or when a defined dye zone is missing from any variant's material mask |
+| `NamecWearableVariantValidator.h` | Data validator: fails the content build when a wearable item is missing any of the 12 race × sex body variants, a required ear/frill/crest/mane/hair or tail visibility setting, or (hand armor) any of the 12 first-person variants, or when a defined dye zone is missing from any variant's material mask |
 | `NamecVendorStockValidator.h` | Data validator: fails the content build when a `DT_Factions_VendorStock` row names a boss material |
 | `NamecCampEnemyValidator.h` | Data validator: fails the content build when a Bandits or Beastmen camp density above 0 has no matching enemy row for that region |
 | `NamecNaniteAuthoringValidator.h` | Data validator: fails the content build when a Nanite mesh uses translucency, Lighting Channels, unclamped WPO or Nanite Tessellation |

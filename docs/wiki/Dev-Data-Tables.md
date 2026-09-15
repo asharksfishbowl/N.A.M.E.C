@@ -31,7 +31,7 @@ This page lists every `DT_*` DataTable named in the specs, grouped by system, wi
 | Table | Purpose | Columns / values mentioned |
 |-------|---------|----------------------------|
 | `DT_Progression_Classes` | 11 class rows | Stat bonuses (starting class only), ability list, allowed armor categories, allowed weapon categories (per-class lists on [Stats and Classes](Stats-and-Classes.md)) |
-| `DT_Progression_ClassAbilities` | Class abilities | Owning class, unlock class level, base XP, school (spells only), mana cost, stamina cost, cooldown, base damage (spells only), WeaponDamagePercent (non-spell damaging abilities), BaseHealing (healing abilities), PoiseDamage, RequiredStat, RequiredValue |
+| `DT_Progression_ClassAbilities` | Class abilities | Owning class, unlock class level, base XP, school (spells only), mana cost, stamina cost, cooldown, base damage (spells only), damage type (spells only), WeaponDamagePercent (non-spell damaging abilities), BaseHealing (healing abilities), PoiseDamage, RequiredStat, RequiredValue |
 | `DT_Progression_SkillXPSources` | Meaningful-use XP per skill | Base XP per action, difficulty multipliers by target tier (ore tier, tree tier, enemy level relative to character level) |
 | `DT_Progression_SkillXPCurve` | XP per skill level | Levels 1–100 |
 | `DT_Progression_ClassXPCurve` | XP per class level | Levels 1–20 |
