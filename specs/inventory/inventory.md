@@ -26,10 +26,10 @@ Inventory is Skyrim-style: no slots or grid, just a categorized list limited by 
 
 ### Inventory Screen
 7. The inventory screen is a vertical list with category tabs: All, Favorites, Weapons, Armor, Clothing, Tools, Runes, Potions, Food, Ingredients, Materials, Building, Misc.
-8. Each row shows: icon, name (colored by rarity), quantity, weight, and an equipped/favorite marker. The selected item shows a detail panel with stats, affixes, durability, requirements, a comparison against the currently equipped item in the same slot, and a 3D preview.
+8. Each row shows: icon, name (colored by rarity), quantity, weight, and an equipped/favorite marker. The selected item shows a detail panel with stats, affixes, durability, requirements, `Value` (Requirement 21), dye colors per zone (Requirement 23), a comparison against the currently equipped item in the same slot, and a 3D preview.
 9. Sort options: Name, Weight, Rarity, Item Level, Recently Acquired. Sort choice persists per character.
-10. Actions on a selected item: Equip/Unequip, Use (consumables), Favorite/Unfavorite, Drop (choose quantity), Inspect. The inventory screen also opens the hand-crafting menu (see `specs/crafting-jobs/crafting-jobs.md` Requirement 16).
-11. The footer always shows carried weight / `MaxCarryWeight`.
+10. Actions on a selected item: Equip/Unequip, Use (consumables), Favorite/Unfavorite, Drop (choose quantity), Inspect. The inventory screen also opens the hand-crafting menu (see `specs/crafting-jobs/crafting-jobs.md` Requirement 16). Quest items cannot be dropped (Requirement 24).
+11. The footer always shows carried weight / `MaxCarryWeight` and the character's gold (Requirement 22).
 
 ### Equipment Slots
 12. Equipment slots: Head, Chest, Hands, Legs, Feet, Cloak, Back, Neck, Ring ×2, Right Hand, Left Hand, Ammo. Two-handed weapons occupy both hand slots. Hand slots hold only weapons, shields, tools, and torches. Spells are class abilities, not items, and are used from the ability bar (Requirement 17). Tailor bags equip in the Back slot and add `MaxCarryWeight` by the bonus value on the bag's item definition. Arrows equip in the Ammo slot.
@@ -48,11 +48,19 @@ Inventory is Skyrim-style: no slots or grid, just a categorized list limited by 
 ### Tuning Data
 20. Every value marked "tuning value" in this spec that names no other table lives in `DT_Inventory_Rules`.
 
+### Value & Gold
+21. Every item definition has a `Value` (integer gold, 0 or more). Vendors buy and sell items at prices derived from `Value` (`specs/factions-kingdoms/factions-kingdoms.md` Requirements 32 and 33).
+22. Gold is a per-character counter, not an item (`specs/factions-kingdoms/factions-kingdoms.md` Requirement 28). Gold has 0 weight, never counts toward carried weight or equip load, and does not appear in any category tab. The footer's Drop Gold action asks for an amount and drops that gold as a shared world pickup (`specs/factions-kingdoms/factions-kingdoms.md` Requirement 30).
+
+### Dyes & Quest Items
+23. Every item instance has 4 dye zone slots (Primary, Secondary, Accent, Trim), each holding a color ID from `DT_Crafting_DyeColors` or empty, where empty means the item's default color (`specs/crafting-jobs/crafting-jobs.md` Requirements 18–22). Only the zones the item definition defines can hold a color. Dye colors are saved with the item instance, replicate to all clients with equipped item visuals, and stay on the item instance when it is dropped, picked up by another player, or moved into or out of a container.
+24. Quest items (`specs/factions-kingdoms/factions-kingdoms.md` Requirement 46) are flagged on their item definition, have 0 weight and `Value` 0, list under the Misc tab, and cannot be dropped, moved into a container, or sold. Dye items list under the Materials tab.
+
 ## Data Flow
 1. Player picks up a world item → client sends `ServerPickup(PickupId)` → server validates range and pickup ownership (per-player loot owned by the requesting player, or shared) → adds the item to `UNamecInventoryComponent` → recalculates carried weight → applies or removes the `GE_OverEncumbered` effect.
 2. Player equips an item → `ServerEquip(ItemInstanceId, Slot)` → server validates slot rules → applies the item's gameplay effects (armor, affixes, insulation) → recalculates equip load.
-3. Inventory contents replicate only to the owning connection. Equipped item visuals replicate to all clients.
-4. On save, the inventory component serializes every item instance (definition ID, quantity, rarity, affixes, durability, item level), equipped slots, favorites, hotkeys, and sort choice into `UNamecCharacterSave`.
+3. Inventory contents and gold replicate only to the owning connection. Equipped item visuals, including each equipped item instance's dye colors, replicate to all clients.
+4. On save, the inventory component serializes every item instance (definition ID, quantity, rarity, affixes, durability, item level, dye colors), equipped slots, favorites, hotkeys, and sort choice into `UNamecCharacterSave`, and `UNamecCurrencyComponent` serializes gold (`specs/factions-kingdoms/factions-kingdoms.md` Requirement 28).
 
 ## Edge Cases
 1. When an item is picked up that pushes carried weight over `MaxCarryWeight`, the pickup succeeds and Over-Encumbered applies immediately.
@@ -62,6 +70,9 @@ Inventory is Skyrim-style: no slots or grid, just a categorized list limited by 
 5. When two players transfer into the same container at once, the server processes transfers in receive order against the container's capacity.
 6. When a player is downed, their inventory is inaccessible until revived.
 7. When a storage container is destroyed or deconstructed, its contents drop at the container's location as shared world pickups.
+8. When items of the same definition have different dye colors, they show as separate rows, because dye colors belong to each item instance.
+9. When a player tries to drop more gold than the character holds, the Drop Gold amount is capped at the character's gold.
+10. When a player tries to move a quest item into a container or drop it, the action is unavailable for that row.
 
 ## Acceptance Criteria
 - [ ] A non-Ursan character with STR 10 and no bag, perk, or affix bonuses has `MaxCarryWeight` 150.
@@ -72,13 +83,17 @@ Inventory is Skyrim-style: no slots or grid, just a categorized list limited by 
 - [ ] Hotkey 1 equips its assigned weapon. D-pad Down cycles hotkeyed consumables.
 - [ ] Opening the Favorites menu does not pause the world in a multiplayer session.
 - [ ] A container rejects the portion of a transfer beyond its weight capacity.
-- [ ] Every item's rarity, affixes, and durability survive save → quit → load.
+- [ ] Every item's rarity, affixes, durability, and dye colors survive save → quit → load.
+- [ ] The footer shows the character's gold, and gaining gold does not change carried weight.
+- [ ] Dropping 50 gold from the footer creates a shared world pickup that another player can pick up for 50 gold.
+- [ ] The detail panel shows each item's `Value`.
+- [ ] A quest item cannot be dropped or placed in a container.
 
 ## Key Files
 - `Source/NAMEC/Inventory/NamecInventoryComponent.h` — new; item storage, weight, equip slots, favorites, hotkeys.
-- `Source/NAMEC/Inventory/NamecItemDefinition.h` — new; item definition data asset (weight, category, slot, armor category, `Poise` for armor, `PoiseDamage` for weapons, effects; see `specs/combat-loot/combat-loot.md` Requirement 38).
+- `Source/NAMEC/Inventory/NamecItemDefinition.h` — new; item definition data asset (weight, `Value`, category, slot, armor category, `Poise` for armor, `PoiseDamage` for weapons, dye zones and material mask channels, quest item flag, effects; see `specs/combat-loot/combat-loot.md` Requirement 38 and `specs/crafting-jobs/crafting-jobs.md` Requirement 20).
 - `Source/NAMEC/Inventory/NamecContainerActor.h` — new; placeable storage container (subclass of `ANamecBuildPiece`) with weight capacity.
-- `Source/NAMEC/UI/Inventory/` — new; inventory list, detail panel, transfer view, Favorites quick menu.
+- `Source/NAMEC/UI/Inventory/` — new; inventory list, detail panel, transfer view, Favorites quick menu, footer gold display and Drop Gold action.
 - `Content/Inventory/Effects/GE_OverEncumbered.uasset` — new.
 - `Content/Data/DT_Inventory_Containers.uasset` — new; container types and capacities.
 - `Content/Data/DT_Inventory_Rules.uasset` — new; Over-Encumbered penalties and other inventory tuning values.

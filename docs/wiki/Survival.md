@@ -122,6 +122,7 @@ At Fatigue 100 with nothing else active, max stamina is 50%.
 - **Everyone in bed at once:** time skips to the next morning (06:00 in-game) and everyone's Fatigue resets to 0.
 - **Not everyone in bed:** time does not skip, and each player in bed loses 5 Fatigue per second (starting value, tunable).
 - If any player is in combat (dealt or took damage from a hostile enemy within the last 10 seconds), the time skip is blocked and sleeping players see "Cannot sleep — a player is in combat".
+- While a raid is running at any base, the time skip is blocked with "Cannot sleep — a raid is in progress". Sleeping never triggers a raid roll or moves the real-time raid clock forward. See [Raids](Raids.md).
 
 ## Swimming, climbing and breath
 

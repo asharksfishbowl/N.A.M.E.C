@@ -1,6 +1,6 @@
 # Crafting and Jobs
 
-This page covers the 9 crafting Jobs, stations, hand-crafting and the fresh-character path, station tiers and boss gating, crafted gear quality, Enchanter runes, and repair.
+This page covers the 9 crafting Jobs, stations, hand-crafting and the fresh-character path, station tiers and boss gating, crafted gear quality, Enchanter runes, repair, and dyes.
 
 ← [Home](Home.md)
 
@@ -12,9 +12,9 @@ Every character can level every Job, independent of class. Jobs level 1–100 (s
 |-----|-------|---------|
 | Blacksmith | Metal weapons, metal tools (axes, pickaxes, shovels), Repair Kits | Forge |
 | Armorsmith | Metal armor (Metal category), shields | Forge |
-| Carpenter | Wooden building pieces, furniture (including beds and Mirrors, Carpenter level 5), storage containers (chests, barrels, crates), training dummies, torches, bows, arrows, wooden tools (including Hammers and Fishing Rods), stone tools (Stone Axe, Stone Pickaxe), Workbenches, Campfires, Stonecutters, Alchemy Tables, Looms, Tanning Racks | Workbench |
+| Carpenter | Wooden building pieces, furniture (including beds and Mirrors, Carpenter level 5), storage containers (chests, barrels, crates), training dummies, torches, bows, arrows, wooden tools (including Hammers and Fishing Rods), stone tools (Stone Axe, Stone Pickaxe), Workbenches, Campfires, Stonecutters, Alchemy Tables, Looms, Tanning Racks, Dye Stations | Workbench |
 | Mason | Stone building pieces, Forges, Enchanting Altars, stone fortifications | Stonecutter |
-| Alchemist | Potions (healing, mana, resistance), poisons, weapon oils | Alchemy Table |
+| Alchemist | Potions (healing, mana, resistance), poisons, weapon oils, dyes | Alchemy Table |
 | Cook | Meals that restore hunger and thirst and grant timed buffs | Cooking Fire (the Campfire is the tier-1 Cooking Fire) |
 | Tailor | Cloth armor, cold-weather and hot-weather clothing (all Cloth category), bags | Loom |
 | Leatherworker | Leather armor (Leather category), waterskins | Tanning Rack |
@@ -37,7 +37,7 @@ Every character can level every Job, independent of class. Jobs level 1–100 (s
 - Two players at the same station each have their own queue. Materials from shared containers are reserved at the start of each craft, first come, first served.
 - Disconnecting or quitting mid-craft cancels the current craft and returns its materials to your inventory.
 - If a station is destroyed or deconstructed with a Hammer, all queues on it are cancelled and reserved materials go back to their crafters.
-- There is no automation (no conveyors or auto-smelters) and no NPC vendors.
+- There is no automation (no conveyors or auto-smelters). Town Vendors exist but never sell boss materials (see [Factions and Kingdoms](Factions-and-Kingdoms.md)).
 
 ## Hand-crafting and the fresh-character path
 
@@ -120,6 +120,34 @@ Equipment loses durability with use. At 0 it is unusable but not destroyed.
 
 - **Station repair:** at the station of the item's crafting Job, restore full durability for 25% (starting value, tunable) of the item's recipe materials, rounded up. Dropped items with no recipe use their base item type's recipe.
 - **Repair Kit:** a Blacksmith recipe (Job level 1). Repairs any item to full at any crafting station, with no Job level requirement, using one kit.
+
+## Dyes
+
+### Dye items
+
+- There are 48 dye colors. Each is a dye item crafted by the Alchemist at an Alchemy Table from plants and minerals.
+- Dyes don't roll rarity or affixes, and Job level doesn't change them.
+
+### Dye Station
+
+- A Carpenter build piece crafted at a Workbench (Job level 1), placed with the Hammer.
+- Using it needs no Job level and gives no Job XP.
+- It has no tiers or attachments, isn't a crafting station, and doesn't count as a base anchor for raids (see [Raids](Raids.md)).
+
+### Dye zones
+
+Armor, clothing, cloaks, bags, shields and weapons each have 1–4 dye zones: **Primary, Secondary, Accent, Trim**. Every dye zone works on every race and sex. A zone's color is a material parameter set on the item as rendered, so dyeing never rebuilds the character's appearance.
+
+### Dyeing an item
+
+1. Interact with a Dye Station. The dye screen opens in your viewport.
+2. Pick an item from your inventory (equipped or not), one of its zones, and a color.
+3. A preview of your character wearing or holding the item shows the colors. Only you see the preview.
+4. **Apply** uses 1 dye of that color per zone. **Clear zone** is free and restores the default color.
+
+- Applying over a different color replaces it. The old dye is not refunded.
+- Dye colors are saved on the item, show on your character for every player right away, and stay when the item is dropped or passed to another player.
+- The screen closes without applying if you're Downed, take damage, walk away, or the Dye Station is destroyed. Several players can use one Dye Station at once.
 
 ## Source spec
 

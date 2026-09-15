@@ -6,7 +6,7 @@ This page covers listen-server authority, the host/find/join session flow, chara
 
 ## Authority model
 
-- The session is a **listen server** on the host machine using Unreal replication. In pure split-screen play the host is the only machine.
+- The session is a **listen server** on the host machine using Unreal's legacy replication (Iris is only being evaluated; see [Engine and Rendering](Dev-Engine-and-Rendering.md)). In pure split-screen play the host is the only machine.
 - All gameplay state is server-authoritative: terrain edits, combat, loot rolls, crafting, progression XP.
 - Characters are saved locally and trusted. There is no anti-cheat.
 - No internet play, NAT traversal, relay, matchmaking, dedicated servers, host migration or cross-platform play.
@@ -44,7 +44,7 @@ Two local players on one machine selecting the same character are blocked locall
 - On every autosave, the host sends `ClientSaveCharacter(CharacterPayload)` to each client, which writes `UNamecCharacterSave` locally.
 - On clean disconnect or exit, a final `ClientSaveCharacter` is sent before the connection closes.
 - On an unexpected drop, no final send arrives. The client saves its last received payload, which is the last autosave (up to 5 minutes, starting value, tunable, of progress lost).
-- Character inventory is part of the payload and leaves with the player. World containers stay in the world save.
+- Character inventory (including dye colors), gold, reputation per faction and quest state are part of the payload and leave with the player. World containers, Vendor stock, Quest Board offers, NPC respawn timers and camp states stay in the world save.
 - The payload carries race, sex and `FNamecAppearance`. On spawn, the server applies the racial passive and downside effects, grants the racial active ability, and replicates race, sex and appearance to all clients.
 
 ## Spawning
@@ -57,7 +57,8 @@ Two local players on one machine selecting the same character are blocked locall
 ## Replication and relevance
 
 - The server replicates world and gameplay state to all clients.
-- Inventory contents replicate only to the owning connection. Equipped item visuals replicate to all clients.
+- Inventory contents, gold, reputation and the quest log replicate only to the owning connection. Equipped item visuals, including dye colors, replicate to all clients.
+- Vendor stock quantities and Quest Board offers are world state, replicated to every client and shared by every player.
 - Terrain edits are applied on the server in receive order and replicated to all clients, which re-mesh affected chunks. Late joiners receive edit deltas for chunks within their streaming radius, then more as chunks stream in.
 - Each local viewport's streaming radius is a separate chunk streaming source.
 - Progression state replicates to the owning client. Survival attributes replicate to the owning client.
@@ -78,6 +79,22 @@ Split-screen players share one connection, so loot ownership is per player (char
 - The server accepts a pickup (`ServerPickup(PickupId)`) only from the owning player.
 - Items dropped from an inventory use the shared world pickup mode, visible and pickable by everyone.
 - Loot chests roll only for the opener and record the opener's GUID in the chest's opened set.
+- Gold from kills and chests is rolled per eligible player and carried in that player's own loot actor. Gold dropped with Drop Gold uses the shared world pickup mode.
+
+### Owning-viewport UI
+
+- The execution prompt, dye preview, vendor, quest board and quest giver screens, the Quests tab and the HUD quest tracker all render only in the owning local player's viewport.
+
+### Server-validated requests
+
+| RPC | Server checks |
+|-----|---------------|
+| `ServerRequestExecution(TargetId)` | Prompt conditions (including attacker not Downed, executing, airborne, climbing, swimming, or in a menu), range, target not already being executed and not airborne, capsule sweep for clear space. First request received wins. |
+| `ServerBuyItem(VendorId, StockRowId, Quantity)` / `ServerSellItem(VendorId, ItemInstanceId, Quantity)` | Range, reputation tier, gold, stock quantity, item ownership. Requests processed in receive order. |
+| `ServerAcceptQuest(BoardId, OfferId)` | Reputation tier, quest log size, character GUID not in the offer's accepted character GUID set (then adds it) |
+| `ServerTurnInQuest(QuestGiverId, QuestId)` | Location, reputation tier, completed objectives |
+| `ServerPayFine(GuardCaptainId)` | Range, Hostile tier with the Guard Captain's kingdom, gold at least the fine |
+| `ServerApplyDye(DyeStationId, ItemInstanceId, Zone, ColorId)` / `ServerClearDyeZone(DyeStationId, ItemInstanceId, Zone)` | Range, item ownership, zone defined on the item, dye item held (Apply) |
 
 ## Disconnects
 
@@ -100,6 +117,8 @@ Pause menu: the world pauses only in a session with one player total.
 ## Source specs
 
 - [Multiplayer](../../specs/multiplayer/multiplayer.md)
-- [Combat and Loot](../../specs/combat-loot/combat-loot.md) (Requirement 28, Edge Cases 1 and 4)
+- [Combat and Loot](../../specs/combat-loot/combat-loot.md) (Requirements 28 and 44–51, Data Flow 8, Edge Cases 1 and 4)
 - [Voxel World](../../specs/voxel-world/voxel-world.md) (Requirement 15, Edge Cases 6–7)
 - [Character Creation](../../specs/character-creation/character-creation.md) (Requirements 13 and 24, Data Flow 4–6, Edge Case 3)
+- [Factions and Kingdoms](../../specs/factions-kingdoms/factions-kingdoms.md) (Data Flow 3–6)
+- [Crafting Jobs](../../specs/crafting-jobs/crafting-jobs.md) (Data Flow 8)

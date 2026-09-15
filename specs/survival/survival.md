@@ -78,6 +78,7 @@ Characters manage four survival pressures — hunger, thirst, temperature, and s
 5. When a player is at Hunger 0 and Thirst 0 at the same time, both health-loss effects apply.
 6. When a player sleeps but another player is in combat (dealt damage to or took damage from a hostile enemy within the last 10 seconds, tuning value), time skip is blocked and all sleeping players see "Cannot sleep — a player is in combat".
 7. When the shelter check runs, it uses at most one upward check and six horizontal checks per character per tick. Each check queries terrain via `UNamecVoxelWorld` density lookups and building pieces via physics traces. A character has walls when at least 3 of the 6 horizontal checks hit.
+8. When a raid is active at any base (`specs/factions-kingdoms/factions-kingdoms.md` Requirement 58), time skip is blocked and all sleeping players see "Cannot sleep — a raid is in progress". A sleep time skip does not advance the real-time raid roll clock and triggers no raid roll (`specs/factions-kingdoms/factions-kingdoms.md` Requirement 53), and Vendor restock, Quest Board refresh, town NPC respawn, and camp respawn timers count skipped time.
 
 ## Acceptance Criteria
 - [ ] A character standing idle in the temperate region loses Hunger at the rate in `DT_Survival_DrainRates`.

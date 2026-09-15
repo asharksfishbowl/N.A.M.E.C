@@ -15,7 +15,7 @@ This page covers use-based skill leveling, every skill and how it earns XP, mile
 - A skill already at max level earns no more skill XP, but still gives the character XP share.
 - If one action gives enough XP for several levels, every level-up and perk applies in order. One toast shows the final level.
 
-"Hostile enemy" below means a creature in the Hostile or Boss category.
+"Hostile enemy" below means a creature in the Hostile or Boss category. This includes Bandits, Beastmen and raiders, but not town NPCs (see [Factions and Kingdoms](Factions-and-Kingdoms.md)).
 
 ## Gathering
 

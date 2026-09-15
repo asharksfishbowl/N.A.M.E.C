@@ -22,7 +22,8 @@ A character is portable: the same character save loads into any world. Save file
 | Progression | Stats, spent and unspent stat points, classes, class levels, skill XP, boss first-kill flags, ability bar | character-progression |
 | Jobs | Job levels and XP | crafting-jobs |
 | Survival | Survival meter values (Breath is not saved) | survival |
-| Inventory | Every item instance (definition ID, quantity, rarity, affixes, durability, item level), equipped slots, favorites, hotkeys, sort choice | inventory |
+| Inventory | Every item instance (definition ID, quantity, rarity, affixes, durability, item level, dye colors), equipped slots, favorites, hotkeys, sort choice | inventory |
+| Factions | Gold, reputation per faction, active quests (objective parameters, progress, tracked flag), completed questline steps per kingdom | factions-kingdoms |
 | Death | Dead-respawn flag | combat-loot |
 | Timed effects | Remaining duration of each active timed effect: Weakened, meal buff, Wet, Salty (racial passives and downsides are not saved; they are reapplied on spawn) | game-foundation |
 
@@ -33,6 +34,12 @@ A character is portable: the same character save loads into any world. Save file
 - An appearance change at a Mirror applies immediately and is written on the next character save.
 - If a loaded save has an appearance option index outside the current range in `DT_Character_AppearanceOptions`, that option resets to the race default and the character still loads.
 - If a save references a race ID missing from `DT_Character_Races`, the character shows greyed out with "Race data missing" and cannot be selected.
+
+### Gold, reputation, quests and dyes
+
+- A character save from before these existed migrates to the starting reputation values (+30 own kingdom, 0 other kingdoms, −100 Bandits and Beastmen), 0 gold and an empty quest log.
+- Quests reference only kingdoms, town slots (capital, town 1, town 2), enemy rows, item definitions and faction/region pairs, so an active quest stays valid in every world. An active Escort quest fails when the character leaves the world, and an Escort quest still active in a loaded character save fails on world entry (escort NPCs are not saved).
+- If an item stores a dye color ID no longer in `DT_Crafting_DyeColors`, that zone shows its default color and the item still loads.
 - Cancelling creation, or removing the local player mid-creation, writes no save.
 
 ### Dead-respawn flag
@@ -46,17 +53,19 @@ A character is portable: the same character save loads into any world. Save file
 | Area | Contents |
 |------|----------|
 | Identity and generation | World name, seed, size, voxel resolution |
-| World settings | Friendly fire, LAN hosting, password |
-| Time and weather | Current in-game time of day, each region's current weather |
+| World settings | Friendly fire, LAN hosting, password, Raids |
+| Time and weather | Current in-game time of day, the world's total elapsed in-game time, each region's current weather |
 | Terrain | Per-chunk edit deltas over the generated base, including each changed voxel's player-placed flag |
 | Building | Placed building pieces, including crafting stations with bound attachments and tier, and storage containers with their contents |
-| Pickups | Shared world pickups (per-player loot actors are not saved) |
+| Pickups | Shared world pickups, including dropped gold (per-player loot actors are not saved) |
 | Gathering | Tree harvest states, forage timers, Loose Stick and Loose Stone collected states and respawn timers |
 | Respawn | Bed respawn points per character GUID |
 | Loot chests | Opened state per character GUID |
 | Bosses | Boss defeat flags (`BossDefeated[RegionId]`) |
+| Towns | Town NPC respawn timers, Vendor stock quantities, Quest Board offers with each offer's accepted character GUID set |
+| Camps | Bandit and Beastmen camp per-spawn-point dead states, cleared state, respawn timer |
 
-Not saved: character positions (every world entry spawns at the bed or world spawn point).
+Not saved: character positions (every world entry spawns at the bed or world spawn point); NPC health (living NPCs load at full health); escort NPCs; active raids. An autosave does not change an active raid, and when a world loads no raid is active and raiders from before the host exited are not restored. Pieces destroyed during a raid stay destroyed.
 
 ### Notes
 
@@ -105,3 +114,5 @@ For remote players, the host sends the character payload on each autosave and a 
 - [Combat and Loot](../../specs/combat-loot/combat-loot.md) (Edge Case 1)
 - [Multiplayer](../../specs/multiplayer/multiplayer.md) (Requirements 16–17)
 - [Character Creation](../../specs/character-creation/character-creation.md) (Requirements 6, 16 and 24, Data Flow 3, Edge Cases 1, 2, 10 and 11)
+- [Factions and Kingdoms](../../specs/factions-kingdoms/factions-kingdoms.md) (Requirements 11, 19, 25, 28, 34, 37, 40, 48 and 59, Edge Case 1)
+- [Crafting Jobs](../../specs/crafting-jobs/crafting-jobs.md) (Edge Case 9)

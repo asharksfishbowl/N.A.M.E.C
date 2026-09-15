@@ -23,7 +23,17 @@ For example, a Human (+1 to all six stats) Warrior (+2 STR, +1 CON) starts with 
 | CON | Max health, health regen, base max stamina, max equip load, resistance to hunger/thirst drain |
 | INT | Destruction and Arcane spell power, max mana, Destruction and Arcane spell requirements |
 | WIS | Restoration and Nature spell power, mana regen, status-effect resistance, temperature tolerance, Restoration and Nature spell requirements, healing from class abilities |
-| CHA | Strength and radius of party buffs and auras (Bard, Paladin, Cleric abilities, and the Hundari's Rally Howl) |
+| CHA | Strength and radius of party buffs and auras (Bard, Paladin, Cleric abilities, and the Hundari's Rally Howl), and Vendor prices |
+
+### CHA and Vendor prices
+
+Each point of CHA modifier cuts Vendor buy prices by 3% (starting value, tunable). A negative modifier raises them. Your reputation tier with the Vendor's kingdom multiplies on top:
+
+```
+Price = Value × (1 − CHA modifier × 0.03) × reputation tier multiplier
+```
+
+For example, CHA modifier +3 pays 9% less than CHA modifier 0 at the same tier. Selling prices are not affected by CHA. See [Factions and Kingdoms](Factions-and-Kingdoms.md).
 
 ## Modifier formula
 
@@ -38,11 +48,12 @@ Modifier = floor((score - 10) / 2)
 ## Character level and stat points
 
 - Character level runs 1–50 (starting value, tunable).
-- Character XP comes from four sources:
+- Character XP comes from five sources:
   - 25% (starting value, tunable) of all skill XP earned
   - the same 25% of all class XP earned
   - enemy kills: every eligible player gets the full kill XP, not a split
   - boss first-kills: the first time a character defeats a given region's boss, it gets first-kill XP instead of kill XP. This also applies in a re-summoned fight if the character has not beaten that boss before.
+  - quest rewards: the quest's full character XP reward on turn-in (see [Factions and Kingdoms](Factions-and-Kingdoms.md))
 - Each character level-up grants 1 unspent stat point (starting value, tunable). Spend it in the Character screen for +1 to one stat. Spent points are permanent. Unspent points are kept forever.
 - The spend button is disabled for a stat already at 30.
 - At max character level, character XP stops and the XP bar shows "MAX".
@@ -140,3 +151,4 @@ A level-up of any skill, class or character level shows a toast on the owning pl
 
 - [Character Progression](../../specs/character-progression/character-progression.md)
 - [Character Creation](../../specs/character-creation/character-creation.md) (racial stat bonuses and the racial ability slot)
+- [Factions and Kingdoms](../../specs/factions-kingdoms/factions-kingdoms.md) (Vendor prices and quest XP)

@@ -8,8 +8,8 @@ This page lists every `DT_*` DataTable named in the specs, grouped by system, wi
 
 - All tables live in `Content/Data/` and are named `DT_<System>_<Purpose>`.
 - Every numeric balance value is a starting value in a table and is editable without a C++ rebuild.
-- Each system has a catch-all rules table: a value the specs mark "tuning value" without naming a table lives in that system's rules table (`DT_Character_Races`, `DT_Progression_Rules`, `DT_Crafting_Rules`, `DT_Survival_Penalties`, `DT_World_Building`, `DT_Combat_Rules`, `DT_Inventory_Rules`, `DT_MP_Session`).
-- Per-item values (weight, damage, insulation, armor category, `Poise`, `PoiseDamage`, bag bonus, food/drink restore values, block percentage, stat requirements, scaling stat and grade) are on item definition data assets, not DataTables.
+- Each system has a catch-all rules table: a value the specs mark "tuning value" without naming a table lives in that system's rules table (`DT_Character_Races`, `DT_Progression_Rules`, `DT_Crafting_Rules`, `DT_Survival_Penalties`, `DT_World_Building`, `DT_Combat_Rules`, `DT_Inventory_Rules`, `DT_MP_Session`, `DT_Factions_Rules`, `DT_Engine_Benchmark`).
+- Per-item values (weight, `Value`, dye zones, quest item flag, damage, insulation, armor category, `Poise`, `PoiseDamage`, bag bonus, food/drink restore values, block percentage, stat requirements, scaling stat and grade) are on item definition data assets, not DataTables.
 - "Columns mentioned" lists only what the specs name. Tables will have more once implemented.
 
 ## Core (game-foundation)
@@ -46,12 +46,13 @@ This page lists every `DT_*` DataTable named in the specs, grouped by system, wi
 | Table | Purpose | Columns / values mentioned |
 |-------|---------|----------------------------|
 | `DT_Crafting_Jobs` | 9 Job rows | One row per Job |
-| `DT_Crafting_Recipes` | All recipes | Owning Job, required Job level, required station ("None" for hand-crafting), station tier (recipe tier), input items and quantities, output item and quantity, craft time (s), base XP, TierMultiplier |
+| `DT_Crafting_Recipes` | All recipes, including dye items | Owning Job, required Job level, required station ("None" for hand-crafting), station tier (recipe tier), input items and quantities, output item and quantity, craft time (s), base XP, TierMultiplier |
 | `DT_Crafting_JobXPCurve` | XP per Job level | Levels 1–100 |
 | `DT_Crafting_QualityByLevel` | Rarity floors by Job level | e.g. Job 50+ never Common |
 | `DT_Crafting_ConsumablePotency` | Consumable potency scaling by Job level | Potions, meals, arrows |
 | `DT_Crafting_JobPerks` | Job milestone perks at 25/50/75/100 | e.g. Cook 50 meals last 25% longer |
-| `DT_Crafting_Rules` | Crafting tuning | Attachment bind range (5 m), material pull range (10 m), craft range (10 m), queue size (10), low-level XP penalty (20 levels below → 10%), RuneMaxItemLevel per rune tier (20/30/40/50/60), Job level cap (100) |
+| `DT_Crafting_DyeColors` | Dye palette | 48 rows: color ID, display name, linear color value, dye item definition |
+| `DT_Crafting_Rules` | Crafting tuning | Attachment bind range (5 m), material pull range (10 m), craft range (10 m), queue size (10), low-level XP penalty (20 levels below → 10%), RuneMaxItemLevel per rune tier (20/30/40/50/60), Job level cap (100), Dye Station interaction range |
 
 ## Survival (survival)
 
@@ -68,27 +69,28 @@ This page lists every `DT_*` DataTable named in the specs, grouped by system, wi
 | Table | Purpose | Columns / values mentioned |
 |-------|---------|----------------------------|
 | `DT_World_Climates` | 8 region rows | Base temperature, comfort range (10–26 °C), weather types, vegetation, ore types, item-level band |
-| `DT_World_Structures` | Ruins | Ruin (generated surface structure) definitions and placement rules |
+| `DT_World_Structures` | Generated structures | Definitions and placement rules for ruins, capitals and towns (Quest Board positions, NPC posts) and Bandit and Beastmen camps (enemy spawn points, loot chest positions) |
 | `DT_World_VoxelMaterials` | Voxel materials | Hardness, required tier, soft-material (shovel-diggable) flag, item yields per fill unit; includes Deep Snow |
 | `DT_World_Trees` | Trees | Tree types, health, yields, falling-log damage |
 | `DT_World_Forage` | Forage and loose pickups | Forage types, regrow timers, per-region Loose Stick and Loose Stone density, loose pickup respawn timers |
 | `DT_World_Hazards` | Hazard tuning | Lava Fire damage per second, Deep Snow movement speed reduction (30%) |
-| `DT_World_Streaming` | Chunk streaming | Load radius per player |
-| `DT_World_Building` | World tuning | Voxel resolution (25 cm), day length (30 min), dig/fill/mine radii (0.5 m), fill unit radius (0.5 m), tree regrow time (3 in-game days), destruction drop (50%), deconstruction refund (100%), blocked-zone radii (boss arena, 20 m from world spawn) |
+| `DT_World_Streaming` | Chunk streaming | Load radius per player, streamed-in instance budget (12,000,000, under Nanite's 16 million cap) |
+| `DT_World_Building` | World tuning | Voxel resolution (25 cm), day length (30 min), dig/fill/mine radii (0.5 m), fill unit radius (0.5 m), tree regrow time (3 in-game days), destruction drop (50%), deconstruction refund (100%), blocked-zone radii (boss arena, 20 m from world spawn), dig depth limit (6 m) |
 
 ## Combat and Loot (combat-loot)
 
 | Table | Purpose | Columns / values mentioned |
 |-------|---------|----------------------------|
-| `DT_Combat_Enemies` | Enemy rows | Category (`Hostile`, `Wildlife`, `Boss`), level, health, poise, resistances, damage, attack set (per attack: damage, damage type, `PoiseDamage`), perception radius, loot table ID, Hunting yield (optional), region, KillXP, FirstKillXP (Boss rows only), AI behavior tree |
+| `DT_Combat_Enemies` | Enemy rows | Category (`Hostile`, `Wildlife`, `Boss`), Faction (`None`, `Bandits`, `Beastmen` or a kingdom), skeleton family, level, health, poise, resistances, damage, attack set (per attack: damage, damage type, `PoiseDamage`), perception radius, loot table ID, Hunting yield (optional), region, KillXP, FirstKillXP (Boss rows only), AI StateTree asset |
 | `DT_Combat_Movement` | Dodge tuning | I-frame window and roll recovery per equip load tier (Light / Medium / Heavy) |
 | `DT_Combat_StatusEffects` | Status effects | Buildup and duration for Poison, Bleed, Burn, Frostbite; Poison buildup for drinking Poison water, Poison Water/Poison Plant contact, Lava Burn buildup |
 | `DT_Combat_Spawning` | Enemy spawning | Spawn density and max live enemies per streamed chunk, by region |
 | `DT_Combat_PlayerScaling` | Player-count scaling | Health (+60% per extra player), damage (+10% per extra player) |
-| `DT_Combat_Rules` | Combat tuning | Bleed-out (30 s, 1 s per 1% max health), revive (4 s, 2 m, 30% health), Revivify range (15 m), respawn (5 s, 50% Hunger/Thirst, Weakened 5 min, −20% damage, −20% max stamina, −10% durability), lock-on range (20 m), poise regen delay (3 s), loot eligibility (50 m), loot despawn (10 min), repair cost (25%), requirement penalty (0.5), crit multiplier, Unarmed weapon profile (WeaponBase, STR scaling, One-Handed skill, `PoiseDamage`), ArmorConstant (100), resistance cap (0.9), spawn exclusion (25 m from buildings, 40 m from players), minimum fall height and fall damage per meter |
+| `DT_Combat_Rules` | Combat tuning | Bleed-out (30 s, 1 s per 1% max health), revive (4 s, 2 m, 30% health), Revivify range (15 m), respawn (5 s, 50% Hunger/Thirst, Weakened 5 min, −20% damage, −20% max stamina, −10% durability), lock-on range (20 m), poise regen delay (3 s), loot eligibility (50 m), loot despawn (10 min), repair cost (25%), requirement penalty (0.5), crit multiplier, Unarmed weapon profile (WeaponBase, STR scaling, One-Handed skill, `PoiseDamage`), ArmorConstant (100), resistance cap (0.9), spawn exclusion (25 m from buildings, 40 m from players), minimum fall height and fall damage per meter, execution range (2.5 m), forward execution angle, execution health threshold (20%), execution stamina restore (20%), execution skill XP multiplier (×3) |
+| `DT_Combat_Executions` | Execution animations | Paired attacker and victim animation sets keyed by weapon category (with an Unarmed set) and skeleton family, plus a generic set per skeleton family |
 | `DT_Loot_RarityWeights` | Rarity odds | Weights by item-level band, for drops and crafts |
 | `DT_Loot_Affixes` | Affix pools | Per-slot affix pools, value ranges by item level, Legendary unique powers (excluded from slots where invalid) |
-| `DT_Loot_Tables` | Drop tables | Item categories and drop counts per enemy and chest type, boss offering drop rates |
+| `DT_Loot_Tables` | Drop tables | Item categories and drop counts per enemy and chest type, gold ranges (Hostile enemies and chests), boss offering drop rates |
 
 ## Inventory (inventory)
 
@@ -97,14 +99,34 @@ This page lists every `DT_*` DataTable named in the specs, grouped by system, wi
 | `DT_Inventory_Containers` | Storage containers | Container types and weight capacities |
 | `DT_Inventory_Rules` | Inventory tuning | Over-Encumbered penalties (walk speed 50%, stamina regen 50%) |
 
+## Factions (factions-kingdoms)
+
+| Table | Purpose | Columns / values mentioned |
+|-------|---------|----------------------------|
+| `DT_Factions_Factions` | 8 faction rows | Faction ID, display name (placeholder for kingdoms), type (Kingdom or Outlaw), race ID and home region (kingdoms), camp density per region, camp respawn time (1 in-game day) and camp radius (Bandits, Beastmen) |
+| `DT_Factions_NPCs` | Town and escort NPCs | NPC ID, role (Guard, Vendor, Quest Giver, Citizen, Guard Captain), kingdom, race ID, sex, appearance preset, level, health, poise, resistances, attack set (Guards; per-attack damage, damage type, `PoiseDamage`), perception radius, skeleton family, AI StateTree asset, vendor stock list ID, respawn time (1 in-game day) |
+| `DT_Factions_VendorStock` | Vendor stock lists | Stock list ID, item definition, quantity per restock, item level (equipment); no boss materials |
+| `DT_Factions_QuestTemplates` | Board quest templates | Template ID, kingdom, quest type (Hunt, Gather, Clear Camp, Escort, Deliver), objective parameter ranges (Escort and Deliver destination town slots are rolled, not columns), gold reward range, reputation reward, character XP reward, item reward chance and list |
+| `DT_Factions_Questlines` | Kingdom questlines | Kingdom, step number (1–5), quest type, objective parameters, rewards (placeholder content) |
+| `DT_Factions_Raids` | Raid tuning | Base value coefficients (1 per piece, 5 per station tier), BaseChance, BaseValueCoefficient, HostilityFactor per faction, RegionMonsterWeight, raider count and level offset bands by region order and base value bracket, per-level health and damage multipliers |
+| `DT_Factions_Rules` | Factions tuning | Starting reputation (+30 own kingdom, 0 others, −100 Bandits/Beastmen), attack loss (−10) and cooldown, kill loss (−25), tier price multipliers (×1.25 / ×1.00 / ×0.90 / ×0.80), rarity sell multipliers (Common ×1, Magic ×1.5, Rare ×2.5, Epic ×4, Legendary ×8), town protected radius, interaction range, cower duration, sell rate (25%), CHA price coefficient (0.03), restock and board refresh hour (06:00), board offers (3–5), quest log size (10), tracked quests (3), escort destination radius and leash, base radius (30 m) and minimum pieces (10), raid player range (100 m), raid roll interval (5 real-time minutes), raid-free first days (3 in-game days), raid duration (10 real-time minutes), retreat time (real time), raider spawn distance (100 m), raider spawn sample spacing (5 m), Hostile recovery (+2 per in-game day, ceiling −49), fine (500 gold + 10 per point below −49), Guard truce after a fine (20 m, 60 s) |
+
 ## Multiplayer (multiplayer)
 
 | Table | Purpose | Columns / values mentioned |
 |-------|---------|----------------------------|
-| `DT_MP_SplitScreenScalability` | Graphics presets per local viewport count | View distance, shadow quality, foliage density |
+| `DT_MP_SplitScreenScalability` | Rendering tiers per local viewport count | High tier (1–2 viewports: Lumen HWRT High, VSM High, 100% foliage, 100% view distance) and Split tier (3–4 viewports: Lumen Lite, VSM Medium, 50% foliage, 70% view distance), tuned from the benchmark |
 | `DT_MP_Session` | Session tuning | Max players (4, hard cap 4), connection timeout (20 s) |
 
 All numbers above are starting values, tunable.
+
+## Engine (engine-tech)
+
+| Table | Purpose | Columns / values mentioned |
+|-------|---------|----------------------------|
+| `DT_Engine_Benchmark` | Benchmark milestone run | Run length (120 s), per-character dig/fill interval (2 s), building piece count (200), pieces destroyed in the Chaos replication evaluation (50) |
+
+All numbers above are starting values, tunable. See [Engine and Rendering](Dev-Engine-and-Rendering.md).
 
 ## Source specs
 

@@ -24,7 +24,7 @@ This page covers split-screen layouts, joining, LAN play, portable characters, d
 
 - Each local player has their own HUD, menus, inventory, crafting UI and camera mode (first/third person).
 - Local player 1 can use keyboard and mouse or a controller. Players 2–4 use controllers only.
-- Graphics settings scale down automatically with more viewports (for example view distance, shadows, foliage at 3–4 viewports).
+- Graphics settings scale down automatically at 3–4 viewports on your machine (lighting quality, shadows, foliage density, view distance). See [Engine and Rendering](Dev-Engine-and-Rendering.md).
 
 ### Joining locally
 
@@ -57,7 +57,7 @@ This page covers split-screen layouts, joining, LAN play, portable characters, d
 
 - A character is saved on its owner's machine and can play in any world.
 - On join, the character travels to the host, which uses it for the session.
-- Your inventory is part of your character and leaves with you. World containers stay with the world.
+- Your inventory (including dye colors), gold, reputation and quests are part of your character and leave with you. World containers, Vendor stock, Quest Board offers and camp and NPC states stay with the world.
 - **Every world entry spawns you at your bed in that world, or at the world spawn point** if you have no bed there or it was destroyed. Your last position is not saved. The only exception is a local player added mid-session (spawns next to local player 1).
 - Joining while a boss arena is sealed spawns you at your bed or the world spawn point, and you cannot enter the arena.
 - Each character can be in a session only once.
@@ -72,19 +72,20 @@ This page covers split-screen layouts, joining, LAN play, portable characters, d
 
 ## Controls
 
-All bindings are defaults and can be remapped per local player in Settings. Chorded bindings (LB held + a button, Left Alt + RMB) take priority, so the plain action never fires while its chord modifier is held. Every menu and the HUD work with a gamepad alone.
+All bindings are defaults and can be remapped per local player in Settings. Chorded bindings (LB held + a button, Left Alt + RMB) take priority, so the plain action never fires while its chord modifier is held. While an execution prompt is showing in your viewport, Y (or R) executes instead of toggling two-handing, and LB + Y still casts ability 4. Every menu and the HUD work with a gamepad alone.
 
 | Action | Gamepad | Keyboard & mouse (local player 1 only) |
 |--------|---------|----------------------------------------|
 | Move | Left stick | W A S D |
 | Look | Right stick | Mouse |
 | Jump | A (when no interactable is targeted) | Space |
-| Interact (including revive hold and fishing bite) | A (when an interactable is targeted) | E |
+| Interact (including revive hold, fishing bite, Vendors, Quest Givers, Guard Captains, Quest Boards and the Dye Station) | A (when an interactable is targeted) | E |
 | Climb (hold against a surface steeper than 60°) | Hold A | Hold Space |
 | Dodge roll | B (tap) | Left Shift (tap) |
 | Sprint | B (hold) | Left Shift (hold) |
 | Use selected consumable | X | F |
-| Toggle two-handing the Right Hand weapon | Y | R |
+| Toggle two-handing the Right Hand weapon | Y (when no execution prompt is shown) | R (when no execution prompt is shown) |
+| Execute (see [Combat and Loot](Combat-and-Loot.md)) | Y (only while an execution prompt is shown) | R (only while an execution prompt is shown) |
 | Light attack | RB | Left mouse button |
 | Heavy attack | RT | Middle mouse button |
 | Block | LT | Right mouse button |
@@ -96,6 +97,7 @@ All bindings are defaults and can be remapped per local player in Settings. Chor
 | Crouch | L3 | Left Ctrl |
 | Camera first/third-person toggle | View (hold 0.5 s) | H |
 | Inventory and Character menu | View (tap) | I |
+| Quest log (see [Factions and Kingdoms](Factions-and-Kingdoms.md)) | View (tap), then the Quests tab. The gamepad has no free button, so the quest log is a tab of this menu. | J (opens the menu on the Quests tab) |
 | Favorites quick menu | D-pad Up | Q |
 | Cycle right-hand hotkeyed items | D-pad Left | — |
 | Cycle left-hand hotkeyed items | D-pad Right | — |
@@ -110,4 +112,5 @@ Some controls are not decided yet (tools, shovel mode, build menu, bow, fishing 
 
 - [Multiplayer](../../specs/multiplayer/multiplayer.md)
 - [Game Foundation](../../specs/game-foundation/game-foundation.md) (controls)
+- [Factions and Kingdoms](../../specs/factions-kingdoms/factions-kingdoms.md) (what travels with a character)
 - [Character Creation](../../specs/character-creation/character-creation.md) ("Create New")

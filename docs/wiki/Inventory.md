@@ -1,6 +1,6 @@
 # Inventory
 
-This page covers carry weight and encumbrance, equip load, equipment slots, the inventory screen, favorites and hotkeys, and storage containers.
+This page covers carry weight and encumbrance, equip load, equipment slots, the inventory screen, gold and item Value, dyes and quest items, favorites and hotkeys, and storage containers.
 
 ← [Home](Home.md)
 
@@ -68,12 +68,26 @@ Each tier has its own i-frame window and roll recovery. Heavy armor can change y
 
 - **Tabs:** All, Favorites, Weapons, Armor, Clothing, Tools, Runes, Potions, Food, Ingredients, Materials, Building, Misc.
 - **Each row:** icon, name (colored by rarity), quantity, weight, equipped/favorite marker.
-- **Detail panel:** stats, affixes, durability, requirements, comparison with the equipped item in the same slot, 3D preview.
+- **Detail panel:** stats, affixes, durability, requirements, Value, dye colors per zone, comparison with the equipped item in the same slot, 3D preview.
 - **Sort:** Name, Weight, Rarity, Item Level, Recently Acquired. Your sort choice is saved with your character.
 - **Actions:** Equip/Unequip, Use, Favorite/Unfavorite, Drop (choose quantity), Inspect.
 - The screen also opens the hand-crafting menu. See [Crafting and Jobs](Crafting-and-Jobs.md).
-- The footer always shows carried weight / max carry weight.
+- The footer always shows carried weight / max carry weight and your gold.
 - Your inventory is locked while you are Downed.
+
+## Gold and Value
+
+- **Gold** is a counter on your character, not an item. It weighs nothing, never counts toward carry weight or equip load, and doesn't appear in any tab.
+- The footer's **Drop Gold** action drops an amount you choose as a shared pickup anyone can take. You can't drop more than you have.
+- Every item has a **Value** in gold. Vendors buy and sell based on it. See [Factions and Kingdoms](Factions-and-Kingdoms.md).
+
+## Dyes and quest items
+
+- Every item keeps its own dye colors in 4 zones (Primary, Secondary, Accent, Trim). An empty zone shows the item's default color. Only the zones the item has can be dyed. See [Crafting and Jobs](Crafting-and-Jobs.md).
+- Dye colors stay on the item when you drop it, another player picks it up, or it goes in a container. Everyone sees the colors on equipped gear.
+- Two otherwise identical items with different dye colors show as separate rows.
+- Dye items are listed under Materials.
+- **Quest items** weigh nothing, are listed under Misc, and can't be dropped, stored in a container or sold. They disappear when the quest is turned in or abandoned.
 
 ## Favorites and hotkeys
 
@@ -100,7 +114,7 @@ Each tier has its own i-frame window and roll recovery. Heavy armor can change y
 - Containers use the same list UI with a two-column transfer view (player | container).
 - Container contents do not count toward anyone's carried weight.
 - Every player in the session can use every container. There are no locks.
-- Containers belong to the world. Your inventory belongs to your character and leaves with you.
+- Containers belong to the world. Your inventory and gold belong to your character and leave with you.
 - A destroyed or deconstructed container drops its contents as shared pickups.
 - Crafting stations pull materials from containers within 10 m (starting value, tunable).
 
@@ -108,3 +122,5 @@ Each tier has its own i-frame window and roll recovery. Heavy armor can change y
 
 - [Inventory](../../specs/inventory/inventory.md)
 - [Character Creation](../../specs/character-creation/character-creation.md) (racial carry weight and equip load)
+- [Factions and Kingdoms](../../specs/factions-kingdoms/factions-kingdoms.md) (gold, Value, quest items)
+- [Crafting Jobs](../../specs/crafting-jobs/crafting-jobs.md) (dyes)

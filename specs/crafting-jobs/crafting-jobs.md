@@ -9,17 +9,17 @@ Crafting is organized into nine Jobs that any character can level, independent o
 - Crafting ties into gathering, survival, building, and boss progression.
 
 ## Non-Goals
-- Player-to-player trading UI or economy (items can be dropped on the ground; see combat-loot spec).
-- NPC vendors selling crafting materials.
+- Player-to-player trading UI (items and gold can be dropped on the ground; see combat-loot spec Requirement 34).
+- NPC vendors selling boss materials. Vendors and their stock are defined in `specs/factions-kingdoms/factions-kingdoms.md` Requirements 34 and 35.
 - Automation (conveyor belts, auto-smelters).
 
 ## Requirements
 1. Nine Jobs exist, each a row in `DT_Crafting_Jobs`:
    - **Blacksmith** — metal weapons, metal tools (axes, pickaxes, shovels), Repair Kits.
    - **Armorsmith** — metal armor (Metal armor category) and shields.
-   - **Carpenter** — wooden building pieces, furniture (including beds), storage containers (chests, barrels, crates), training dummies, torches, bows, arrows, wooden tools (including Hammers and Fishing Rods), stone tools (Stone Axe, Stone Pickaxe), Workbenches, Campfires, Stonecutters, Alchemy Tables, Looms, Tanning Racks.
+   - **Carpenter** — wooden building pieces, furniture (including beds), storage containers (chests, barrels, crates), training dummies, torches, bows, arrows, wooden tools (including Hammers and Fishing Rods), stone tools (Stone Axe, Stone Pickaxe), Workbenches, Campfires, Stonecutters, Alchemy Tables, Looms, Tanning Racks, Dye Stations (Requirement 19).
    - **Mason** — stone building pieces, Forges, Enchanting Altars, stone fortifications.
-   - **Alchemist** — potions (healing, mana, resistance), poisons, weapon oils.
+   - **Alchemist** — potions (healing, mana, resistance), poisons, weapon oils, dyes (Requirement 18).
    - **Cook** — meals that restore hunger and thirst and grant timed buffs.
    - **Tailor** — cloth armor, cold-weather and hot-weather clothing (all Cloth armor category), bags.
    - **Leatherworker** — leather armor (Leather armor category), waterskins.
@@ -60,6 +60,14 @@ Crafting is organized into nine Jobs that any character can level, independent o
     - Stonecutter, Alchemy Table, Loom, Tanning Rack — Carpenter, at a Workbench.
     - Forge and Enchanting Altar — Mason, at a Stonecutter.
 
+### Dyes
+18. 48 dye colors exist, each a row in `DT_Crafting_DyeColors` with: color ID, display name, linear color value, and dye item definition. Each color has one dye item. Dye items are crafted by the Alchemist at an Alchemy Table from plant and mineral inputs, with required Job level, station tier, inputs, and quantities in `DT_Crafting_Recipes`. Dye items roll no rarity and no affixes, and their effect does not scale with Job level (Requirement 11 does not apply).
+19. The Dye Station is a Carpenter build piece (required Job level 1, crafted at a Workbench) placed with the Hammer (`specs/voxel-world/voxel-world.md` Requirement 24). Using a Dye Station needs no Job level and awards no Job XP. The Dye Station has no tiers, no upgrade attachments, and no recipes, and it is not a crafting station for Requirements 7–9 or for base anchors (`specs/factions-kingdoms/factions-kingdoms.md` Requirement 51).
+20. Every armor, clothing, cloak, bag, shield, and weapon item definition defines 1–4 dye zones, chosen from Primary, Secondary, Accent, and Trim, each mapped to a channel of the item's material mask. A zone's color is applied as a Substrate material parameter per `specs/engine-tech/engine-tech.md` Requirement 3, set at runtime on the rendered item: on the character meshes Mutable builds for worn items, and on the held mesh for weapons and shields. Dye colors are not Mutable inputs, so applying or clearing a dye changes only the material parameter and never rebuilds the character through Mutable. Items of other types define no dye zones.
+21. Interacting with a Dye Station opens the dye screen in the owning local player's viewport. The player picks a dyeable item from the inventory (equipped or not), one of that item's dye zones, and one of the 48 colors. A 3D preview of the player's character wearing or holding the item shows the chosen colors before applying. The preview renders only in the owning local player's viewport and does not replicate. Apply consumes 1 dye item of that color per zone from the player's inventory and sets the zone's color. Apply is disabled when the player has no dye item of that color or the zone already has that color. "Clear zone" is free and restores the zone's default color.
+22. Dye colors are stored per item instance (`specs/inventory/inventory.md` Requirement 23). An applied dye takes effect immediately and replicates with equipped item visuals to every client.
+23. The world does not pause while a player uses a Dye Station. The dye screen closes without applying the pending selection when the player becomes Downed, takes damage, moves out of the Dye Station's interaction range (tuning value), or the Dye Station is destroyed or deconstructed. Two or more players can use the same Dye Station at the same time, each with an independent dye screen.
+
 ## Data Flow
 1. Player interacts with a station → station UI opens, listing recipes for the Jobs that station serves, filtered to recipes the player's Job level unlocks and the station tier supports.
 2. Player selects a recipe and quantity → client sends `ServerQueueCraft(StationId, RecipeId, Quantity)`.
@@ -68,6 +76,7 @@ Crafting is organized into nine Jobs that any character can level, independent o
 5. The next queued craft starts, repeating steps 3–4, until the queue is empty or materials run out.
 6. Job levels and XP save to `UNamecCharacterSave`. Station placement and tier save to `UNamecWorldSave`.
 7. Player opens the hand-crafting menu from the inventory screen → client sends `ServerQueueCraft` with no station → server validates Job level and materials in the crafter's inventory, then runs steps 4–5.
+8. Player interacts with a Dye Station → the dye screen opens with the character preview → the player picks an item, a zone, and a color, and the preview updates locally → client sends `ServerApplyDye(DyeStationId, ItemInstanceId, Zone, ColorId)` or `ServerClearDyeZone(DyeStationId, ItemInstanceId, Zone)` → server validates range, item ownership, that the item defines the zone, and (for Apply) that the player holds a dye item of that color → server removes 1 dye item, sets the item instance's zone color, and replicates equipped item visuals to every client.
 
 ## Edge Cases
 1. When materials run out mid-queue, the remaining queued crafts are cancelled and the player sees "Not enough materials". Completed crafts are kept.
@@ -76,6 +85,10 @@ Crafting is organized into nine Jobs that any character can level, independent o
 4. When two players use the same station at once, each has an independent queue. Materials pulled from shared containers are reserved at the start of each craft, first come, first served.
 5. When a station is destroyed or deconstructed with a Hammer while crafts are queued, all queues on that station are cancelled and reserved materials return to their crafters' inventories.
 6. When a nearby container's contents change during material validation, the server re-validates at the moment the craft starts. The server is authoritative.
+7. When a player applies a dye to a zone that already has a different dye color, the new color replaces the old one, and the old dye item is not refunded.
+8. When a player's last dye item of the chosen color leaves the inventory while the dye screen is open, the server rejects Apply and the item's colors are unchanged.
+9. When an item instance stores a color ID that no longer exists in `DT_Crafting_DyeColors` (content changed), that zone shows its default color and the item still loads.
+10. When a player dyes an equipped item, every client sees the new color on that player's character without the item being re-equipped.
 
 ## Acceptance Criteria
 - [ ] A new character with no items collects Loose Sticks, Loose Stones, and Fiber by hand, hand-crafts a Stone Axe and Stone Pickaxe, gathers Wood and Stone with them, and hand-crafts a Workbench and Hammer without any station.
@@ -88,6 +101,11 @@ Crafting is organized into nine Jobs that any character can level, independent o
 - [ ] A station uses materials from a chest 8 m away and ignores a chest 12 m away.
 - [ ] Quitting mid-craft returns the reserved materials to inventory.
 - [ ] An Enchanter rune adds an affix to a Magic item below its affix cap.
+- [ ] An Alchemist crafts a dye item at an Alchemy Table, and a Carpenter 1 crafts a Dye Station at a Workbench.
+- [ ] Applying a color to the Primary and Trim zones of a chest armor piece consumes 2 dye items of that color, the preview shows the colors before applying only in that player's viewport, and every client sees the result.
+- [ ] Using a Dye Station awards no Job XP and requires no Job level.
+- [ ] "Clear zone" restores the default color and consumes nothing.
+- [ ] Dye colors survive dropping the item, another player picking it up, and save → quit → load.
 - [ ] Rerolling an affix replaces it with a different affix type that was not already on the item, and a rune crafted at a tier-2 Enchanting Altar applied to an item-level-50 item never rolls a value above the `DT_Loot_Affixes` range for the tier-2 RuneMaxItemLevel.
 
 ## Key Files
@@ -95,11 +113,14 @@ Crafting is organized into nine Jobs that any character can level, independent o
 - `Source/NAMEC/Crafting/NamecCraftingStation.h` — new; station actor (subclass of `ANamecBuildPiece`), attachment binding and tier, craft queues, material reservation.
 - `Source/NAMEC/Crafting/NamecRecipeTypes.h` — new; recipe and Job DataTable row structs.
 - `Source/NAMEC/Crafting/NamecEnchantingService.h` — new; affix add/reroll logic.
-- `Source/NAMEC/UI/Crafting/` — new; station UI, queue display, hand-crafting menu.
+- `Source/NAMEC/UI/Crafting/` — new; station UI, queue display, hand-crafting menu, dye screen with character preview.
+- `Source/NAMEC/Crafting/NamecDyeTypes.h` — new; dye zone enum (Primary, Secondary, Accent, Trim) and the `DT_Crafting_DyeColors` row struct.
+- `Source/NAMEC/World/Building/NamecDyeStationPiece.h` — new; Dye Station build piece that opens the dye screen and validates `ServerApplyDye` and `ServerClearDyeZone`.
+- `Content/Data/DT_Crafting_DyeColors.uasset` — new; 48 dye color rows (color ID, display name, linear color, dye item definition).
 - `Content/Data/DT_Crafting_Jobs.uasset` — new; 9 Job rows.
 - `Content/Data/DT_Crafting_Recipes.uasset` — new; all recipes.
 - `Content/Data/DT_Crafting_JobXPCurve.uasset` — new; XP per Job level.
 - `Content/Data/DT_Crafting_QualityByLevel.uasset` — new; rarity floors by Job level.
 - `Content/Data/DT_Crafting_ConsumablePotency.uasset` — new; potency scaling.
 - `Content/Data/DT_Crafting_JobPerks.uasset` — new; milestone perks.
-- `Content/Data/DT_Crafting_Rules.uasset` — new; station ranges, queue size, low-level XP penalty, RuneMaxItemLevel per rune tier, and other crafting tuning values.
+- `Content/Data/DT_Crafting_Rules.uasset` — new; station ranges, queue size, low-level XP penalty, RuneMaxItemLevel per rune tier, Dye Station interaction range, and other crafting tuning values.

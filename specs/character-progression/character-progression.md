@@ -28,12 +28,12 @@ Characters grow along three independent tracks: D&D-style stats raised with poin
    - CON — max health, health regen, base MaxStamina, MaxEquipLoad, resistance to hunger/thirst drain.
    - INT — Destruction and Arcane spell power, max mana, Destruction and Arcane spell requirements.
    - WIS — Restoration and Nature spell power, mana regen, status-effect resistance, temperature tolerance, Restoration and Nature spell requirements.
-   - CHA — strength and radius of party buffs and auras (Bard, Paladin, Cleric abilities, and Hundari Rally Howl; `specs/character-creation/character-creation.md` Requirement 27).
+   - CHA — strength and radius of party buffs and auras (Bard, Paladin, Cleric abilities, and Hundari Rally Howl; `specs/character-creation/character-creation.md` Requirement 27), and Vendor buy prices: each point of CHA modifier lowers prices by 3% (tuning value in `DT_Factions_Rules`; `specs/factions-kingdoms/factions-kingdoms.md` Requirement 33).
 6. Stats are implemented as GAS attributes on `UNamecAttributeSet`, together with Health, MaxHealth, HealthRegen, Mana, MaxMana, ManaRegen, MaxCarryWeight, MaxEquipLoad, Poise, MaxPoise, Armor, StatusResistance, and one resistance attribute per damage type (SlashResistance, PierceResistance, BluntResistance, FireResistance, FrostResistance, LightningResistance, PoisonResistance, HolyResistance, ShadowResistance; see `specs/combat-loot/combat-loot.md` Requirement 9). Stamina, MaxStamina, and StaminaRegen live in `UNamecSurvivalAttributeSet` (see survival spec). Derived values are recalculated via GAS attribute-change callbacks, never polled per tick.
 
 ### Character Level
 7. Character level ranges 1–50 (tuning value).
-8. Character XP comes from four sources: a fixed percentage of all skill XP earned (starting value 25%), the same percentage of all class XP earned (Requirement 17), enemy kills, and boss first-kills. XP per enemy kill and per boss first-kill comes from the XP columns of `DT_Combat_Enemies`. Kill XP is awarded in full, not split, to every player loot-eligible for that kill (`specs/combat-loot/combat-loot.md` Requirement 29). A boss first-kill is the first time a given character defeats a given region's boss, tracked per character in `UNamecCharacterSave`. When a boss dies, every player inside the arena barrier whose character lacks that boss's first-kill flag receives first-kill XP instead of kill XP, and the flag is set, so each character receives first-kill XP once per boss. This includes re-summoned boss fights (`specs/combat-loot/combat-loot.md` Requirement 27). Characters that already hold that boss's first-kill flag receive normal kill XP only.
+8. Character XP comes from five sources: a fixed percentage of all skill XP earned (starting value 25%), the same percentage of all class XP earned (Requirement 17), enemy kills, boss first-kills, and quest rewards. Quest reward XP is the character XP reward of the quest's template or questline row, awarded in full on turn-in (`specs/factions-kingdoms/factions-kingdoms.md` Requirement 45). XP per enemy kill and per boss first-kill comes from the XP columns of `DT_Combat_Enemies`. Kill XP is awarded in full, not split, to every player loot-eligible for that kill (`specs/combat-loot/combat-loot.md` Requirement 29). A boss first-kill is the first time a given character defeats a given region's boss, tracked per character in `UNamecCharacterSave`. When a boss dies, every player inside the arena barrier whose character lacks that boss's first-kill flag receives first-kill XP instead of kill XP, and the flag is set, so each character receives first-kill XP once per boss. This includes re-summoned boss fights (`specs/combat-loot/combat-loot.md` Requirement 27). Characters that already hold that boss's first-kill flag receive normal kill XP only.
 9. The XP required for each level comes from `DT_Progression_CharacterXPCurve`.
 10. Each character level-up grants 1 unspent stat point (tuning value). The player spends points in the Character screen, and each point adds +1 to one stat. Spent points are permanent.
 11. Unspent stat points persist in the character save indefinitely.
@@ -58,7 +58,7 @@ Characters grow along three independent tracks: D&D-style stats raised with poin
     - **Weapon & armor:** One-Handed, Two-Handed, Archery, Block, Light Armor, Heavy Armor.
     - **Movement & utility:** Sprinting, Climbing, Swimming, Stealth.
     - **Magic schools:** Destruction, Restoration, Nature, Arcane.
-21. Skill XP is awarded only on a **meaningful use**, defined per skill in `DT_Progression_SkillXPSources`. In this spec, a hostile enemy is any creature in the `Hostile` or `Boss` category of `DT_Combat_Enemies`.
+21. Skill XP is awarded only on a **meaningful use**, defined per skill in `DT_Progression_SkillXPSources`. In this spec, a hostile enemy is any creature in the `Hostile` or `Boss` category of `DT_Combat_Enemies`, which includes Bandits, Beastmen, and kingdom raiders (`specs/factions-kingdoms/factions-kingdoms.md` Requirement 2). Town NPCs are not hostile enemies and award no skill XP (`specs/combat-loot/combat-loot.md` Requirement 42).
     - Woodcutting — each hit that damages a tree; bonus on felling.
     - Mining — each voxel of ore or stone removed with a pickaxe.
     - Foraging — each plant harvested.
@@ -118,6 +118,8 @@ Characters grow along three independent tracks: D&D-style stats raised with poin
 - [ ] All progression state survives save → quit → load.
 - [ ] A Mage wearing 3 Leather pieces gets 50% of their Armor values, and a Ranger wearing the same pieces gets 100% and earns Light Armor XP when hit by a hostile enemy.
 - [ ] Two eligible players killing the same enemy each receive its full kill XP.
+- [ ] A character with CHA modifier +3 pays 9% less at a Vendor than a character with CHA modifier 0 at the same reputation tier.
+- [ ] Turning in a quest adds the quest's full character XP reward.
 
 ## Key Files
 - `Source/NAMEC/Progression/NamecAttributeSet.h` — new; GAS attributes for the six stats, derived values, Armor, StatusResistance, and per-damage-type resistances.

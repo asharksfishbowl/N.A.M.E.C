@@ -97,7 +97,7 @@ Appearance is picked from presets and a few sliders, so it works well with a gam
 Numbers are preset counts (starting values).
 
 - Height and build are cosmetic only. They never change your collision size, reach or movement speed.
-- Every wearable item (armor, clothing, bags, cloaks) fits every race and sex.
+- Every wearable item (armor, clothing, bags, cloaks) fits every race and sex, and every dye zone on it works on every race and sex (see [Crafting and Jobs](Crafting-and-Jobs.md)).
 - Helmets can hide ears, frills, crests and manes (they reappear when the helmet comes off). Chest armor, leg armor, cloaks and bags can hide tails.
 - First-person arms match your race, sex and gloves.
 - If a game update removes an appearance option you used, that option resets to the race default and your character still loads.

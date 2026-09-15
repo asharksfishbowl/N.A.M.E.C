@@ -1,6 +1,6 @@
 # Combat and Loot
 
-This page covers Souls-style combat, damage types and status effects, fall damage, downed/revive/death, enemies, perception and taunts, scaling, bosses and summoning, per-player loot, rarity and affixes, chests, and durability.
+This page covers Souls-style combat, executions, damage types and status effects, fall damage, downed/revive/death, enemies and factions, town NPCs and raiders, perception and taunts, scaling, bosses and summoning, per-player loot and gold, rarity and affixes, chests, and durability.
 
 ← [Home](Home.md)
 
@@ -34,6 +34,37 @@ An Over-Encumbered character (carrying too much weight) also cannot dodge roll.
 - Targets the hostile closest to screen center within 20 m (starting value, tunable).
 - While locked on, the camera frames the target and movement strafes.
 - Flick the right stick (or mouse) to switch to the next target in that direction.
+
+## Executions
+
+An execution is a finishing move on a weakened enemy.
+
+**When the prompt appears** (only in your own viewport):
+
+- The enemy is a Hostile enemy (including Bandits, Beastmen and raiders). Never a Boss, Wildlife or town NPC.
+- It is within 2.5 m and in front of you (starting value, tunable).
+- It is below 20% health (starting value, tunable), **or** it is in the riposte window after **your** parry.
+- You aren't Downed, already executing, in the air, climbing or swimming, and you have no menu or interaction screen open.
+- If several enemies qualify, your lock-on target is used when it qualifies, otherwise the closest one.
+
+**Executing:**
+
+- Press **Y** (gamepad) or **R** (keyboard) while the prompt shows. This replaces the two-handing toggle while the prompt is up. LB + Y still casts ability 4.
+- Executions cost no stamina.
+- The server checks range, that the enemy isn't already being executed or airborne, and that there's room for the animation (so slopes, walls and building pieces are handled). If anything fails, nothing happens and the prompt hides.
+- A paired attacker/victim animation plays, picked by your Right Hand weapon category and the enemy's skeleton type. An empty hand, a bow, a tool or a torch uses the Unarmed set. If no animation exists for the pair, a generic one for that skeleton type plays.
+- During the animation, **you and the victim are invulnerable** and can't be interrupted. Other enemies keep fighting.
+- The victim dies at the animation's kill moment. It counts as your kill for loot, kill XP and quest credit.
+- In first-person, the camera switches to a third-person execution camera and back afterward.
+
+**Rewards** (starting values, tunable):
+
+- Restore 20% of your max stamina.
+- Weapon skill XP equal to 3 normal hits. Whenever the Unarmed set plays (including with a bow), the XP goes to One-Handed.
+
+**Co-op:** if two players try to execute the same enemy, the first request the server gets wins. If the attacker disconnects mid-animation, the enemy is released at its current health.
+
+**Settings:** "Execution prompts" (on by default, per local player) hides prompts and turns executions off. Y and R then always toggle two-handing.
 
 ## Poise and stagger
 
@@ -133,20 +164,35 @@ A world setting, off by default. When off, player attacks, spells and area effec
 - In a single-player session there is no Downed state. 0 health means death.
 - You respawn 5 seconds later at your bed in this world, or at the world spawn point if you have no bed or it was destroyed.
 - On respawn: full health, 50% Hunger and Thirst, body temperature 37 °C, Fatigue 0, and **Weakened** for 5 minutes (−20% damage dealt, −20% max stamina).
-- Equipped gear loses 10% durability. **No items are dropped.**
+- Equipped gear loses 10% durability. **No items are dropped and no gold is lost.**
 - Leaving cleanly while Downed (or any save written while Downed or dead) counts as a death: you respawn with the death effects on your next world entry. If your connection drops unexpectedly instead, your character keeps its last autosave.
 
 ## Enemies
 
 | Category | Behaviour |
 |----------|-----------|
-| Hostile | Attacks players. Drops loot and boss offerings. |
+| Hostile | Attacks players. Drops loot, gold and boss offerings. Includes Bandits, Beastmen and kingdom raiders. |
 | Wildlife | Never attacks, flees when damaged. Gives no weapon or magic XP. Can be skinned. |
 | Boss | One per region, summoned at an arena altar. |
 
-- Each enemy has a level, health, poise, resistances, damage, attacks, perception radius, loot table, optional hunting yield, region and XP rewards.
-- Enemies spawn from their region's list, filtered by time of day. Spawn density and the maximum live enemies per streamed chunk are set per region.
-- Enemies never spawn within 25 m of a placed building piece or within 40 m of a player (starting values, tunable).
+- Each enemy has a category, a faction (none, Bandits, Beastmen or a kingdom), a skeleton type, a level, health, poise, resistances, damage, attacks, perception radius, loot table, optional hunting yield, region and XP rewards.
+- Region monsters (faction none) spawn from their region's list, filtered by time of day. Spawn density and the maximum live enemies per streamed chunk are set per region.
+- Bandits and Beastmen spawn only at their camps and in raids. Kingdom raiders spawn only in raids. See [Factions and Kingdoms](Factions-and-Kingdoms.md) and [Raids](Raids.md).
+- Enemies never spawn within 25 m of a placed building piece, within 40 m of a player (starting values, tunable), or inside a town's protected radius. Raiders ignore the building-piece rule but keep the 40 m rule. Camp spawn points ignore both rules, so camps always refill.
+
+### Town NPCs
+
+- Guards, Guard Captains, Vendors, Quest Givers and Citizens use the same combat system as enemies, but they aren't enemies: they give no XP, loot or gold and can't be executed.
+- Your attacks always hurt them, whatever the friendly-fire setting, and cost reputation.
+- Lock-on can target a Guard that is attacking you.
+- Guard attacks use the Guard's own attack values, and town NPCs (including escort NPCs) don't get player-count scaling.
+- Hostile enemies attack town NPCs and escort NPCs just like players.
+
+### Raiders
+
+- Raiders go for the pieces in the raid's snapshot of the base first (including stations, containers and beds), moving to the next nearest piece when one is destroyed. See [Raids](Raids.md).
+- A raider you damage turns on you, and goes back to the base once you're Downed, dead or out of its perception radius. Taunts work as usual.
+- Only raiders attack building pieces. Normal enemies never do.
 
 ### Perception and aggro
 
@@ -175,6 +221,7 @@ Each additional player adds +60% enemy health and +10% enemy damage (starting va
 
 - Existing enemies keep their scaling when someone joins. New spawns use the new count.
 - A boss's scaling is locked at summon.
+- Town NPCs, including escort NPCs, never scale with player count.
 
 ## Bosses
 
@@ -204,11 +251,12 @@ Any boss can be re-summoned for more loot with a new offering.
 - Every eligible player also gets the enemy's full kill XP.
 - Unclaimed drops disappear after 10 minutes.
 - Items you drop from your inventory become shared pickups anyone can see and take. This is how players share items. There is no trade screen.
-- There is no gold or currency.
+- **Gold:** each Hostile enemy (and each chest type) has a gold range. Each eligible player rolls their own gold, which comes in their own drop. Wildlife and bosses drop no gold. Gold dropped with Drop Gold becomes a shared pickup. See [Factions and Kingdoms](Factions-and-Kingdoms.md).
+- If you execute an enemy, you are always eligible for its kill.
 
 ### Loot chests
 
-- Placed by world generation in caves and ruins. They are not crafted storage containers.
+- Placed by world generation in caves, ruins and Bandit and Beastmen camps. They are not crafted storage containers.
 - Each player can open each chest once, with their own roll. Only the opener gets that roll.
 - Chests never refill. Who has opened each chest is saved with the world.
 
@@ -237,3 +285,4 @@ Any boss can be re-summoned for more loot with a new offering.
 
 - [Combat and Loot](../../specs/combat-loot/combat-loot.md)
 - [Character Creation](../../specs/character-creation/character-creation.md) (racial combat traits)
+- [Factions and Kingdoms](../../specs/factions-kingdoms/factions-kingdoms.md) (factions, town NPCs, gold, raids)

@@ -1,16 +1,16 @@
 # World and Building
 
-This page covers world sizes and seeds, the 8 regions and their boss gates, day/night and weather, digging, filling and mining, trees, forage and loose pickups, hazards, and building.
+This page covers world sizes and seeds, the 8 regions and their boss gates, day/night and weather, digging, filling and mining, dig depth, towns and camps, trees, forage and loose pickups, hazards, and building.
 
 ← [Home](Home.md)
 
 ## The world
 
-- A large, finite, seeded map of smooth (never blocky) voxel terrain. Every piece of terrain can be dug, filled and reshaped.
+- A large, finite, seeded map of smooth (never blocky) voxel terrain. Terrain can be dug, filled and reshaped anywhere outside town protected areas, down to the dig depth limit.
 - Surrounded by an impassable ocean edge. There is no sailing.
 - A bedrock layer at a fixed depth (per world size) cannot be dug through.
-- Caves generate underground in every region and hold that region's higher-tier ore. Caves are procedural only. There are no handcrafted dungeons.
-- Generation also places ruins (surface structures) and loot chests in caves and ruins.
+- Caves generate underground in every region and hold that region's higher-tier ore. Caves are procedural only. There are no handcrafted dungeons. Every cave connects to the surface, so you can walk in without digging too deep.
+- Generation also places ruins (surface structures), kingdom capitals and towns, Bandit and Beastmen camps, and loot chests in caves, ruins and camps.
 
 ## Creating a world
 
@@ -22,8 +22,9 @@ This page covers world sizes and seeds, the 8 regions and their boss gates, day/
 | Friendly fire | Off (default) or on |
 | LAN hosting | On (default) or off |
 | Password | Optional |
+| Raids | On (default) or off. See [Raids](Raids.md). |
 
-The same seed, size and voxel resolution always generate identical terrain, regions, resources, ruins, loot chest positions and boss arenas on every machine. Voxel resolution is 25 cm (starting value, tunable) and is fixed per world at creation.
+The same seed, size and voxel resolution always generate identical terrain, regions, resources, ruins, towns, camps, loot chest positions and boss arenas on every machine. Voxel resolution is 25 cm (starting value, tunable) and is fixed per world at creation.
 
 ## Regions
 
@@ -50,7 +51,8 @@ See [Combat and Loot](Combat-and-Loot.md) for bosses and [Survival](Survival.md)
 - One in-game day lasts 30 real-time minutes (starting value, tunable).
 - Weather is chosen per region from its climate: clear, rain, storm, snow, sandstorm, ash fall.
 - Some enemies spawn only at night.
-- Tree regrowth, forage regrowth and loose pickup respawns run on in-game time, so time skipped by sleeping counts.
+- Tree regrowth, forage regrowth, loose pickup respawns, NPC and camp respawns, Vendor restocks and Quest Board refreshes run on in-game time, so time skipped by sleeping counts.
+- **Exception:** the raid roll clock and raid duration run on real time, and sleeping doesn't advance them. See [Raids](Raids.md).
 
 ## Digging, filling and mining
 
@@ -73,12 +75,30 @@ See [Combat and Loot](Combat-and-Loot.md) for bosses and [Survival](Survival.md)
 - Player-placed voxels give exactly one item per fill unit, with no skill bonus and no Mining XP. Because filling rounds cost up and digging only gives whole items, fill-and-dig is never a net gain.
 - Ore never regrows.
 
+### Dig depth
+
+- You can dig or mine a spot only if it is at most **6 m** (starting value, tunable) below the nearest open air directly above it, as the world was originally generated.
+- In practice: you can dig 6 m below the surface, and 6 m below a cave floor inside a cave.
+- Only the voxels past the limit are blocked. The rest of the dig still happens, and "Too deep" shows in your viewport.
+- Filling a hole and digging again doesn't change the limit, because it's measured on the original terrain.
+- Anything you fill above the original ground can always be dug out.
+- Every generated ore voxel is within the limit, so all ore can be reached.
+- The bedrock layer still can't be dug through.
+
 ### Terrain rules
 
 - Liquids never flow. Digging next to a lake or lava pool leaves a dry hole.
 - Digging under a building piece or a tree leaves it in place.
 - Digging out ground under another player makes them fall and take fall damage (see [Combat and Loot](Combat-and-Loot.md)).
 - Edits are shared with every player and saved with the world.
+- Terrain is built by a custom voxel mesher and lit by the rendering tier's GI method (Lumen hardware ray tracing in the High tier). See [Engine and Rendering](Dev-Engine-and-Rendering.md).
+
+## Towns and camps
+
+- **Towns:** each race kingdom has a capital and 2 towns in its home region. Inside a town's protected radius (tunable, covering every depth) you can't dig, fill, mine or build, and enemies don't spawn. Town buildings can't be damaged or deconstructed.
+- **Camps:** Bandit and Beastmen camps generate in every region. Terrain around camps can be dug normally, but building is blocked inside a camp's radius.
+
+See [Factions and Kingdoms](Factions-and-Kingdoms.md).
 
 ## Trees
 
@@ -112,12 +132,13 @@ Loose pickups and fiber are how a character with nothing starts crafting. See [C
 - Pieces snap to other pieces' snap points, or place freely on terrain when no snap point is in range.
 - There is **no structural integrity**. A piece never collapses from lack of support.
 - Each piece has health and a material tier (wood, stone, reinforced, etc.).
-- Only boss attacks, enemy area attacks and falling logs damage pieces. Player attacks, spells and area abilities never do, whatever the friendly-fire setting. Normal enemies do not target buildings, and there are no base raids.
+- Only boss attacks, enemy area attacks, raider attacks and falling logs damage pieces. Player attacks, spells and area abilities never do, whatever the friendly-fire setting. Only raiders target buildings. See [Raids](Raids.md).
 - A destroyed piece drops 50% of its materials (starting value, tunable).
 - A Hammer can deconstruct **any** piece, placed by any player, for a 100% refund.
 - Destroying or deconstructing a storage container drops its contents on the ground for anyone to take.
-- Building is blocked inside a boss arena and within 20 m of the world spawn point.
+- Building is blocked inside a boss arena, within 20 m of the world spawn point, inside a town's protected radius, and inside a Bandit or Beastmen camp's radius.
 
 ## Source spec
 
 - [Voxel World](../../specs/voxel-world/voxel-world.md)
+- [Factions and Kingdoms](../../specs/factions-kingdoms/factions-kingdoms.md) (towns, camps, raids)

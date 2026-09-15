@@ -6,10 +6,10 @@ This page covers the engine and GAS approach, module layout, the C++ vs Blueprin
 
 ## Engine
 
-- One Unreal Engine 5 C++ project, on the latest stable UE5 release at project creation. The Researcher pins the exact version in the roadmap, and it is recorded in `NAMEC.uproject`.
-- Enabled plugins: GameplayAbilities, EnhancedInput, OnlineSubsystem.
-- All input uses Enhanced Input. Bindings are remappable per local player. See [Co-op and Controls](Co-op-and-Controls.md).
-- Terrain technology (Voxel Plugin vs custom implementation) is a Researcher decision recorded in the roadmap before any world code is written. Criteria: split-screen performance with 4 viewports, network replication of edits, save size, license cost, console portability.
+- One Unreal Engine C++ project on **Unreal Engine 5.8, pinned at 5.8.2**, taking later 5.8 hotfixes. The version is recorded in `NAMEC.uproject`. Changing to another minor or major version is a spec change.
+- Enabled plugins: GameplayAbilities, EnhancedInput, OnlineSubsystem, OnlineSubsystemNull, and the plugin of every adopted engine feature that ships as one (for example Common UI, PCG, Mutable, StateTree, Smart Objects, Motion Warping, MetaSounds). No Experimental feature ships in a core system. See [Engine and Rendering](Dev-Engine-and-Rendering.md).
+- All input uses Enhanced Input, unified with Common UI. Bindings are remappable per local player. See [Co-op and Controls](Co-op-and-Controls.md).
+- Terrain uses a **custom C++ voxel mesher** with non-Nanite chunk meshes lit by the rendering tier's GI method (Lumen Hardware Ray Tracing in the High tier). Voxel Plugin is not used. The mesh backend (Geometry Script / Dynamic Mesh or a procedural mesh component) is a Researcher implementation choice. See [Engine and Rendering](Dev-Engine-and-Rendering.md).
 
 ## Gameplay Ability System (GAS)
 
@@ -20,7 +20,8 @@ This page covers the engine and GAS approach, module layout, the C++ vs Blueprin
   - `UNamecSurvivalAttributeSet`: Hunger, Thirst, BodyTemperature, Fatigue, Stamina, MaxStamina, StaminaRegen, Breath.
 - Derived values recalculate via attribute-change callbacks, never polled per tick.
 - The survival tick is a GAS periodic gameplay effect (1 s, starting value, tunable), not actor Tick.
-- Class abilities are `UGameplayAbility` subclasses. Core combat abilities: `GA_LightAttack`, `GA_HeavyAttack`, `GA_Dodge`, `GA_Block`, `GA_Parry`.
+- Class abilities are `UGameplayAbility` subclasses. Core combat abilities: `GA_LightAttack`, `GA_HeavyAttack`, `GA_Dodge`, `GA_Block`, `GA_Parry`, `GA_Execute`.
+- Town NPCs (`ANamecTownNPC`) subclass `ANamecEnemyBase` and use `UNamecEnemyAttributeSet`, so they share enemy GAS combat.
 - Racial active abilities are also `UGameplayAbility` subclasses (`GA_Race_SecondWind`, `GA_Race_Pounce`, `GA_Race_RallyHowl`, `GA_Race_ShedSkin`, `GA_Race_SwingLeap`, `GA_Race_MaulingRoar`), granted by the server on spawn. They are not rows in `DT_Progression_ClassAbilities`: they cost no stamina or mana, have no RequiredStat and award no class XP.
 - Racial passives and downsides are infinite-duration gameplay effects applied by the server on spawn and never removed.
 - Poison, Bleed, Burn and Frostbite buildup and active effects carry the gameplay tag `Status.Negative.Cleansable` (removed by Sauren Shed Skin).
@@ -35,12 +36,12 @@ This page covers the engine and GAS approach, module layout, the C++ vs Blueprin
 ## Data-driven tuning
 
 - Every balance number lives in a DataTable under `Content/Data/`, named `DT_<System>_<Purpose>`, editable without recompiling. See [Data Tables](Dev-Data-Tables.md).
-- Per-item values (weight, damage, insulation, armor category, `Poise`, `PoiseDamage`) live in item definition data assets.
+- Per-item values (weight, `Value`, damage, insulation, armor category, `Poise`, `PoiseDamage`, dye zones, quest item flag) live in item definition data assets.
 - All numbers in the specs are starting values.
 
 ## Module folder layout
 
-`Source/NAMEC/` has these subfolders: `Core/`, `Character/`, `Progression/`, `Crafting/`, `Survival/`, `World/`, `Combat/`, `Loot/`, `Inventory/`, `Multiplayer/`, `UI/`, `Save/`.
+`Source/NAMEC/` has these subfolders: `Core/`, `Character/`, `Progression/`, `Crafting/`, `Survival/`, `World/`, `Combat/`, `Loot/`, `Inventory/`, `Multiplayer/`, `Factions/`, `UI/`, `Save/`.
 
 Editor-only code (data validators) lives in a separate editor module, `Source/NAMECEditor/`.
 
@@ -60,7 +61,7 @@ Reference PC: NVIDIA RTX 3060-class GPU, 6-core CPU, 16 GB RAM, at 1080p.
 | 1–2 | 60 fps |
 | 3–4 | 30 fps |
 
-Scalability presets per viewport count come from `DT_MP_SplitScreenScalability`. The voxel-world acceptance test measures this in the Temperate region.
+Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports) from `DT_MP_SplitScreenScalability`. The targets are first measured by the benchmark milestone, which must pass before content production, and the voxel-world acceptance test measures them in the Temperate region. See [Engine and Rendering](Dev-Engine-and-Rendering.md).
 
 ## Key files
 
@@ -68,8 +69,8 @@ Scalability presets per viewport count come from `DT_MP_SplitScreenScalability`.
 
 | File | Purpose |
 |------|---------|
-| `NAMEC.uproject` | Project descriptor with pinned engine version and enabled plugins |
-| `Config/DefaultEngine.ini` | OnlineSubsystemNull configuration for LAN |
+| `NAMEC.uproject` | Project descriptor with the pinned engine version (5.8) and enabled plugins |
+| `Config/DefaultEngine.ini` | OnlineSubsystemNull configuration for LAN; renderer settings for Lumen with hardware ray tracing, Virtual Shadow Maps, Substrate and Nanite |
 | `Source/NAMEC/NAMEC.Build.cs` | Module dependencies |
 
 ### `Source/NAMEC/Core/`
@@ -79,6 +80,7 @@ Scalability presets per viewport count come from `DT_MP_SplitScreenScalability`.
 | `NamecGameInstance.h` | Owns save loading, local player management, session lifecycle |
 | `NamecGameMode.h` | Player registration, capacity checks, spawning |
 | `Platform/INamecPlatform.h` | Platform abstraction interface |
+| `Benchmark/NamecBenchmarkDirector.h` | Scripted split-screen benchmark run at 1–4 viewports and measurement capture |
 
 ### `Source/NAMEC/Character/`
 
@@ -112,6 +114,7 @@ Scalability presets per viewport count come from `DT_MP_SplitScreenScalability`.
 | `NamecCraftingStation.h` | Station actor (subclass of `ANamecBuildPiece`), attachment binding and tier, craft queues, material reservation |
 | `NamecRecipeTypes.h` | Recipe and Job DataTable row structs |
 | `NamecEnchantingService.h` | Affix add/reroll logic |
+| `NamecDyeTypes.h` | Dye zone enum (Primary, Secondary, Accent, Trim) and `DT_Crafting_DyeColors` row struct |
 
 ### `Source/NAMEC/Survival/`
 
@@ -128,14 +131,16 @@ Scalability presets per viewport count come from `DT_MP_SplitScreenScalability`.
 | File | Purpose |
 |------|---------|
 | `NamecWorldGenerator.h` | Seeded region layout, heightfield, caves, placement |
-| `NamecVoxelWorld.h` | Voxel chunk storage, streaming, meshing (or wrapper around Voxel Plugin) |
+| `NamecVoxelWorld.h` | Voxel chunk storage, streaming, and the custom C++ mesher producing non-Nanite chunk meshes with tight bounds |
 | `NamecTerrainEditComponent.h` | Dig/fill/mine requests and validation |
+| `NamecDigDepthQuery.h` | Per-column lookup of the nearest generated air voxel, used for the dig depth limit |
 | `NamecClimateSubsystem.h` | Region lookup, day/night, weather |
-| `NamecTreeActor.h` | Tree health, felling, regrowth |
+| `NamecTreeActor.h` | Tree health, felling (swap to a simulating actor with the same Nanite mesh), regrowth |
 | `NamecForageNode.h` | Harvestable plants |
 | `Building/NamecBuildPiece.h` | Placeable piece actor with snap points and health |
 | `Building/NamecBuildComponent.h` | Placement preview, snap, deconstruction |
 | `Building/NamecMirrorPiece.h` | Mirror build piece that opens the appearance editor |
+| `Building/NamecDyeStationPiece.h` | Dye Station build piece that opens the dye screen and validates dye requests |
 | `Hazards/NamecHazardVolume.h` | Poison Water and Lava contact effects (Poison buildup, Fire damage, Burn buildup) |
 | `Hazards/NamecPoisonPlant.h` | Poison Plant hazard actor applying Poison buildup on contact |
 
@@ -146,6 +151,9 @@ Scalability presets per viewport count come from `DT_MP_SplitScreenScalability`.
 | `NamecCombatComponent.h` | Lock-on, poise, guard, parry state |
 | `NamecDamageExecution.h` | GAS execution calculation: outgoing damage, incoming enemy damage and poise damage, healing |
 | `Abilities/` | `GA_LightAttack`, `GA_HeavyAttack`, `GA_Dodge`, `GA_Block`, `GA_Parry` |
+| `Abilities/GA_Execute.h` | Plays the paired execution montages and applies the kill at the kill notify |
+| `NamecExecutionComponent.h` | Execution candidate detection, owning-viewport prompt, server validation, invulnerability, rewards |
+| `NamecExecutionCamera.h` | Third-person execution camera used for first-person executions |
 | `NamecDownedComponent.h` | Downed state, bleed-out, revive interaction |
 | `AI/NamecEnemyBase.h` | Enemy base character with threat table, taunt forced-target handling, and perception detection |
 | `AI/NamecEnemyAttributeSet.h` | Enemy GAS attributes (Health, MaxHealth, Poise, MaxPoise, resistances) |
@@ -156,8 +164,8 @@ Scalability presets per viewport count come from `DT_MP_SplitScreenScalability`.
 | File | Purpose |
 |------|---------|
 | `NamecLootSubsystem.h` | Per-player drop rolling |
-| `NamecItemInstance.h` | Item instance with rarity, affixes, durability, item level |
-| `NamecLootPickup.h` | Per-player pickup actor (owner-only relevance, rendering and pickup) and shared world pickup mode |
+| `NamecItemInstance.h` | Item instance with rarity, affixes, durability, item level, dye colors |
+| `NamecLootPickup.h` | Per-player pickup actor (owner-only relevance, rendering and pickup), shared world pickup mode, and gold amount |
 | `NamecLootChest.h` | Generated loot chest with per-character-GUID opened state and per-player rolls |
 
 ### `Source/NAMEC/Inventory/`
@@ -165,7 +173,7 @@ Scalability presets per viewport count come from `DT_MP_SplitScreenScalability`.
 | File | Purpose |
 |------|---------|
 | `NamecInventoryComponent.h` | Item storage, weight, equip slots, favorites, hotkeys |
-| `NamecItemDefinition.h` | Item definition data asset (weight, category, slot, armor category, `Poise` for armor, `PoiseDamage` for weapons, effects) |
+| `NamecItemDefinition.h` | Item definition data asset (weight, `Value`, category, slot, armor category, `Poise` for armor, `PoiseDamage` for weapons, dye zones and mask channels, quest item flag, effects) |
 | `NamecContainerActor.h` | Placeable storage container (subclass of `ANamecBuildPiece`) with weight capacity |
 
 ### `Source/NAMEC/Multiplayer/`
@@ -174,8 +182,25 @@ Scalability presets per viewport count come from `DT_MP_SplitScreenScalability`.
 |------|---------|
 | `NamecSessionSubsystem.h` | Host/find/join LAN sessions, password, version check |
 | `NamecLocalPlayerManager.h` | Controller join prompt, local player add/remove, controller disconnect handling |
-| `NamecCharacterPayload.h` | Serializable character state struct for join and save sync, including race, sex and `FNamecAppearance` |
+| `NamecCharacterPayload.h` | Serializable character state struct for join and save sync, including race, sex, `FNamecAppearance`, item dye colors, gold, reputation and quest state |
 | `NamecSplitScreenLayout.h` | Viewport layout rules for 1–4 players |
+| `NamecSplitScreenScalabilitySubsystem.h` | Picks and applies the High or Split rendering tier from the machine's local viewport count |
+
+### `Source/NAMEC/Factions/`
+
+| File | Purpose |
+|------|---------|
+| `NamecFactionTypes.h` | Faction IDs, reputation tiers, and the `DT_Factions_Factions`, `DT_Factions_NPCs` and `DT_Factions_Rules` row structs |
+| `NamecReputationComponent.h` | Per-character reputation values, tier computation, NPC harm losses and cooldowns, daily Hostile recovery, fine payment |
+| `NamecCurrencyComponent.h` | Per-character gold counter, clamping, Drop Gold |
+| `NamecTownSubsystem.h` | Town and camp registry, town protected radius and camp radius queries, NPC spawning and respawn timers, Vendor stock and restock, Quest Board refresh |
+| `NamecTownNPC.h` | `ANamecTownNPC` (subclass of `ANamecEnemyBase`) with Guard, Vendor, Quest Giver, Citizen and Guard Captain behavior, and the post-fine Guard truce |
+| `NamecVendorComponent.h` | Buy and sell validation and price calculation |
+| `NamecQuestBoard.h` | `ANamecQuestBoard` interactable with per-world offers |
+| `NamecQuestComponent.h` | Per-character quest log, progress, tracked flags, questline steps, abandon |
+| `NamecQuestSubsystem.h` | Offer rolling, kill and camp credit, turn-in rewards |
+| `NamecCampActor.h` | Bandit and Beastmen camp spawn points, cleared state, respawn timer |
+| `NamecRaidSubsystem.h` | Base detection, base value, real-time raid roll clock and roll, raider source and band selection, spawning, the raid's building piece snapshot and merges, retreat and end |
 
 ### `Source/NAMEC/Save/`
 
@@ -190,8 +215,12 @@ Scalability presets per viewport count come from `DT_MP_SplitScreenScalability`.
 | Folder | Purpose |
 |--------|---------|
 | `CharacterScreen/` | Stat point spending, class selection, ability bar |
-| `Crafting/` | Station UI, queue display, hand-crafting menu |
-| `Inventory/` | Inventory list, detail panel, transfer view, Favorites quick menu |
+| `Crafting/` | Station UI, queue display, hand-crafting menu, dye screen with character preview |
+| `Inventory/` | Inventory list, detail panel, transfer view, Favorites quick menu, footer gold display and Drop Gold action |
+| `Vendor/` | Vendor screen |
+| `GuardCaptain/` | Guard Captain fine screen |
+| `Quests/` | Quest board screen, quest giver screen, Quests tab with Reputation section, HUD quest tracker |
+| `HUD/NamecExecutionPromptWidget.h` | Per-viewport execution prompt |
 | `Lobby/` | Join LAN Game list, character select per local player |
 | `Settings/InputRemapScreen/` | Per-local-player binding remap screen |
 | `OnScreenKeyboard/NamecOnScreenKeyboardWidget.h` | Per-viewport gamepad on-screen keyboard for name entry, used through `INamecPlatform` |
@@ -200,7 +229,10 @@ Scalability presets per viewport count come from `DT_MP_SplitScreenScalability`.
 
 | File | Purpose |
 |------|---------|
-| `NamecWearableVariantValidator.h` | Data validator: fails the content build when a wearable item is missing any of the 12 race × sex body variants, a required ear/frill/crest/mane or tail visibility setting, or (hand armor) any of the 12 first-person variants |
+| `NamecWearableVariantValidator.h` | Data validator: fails the content build when a wearable item is missing any of the 12 race × sex body variants, a required ear/frill/crest/mane or tail visibility setting, or (hand armor) any of the 12 first-person variants, or when a defined dye zone is missing from any variant's material mask |
+| `NamecVendorStockValidator.h` | Data validator: fails the content build when a `DT_Factions_VendorStock` row names a boss material |
+| `NamecCampEnemyValidator.h` | Data validator: fails the content build when a Bandits or Beastmen camp density above 0 has no matching enemy row for that region |
+| `NamecNaniteAuthoringValidator.h` | Data validator: fails the content build when a Nanite mesh uses translucency, Lighting Channels, unclamped WPO or Nanite Tessellation |
 
 ### Content
 
@@ -213,7 +245,12 @@ Scalability presets per viewport count come from `DT_MP_SplitScreenScalability`.
 | `Content/Survival/Effects/` | `GE_Freezing`, `GE_Cold`, `GE_Hot`, `GE_Overheating`, `GE_Wet`, `GE_Salty`, starvation and dehydration effects |
 | `Content/Inventory/Effects/GE_OverEncumbered.uasset` | Over-Encumbered gameplay effect |
 | `Content/Character/Races/Effects/` | Passive and downside gameplay effects for all six races |
+| `Content/Character/Mutable/` | Mutable assets for race bodies, appearance options, the 12 body variants of every wearable, and materials that keep dye zones as runtime parameters |
+| `Content/AI/Enemies/` | StateTree assets for enemies, bosses, Bandits, Beastmen and raiders |
+| `Content/AI/TownNPCs/` | StateTree and Smart Object assets for town and escort NPCs |
+| `Content/World/PCG/` | Runtime seeded PCG graphs for placement |
+| `Content/Maps/Benchmark/L_Benchmark_SplitScreen.umap` | Benchmark milestone scene |
 
 ## Source specs
 
-- [Game Foundation](../../specs/game-foundation/game-foundation.md) and the Key Files section of every system spec (see [Specs and Pipeline](Dev-Specs-and-Pipeline.md))
+- [Game Foundation](../../specs/game-foundation/game-foundation.md), [Engine Tech](../../specs/engine-tech/engine-tech.md), and the Key Files section of every system spec (see [Specs and Pipeline](Dev-Specs-and-Pipeline.md))

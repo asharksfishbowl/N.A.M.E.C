@@ -62,10 +62,10 @@ Players create a character by choosing a name, one of six races, a sex, an appea
     - Pounce and Swing Leap are root-motion leap abilities that respect collision and cannot pass through terrain or building pieces.
 
 ### Sex
-14. The player selects Male or Female. Sex selects the body mesh set, voice set, and animation set only. Stats, abilities, carry weight, and every other gameplay value are identical between sexes.
+14. The player selects Male or Female. Sex selects the body mesh set, voice set, and animation set only. Animation sets are shared across races and sexes with the IK Retargeter per `specs/engine-tech/engine-tech.md` Requirement 3. Stats, abilities, carry weight, and every other gameplay value are identical between sexes.
 
 ### Appearance
-15. Appearance is preset-based. Each race row lists which options it supports, and each option is a list of presets or a bounded slider:
+15. Appearance is preset-based, built using Mutable per `specs/engine-tech/engine-tech.md` Requirement 3. Each race row lists which options it supports, and each option is a list of presets or a bounded slider:
     - **All races:** body type (3 presets), height slider (±8%), build slider (slim ↔ heavy), face preset (8 per race and sex), eye color (12 presets), voice (3 per race and sex).
     - **Human:** skin tone (16 presets), hair style (12 presets), hair color (16 presets), facial hair (8 presets, male and female both allowed), scars and markings (8 presets).
     - **Felari, Hundari, Ursan:** fur color (12 presets), fur pattern (8 presets), ear variant (4 presets), tail variant (4 presets), mane or head fur style (8 presets).
@@ -75,10 +75,10 @@ Players create a character by choosing a name, one of six races, a sex, an appea
 17. Height and build sliders are cosmetic only. Collision capsule, reach, and movement speed are identical across all slider values within a race. Collision capsule size per race is defined in `DT_Character_Races` and is the same for both sexes.
 
 ### Equipment Fit
-18. Every wearable item (armor, clothing, bags, cloaks) must provide a visual variant for each of the 12 race × sex body combinations. The Researcher decides the technique (per-body meshes, skeletal retargeting, or morph-fit) and records it in the roadmap.
+18. Every wearable item (armor, clothing, bags, cloaks) must provide a visual variant for each of the 12 race × sex body combinations, using Mutable per `specs/engine-tech/engine-tech.md` Requirement 3. The Researcher records how each item's variants are authored as Mutable inputs in the roadmap. Characters and wearables are standard skeletal meshes, never Nanite (`specs/engine-tech/engine-tech.md` Requirement 4).
 19. Helmets and head armor define per-race visibility for ears, frills, crests, and manes (hide, show, or use a cutout mesh). Chest armor, leg armor, cloaks, and Back-slot items (bags) define tail visibility (show through, or hide).
-20. An editor data validator fails the content build when a wearable item is missing any of the 12 body variants, any Requirement 19 visibility setting for its slot (ear, frill, crest, and mane visibility for head items; tail visibility for chest, leg, cloak, and Back-slot items), or, for hand armor, any of the 12 first-person variants (Requirement 21).
-21. First-person arms use the race and sex's first-person arm mesh with the equipped hand armor's first-person variant for that race × sex combination.
+20. An editor data validator (Data Validation per `specs/engine-tech/engine-tech.md` Requirement 3) fails the content build when a wearable item is missing any of the 12 body variants, any Requirement 19 visibility setting for its slot (ear, frill, crest, and mane visibility for head items; tail visibility for chest, leg, cloak, and Back-slot items), or, for hand armor, any of the 12 first-person variants (Requirement 21), or when any dye zone defined on the item (`specs/crafting-jobs/crafting-jobs.md` Requirement 20) is missing from the material mask of any of the 12 body variants or, for hand armor, any of the 12 first-person variants, so every dye zone works on every body variant.
+21. First-person arms use the race and sex's first-person arm mesh with the equipped hand armor's first-person variant for that race × sex combination, rendered with First Person Rendering (an Evaluate-marked row with a fallback in `specs/engine-tech/engine-tech.md` Requirement 3).
 
 ### Mirror
 22. The Mirror is a Carpenter build piece (required level 5, crafted at a Workbench) placed with the Hammer (`specs/voxel-world/voxel-world.md` Requirement 24).
@@ -101,7 +101,7 @@ Players create a character by choosing a name, one of six races, a sex, an appea
 2. Each selection updates a local `FNamecCharacterDraft` (name, race, sex, appearance, starting class) and refreshes the preview actor `ANamecCharacterPreview`.
 3. On Confirm, `UNamecCharacterFactory::CreateCharacter(Draft)` validates the name and option indexes, computes starting stats (10 + race + class), creates the character GUID, places the racial active ability in the last ability bar slot (Requirement 11), and writes a new `UNamecCharacterSave`.
 4. On world entry, the character payload carries race, sex, and `FNamecAppearance` (`specs/multiplayer/multiplayer.md` Data Flow 3). The server spawns the pawn, applies the racial passive and downside effects, grants the racial active ability, and replicates race, sex, and appearance to all clients.
-5. Each client builds the character's visual from race, sex, appearance, and equipped items, selecting the matching body variant for every equipped item.
+5. Each client builds the character's visual through Mutable from race, sex, appearance, and equipped items, selecting the matching body variant for every equipped item, then sets each equipped item's dye zone colors as runtime Substrate material parameters on the built meshes (`specs/crafting-jobs/crafting-jobs.md` Requirement 20). A dye change updates only those parameters and does not rebuild through Mutable.
 6. At a Mirror, the client sends `ServerSetAppearance(FNamecAppearance)` → the server validates the race and sex match the character, option indexes are in range, and the player is within the Mirror's interaction range (Edge Case 14) → applies and replicates.
 
 ## Edge Cases
@@ -134,6 +134,7 @@ Players create a character by choosing a name, one of six races, a sex, an appea
 - [ ] Character creation can be completed start to finish with a gamepad in a 4-way split-screen viewport.
 - [ ] Changing race on step 1 resets appearance to that race's default preset.
 - [ ] A content build with a chest armor item missing its Felari female variant fails validation.
+- [ ] A content build with a chest armor item whose Trim dye zone is missing from its Ursan male variant's material mask fails validation.
 - [ ] Changing appearance at a Mirror updates the character on every connected client, and the change survives save → quit → load.
 - [ ] A Mirror cannot change race, sex, or name.
 
@@ -148,8 +149,9 @@ Players create a character by choosing a name, one of six races, a sex, an appea
 - `Source/NAMEC/UI/OnScreenKeyboard/NamecOnScreenKeyboardWidget.h` — new; per-viewport gamepad on-screen keyboard for name entry, used through `INamecPlatform` (Requirement 5).
 - `Source/NAMEC/Character/Races/NamecNightEyesComponent.h` — new; owning-viewport night vision post-process, night and underground activation, Settings toggle (Requirement 13).
 - `Source/NAMEC/Character/Races/Abilities/` — new; `GA_Race_SecondWind`, `GA_Race_Pounce`, `GA_Race_RallyHowl`, `GA_Race_ShedSkin`, `GA_Race_SwingLeap`, `GA_Race_MaulingRoar`.
-- `Source/NAMECEditor/NamecWearableVariantValidator.h` — new; editor-only module `NAMECEditor`; data validator for 12 body variants, Requirement 19 visibility settings, and 12 first-person hand armor variants (Requirement 20).
+- `Source/NAMECEditor/NamecWearableVariantValidator.h` — new; editor-only module `NAMECEditor`; data validator for 12 body variants, Requirement 19 visibility settings, 12 first-person hand armor variants, and dye zone masks on every variant (Requirement 20).
 - `Source/NAMEC/World/Building/NamecMirrorPiece.h` — new; Mirror build piece that opens the appearance editor.
+- `Content/Character/Mutable/` — new; Mutable Customizable Object assets for the six race bodies, appearance options, the 12 body variants of every wearable, and materials that keep each dye zone's mask channel as a runtime material parameter (Requirements 15–18; `specs/crafting-jobs/crafting-jobs.md` Requirement 20).
 - `Content/Character/Races/Effects/` — new; passive and downside gameplay effects for all six races.
 - `Content/Data/DT_Character_Races.uasset` — new; six race rows, plus taunt duration, Boss taunt duration and poise damage percentage, Mirror interaction range, Night Eyes night hours, Rally Howl CHA coefficients, and other character creation tuning values (Requirement 26).
 - `Content/Data/DT_Character_AppearanceOptions.uasset` — new; per-race preset counts and slider ranges.
