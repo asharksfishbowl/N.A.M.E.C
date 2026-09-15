@@ -4,7 +4,7 @@ This page covers carry weight and encumbrance, equip load, equipment slots, cape
 
 ← [Home](Home.md)
 
-Inventory is a categorized list limited by total weight. There is no grid, no slot count and no stack limit: any quantity stacks in one row per item definition plus potency value, so consumables with different potency are separate rows.
+Inventory is a categorized list limited by total weight. There is no grid, no slot count and no stack limit: any quantity stacks in one row per item definition plus potency value, rune tier and waterskin remaining drinks, so consumables with different potency, runes with different tiers and waterskins with different drinks left are separate rows.
 
 ## Carry weight
 
@@ -54,10 +54,11 @@ Each tier has its own i-frame window and roll recovery. Heavy armor can change y
 | Back | Tailor bags (add max carry weight) |
 | Neck | Amulets (jewelry) |
 | Ring ×2 | Rings (jewelry) |
-| Right Hand | Weapons, shields, tools, torches |
-| Left Hand | Weapons, shields, tools, torches |
+| Right Hand | Weapons, tools (axe, pickaxe, shovel, Hammer, Fishing Rod), torches |
+| Left Hand | One-handed weapons (not a Staff), shields, torches |
 | Ammo | Arrows (each bow shot uses 1) |
 
+- Any one-handed weapon except a Staff can go in either hand. Staffs and tools are Right Hand only, and shields are Left Hand only. See [Combat and Loot](Combat-and-Loot.md) for what LT does with each Left Hand item.
 - Two-handed items use both hand slots: Two-Handed Swords, Axes and Hammers, and bows. See [Stats and Classes](Stats-and-Classes.md) for weapon categories.
 - Two-handing a one-handed weapon **stows** your Left Hand item: it stays in its slot and still counts toward equip load, but gives none of its effects (including Insulation and Cooling) until you switch back. See [Combat and Loot](Combat-and-Loot.md).
 - Spells are not items and never go in a hand slot. They are used from the ability bar.
@@ -105,6 +106,7 @@ Each tier has its own i-frame window and roll recovery. Heavy armor can change y
 - Dye colors stay on the item when you drop it, another player picks it up, or it goes in a container. Everyone sees the colors on equipped gear.
 - Two otherwise identical items with different dye colors show as separate rows.
 - Consumables with different potency (for example a looted potion and one crafted by a high-level Alchemist) show as separate rows. Consumables with the same potency stack. Looted, bought and found arrows, potions and meals have Job level 1 potency.
+- Runes with different tiers, and waterskins with different drinks left, show as separate rows. Each keeps its tier or drinks through saving, dropping and containers.
 - Dye items are listed under Materials.
 - **Quest items** weigh nothing, are listed under Misc, and can't be dropped, stored in a container or sold. They disappear when the quest is turned in or abandoned.
 
@@ -114,7 +116,7 @@ Each tier has its own i-frame window and roll recovery. Heavy armor can change y
 - The **Favorites quick menu** (gamepad D-pad Up, keyboard Q) lists favorites to equip or use. It does not pause the world.
 - **8 hotkey slots** are assigned from Favorites.
   - Keyboard: keys 1–8 activate them.
-  - Gamepad: each slot joins a cycle based on the item type. For a weapon, shield, tool or torch, you choose the hand when assigning. Two-handed weapons and bows join the right-hand cycle.
+  - Gamepad: each slot joins a cycle based on the item type. For a one-handed weapon (not a Staff) or a torch, you choose the hand when assigning. Shields join the left-hand cycle, and tools and Staffs the right-hand cycle. Two-handed weapons and bows join the right-hand cycle.
 
 | Gamepad | Does |
 |---------|------|

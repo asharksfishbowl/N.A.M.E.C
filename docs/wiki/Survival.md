@@ -53,7 +53,7 @@ Cooked meals (Cook Job) grant a timed buff to one derived stat. Only one meal bu
 | Poison | Swamp and Jungle hazard water | Restores Thirst like Fresh water, and builds up Poison |
 | Salt | The ocean | No Thirst. Applies "Salty": increased Thirst drain for 60 seconds |
 
-Waterskins (Leatherworker) hold 5 drinks and refill at Fresh water.
+Waterskins (Leatherworker) hold as many drinks as their item's drink capacity (starting value 5) and refill at Fresh water. Each waterskin remembers its own drinks left, so waterskins with different amounts show as separate inventory rows (see [Inventory](Inventory.md)).
 
 ## Temperature
 
@@ -96,9 +96,10 @@ You are in at most one state at a time.
 
 ## Stamina
 
-- Spent by dodge rolls, attacks, bow shots (aimed or quick), blocking hits, sprinting, climbing and swimming. Vanari pay 50% less to climb, and Felari pay 50% more to swim.
+- Spent by dodge rolls, attacks (including off-hand light attacks), bow shots (aimed or quick), blocking hits, sprinting, climbing and swimming. Vanari pay 50% less to climb, and Felari pay 50% more to swim.
 - Regenerates after 1 second (starting value, tunable) without spending.
 - Base max stamina comes from CON.
+- Stamina isn't saved: it's full every time you enter a world.
 
 **Effective max stamina** = base max stamina × (1 − Fatigue / 200) × Thirst multiplier × Weakened multiplier
 

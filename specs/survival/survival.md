@@ -17,13 +17,13 @@ Characters manage four survival pressures — hunger, thirst, temperature, and s
 
 ### Meters
 1. Each character has four survival meters, stored as GAS attributes in `UNamecSurvivalAttributeSet`: Hunger (0–100), Thirst (0–100), BodyTemperature (°C, comfortable band 35.5–37.5), Fatigue (0–100).
-2. Stamina is a combat resource (0–MaxStamina). Stamina, MaxStamina, and StaminaRegen are GAS attributes also in `UNamecSurvivalAttributeSet`, as is Breath (Requirement 23). Base MaxStamina is driven by CON, with the coefficient in `DT_Progression_DerivedStats` (see character-progression spec).
+2. Stamina is a combat resource (0–MaxStamina). Stamina, MaxStamina, and StaminaRegen are GAS attributes also in `UNamecSurvivalAttributeSet`, as is Breath (Requirement 23). Base MaxStamina is driven by CON, with the coefficient in `DT_Progression_DerivedStats` (see character-progression spec). Stamina is not saved: it is full on every world entry (`specs/game-foundation/game-foundation.md` Requirement 6).
 3. Meters update on the server on a fixed survival tick of 1 second (tuning value), driven by a GAS periodic gameplay effect, not the actor Tick.
 
 ### Hunger & Thirst
 4. Hunger and Thirst start at 100 and drain over time. Drain rates per minute come from `DT_Survival_DrainRates` and are multiplied by activity (sprinting, combat, mining raise drain) and reduced by CON modifier.
 5. Eating restores Hunger. Drinking restores Thirst. Values per item come from the item definition.
-6. Water sources: drinking from Fresh water volumes (lakes, rivers) restores Thirst directly. Waterskins (Leatherworker) store 5 drinks and refill at Fresh water. Drinking from Poison water volumes (`specs/voxel-world/voxel-world.md` Requirement 31) restores Thirst like Fresh water and applies Poison buildup at the drinking value in `DT_Combat_StatusEffects`. Drinking from Salt water volumes (the ocean) gives no Thirst and adds a "Salty" effect that increases Thirst drain for 60 seconds.
+6. Water sources: drinking from Fresh water volumes (lakes, rivers) restores Thirst directly. Waterskins (Leatherworker) store `DrinkCapacity` drinks, a per-item value on the waterskin's item definition (starting value 5), and refill to `DrinkCapacity` at Fresh water. A waterskin's remaining drinks are stored on its item instance, saved with it, and waterskins with different remaining drinks are separate inventory rows (`specs/inventory/inventory.md` Edge Case 12). Drinking from Poison water volumes (`specs/voxel-world/voxel-world.md` Requirement 31) restores Thirst like Fresh water and applies Poison buildup at the drinking value in `DT_Combat_StatusEffects`. Drinking from Salt water volumes (the ocean) gives no Thirst and adds a "Salty" effect that increases Thirst drain for 60 seconds.
 7. At Hunger 0, the character loses 1% max health per 5 seconds and health regen stops. At Thirst 0, the character loses 1% max health per 3 seconds and max stamina is halved (tuning values).
 8. Cooked meals (Cook Job) grant a timed buff to one derived stat. Only one meal buff is active at a time, and a new meal replaces the old.
 
@@ -42,7 +42,7 @@ Characters manage four survival pressures — hunger, thirst, temperature, and s
 14. The Wet status applies while swimming or standing in rain without shelter, and lasts until 60 seconds after the character is last in water or unsheltered rain (tuning value). While Wet, effective ambient temperature is 8 °C lower.
 
 ### Stamina & Fatigue
-15. Stamina is spent by dodge rolls, attacks, bow shots (each aimed or quick shot; `specs/combat-loot/combat-loot.md` Requirement 55), blocking hits, sprinting, climbing, and swimming (costs in `DT_Survival_StaminaCosts`, tuning values). Stamina regenerates after a 1-second delay without spending (tuning value).
+15. Stamina is spent by dodge rolls, attacks (including off-hand light attacks; `specs/combat-loot/combat-loot.md` Requirement 59), bow shots (each aimed or quick shot; `specs/combat-loot/combat-loot.md` Requirement 55), blocking hits, sprinting, climbing, and swimming (costs in `DT_Survival_StaminaCosts`, tuning values). Stamina regenerates after a 1-second delay without spending (tuning value).
 16. Fatigue rises over time awake (starting value: 0 → 100 over 40 real-time minutes) and rises faster with stamina use: each stamina point spent adds Fatigue at the rate in `DT_Survival_DrainRates` (tuning value). A racial Fatigue multiplier (`specs/character-creation/character-creation.md` Requirement 12, Human Fleeting Vigor ×1.15) multiplies both sources.
 17. Effective MaxStamina = base MaxStamina × (1 − Fatigue / 200) × ThirstMultiplier × WeakenedMultiplier. ThirstMultiplier is the Requirement 7 max stamina multiplier (starting value 0.5) at Thirst 0, otherwise 1. WeakenedMultiplier is 1 minus the Weakened max stamina penalty from `specs/combat-loot/combat-loot.md` Requirement 17 (penalty starting value 0.2, so the multiplier is 0.8) while Weakened, otherwise 1. The multipliers stack multiplicatively. At Fatigue 100 with no other multiplier active, max stamina is 50%.
 18. Interacting with a placed bed sets that bed as the character's respawn point and puts the character in bed. The leave-bed input (gamepad B, keyboard Space; `specs/game-foundation/game-foundation.md` Requirement 14) gets the character out of bed. The respawn point is stored in `UNamecWorldSave`, keyed by character GUID, so each world keeps its own bed per character. When that bed is destroyed or deconstructed, the respawn point is cleared, and the character respawns at the world spawn point.
@@ -104,6 +104,6 @@ Characters manage four survival pressures — hunger, thirst, temperature, and s
 - `Content/Survival/Effects/` — new; `GE_Freezing`, `GE_Cold`, `GE_Hot`, `GE_Overheating`, `GE_Wet`, `GE_Salty`, starvation and dehydration effects.
 - `Content/Data/DT_Survival_DrainRates.uasset` — new.
 - `Content/Data/DT_Survival_Temperature.uasset` — new.
-- `Content/Data/DT_Survival_StaminaCosts.uasset` — new; stamina costs per action, including the per-shot bow shot cost (Requirement 15).
+- `Content/Data/DT_Survival_StaminaCosts.uasset` — new; stamina costs per action, including the per-shot bow shot cost and the off-hand light attack cost (Requirement 15).
 - `Content/Data/DT_Survival_Movement.uasset` — new; base swim speed and base climb speed as fractions of base walk speed (Requirement 25).
 - `Content/Data/DT_Survival_Penalties.uasset` — new; starvation, dehydration, temperature, Wet, sleep, swimming exhaustion, and Breath tuning values.

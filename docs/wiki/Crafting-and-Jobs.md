@@ -110,7 +110,7 @@ Runes are applied at an Enchanting Altar and do one of two things:
 - **Add** one affix to an item that has fewer affixes than its rarity's maximum. The affix type is random from the slot's pool, excluding types already on the item. Exception: an add rune also works on a Common Plain Ring or Plain Amulet with 0 affixes, and the new affix makes it Magic.
 - **Reroll** one chosen affix. It becomes a different random type from the slot's pool, excluding every type already on the item (including the one being rerolled).
 
-Both roll the new affix's value. A rune's tier is the tier of the Enchanting Altar it was crafted at. The value rolls as if the item level were the lower of the item's own level and the rune's max item level:
+Both roll the new affix's value. A rune's tier is the tier of the Enchanting Altar it was crafted at. The tier is saved on the rune, and runes with different tiers show as separate inventory rows. The value rolls as if the item level were the lower of the item's own level and the rune's max item level:
 
 | Rune tier | 1 | 2 | 3 | 4 | 5 |
 |-----------|---|---|---|---|---|

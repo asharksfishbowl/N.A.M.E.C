@@ -1,6 +1,6 @@
 # Combat and Loot
 
-This page covers Souls-style combat, bows and arrows, two-handing, tool hits on enemies, executions, damage types and status effects, fall damage, downed/revive/death, enemies and factions, town NPCs and raiders, perception and taunts, scaling, bosses and summoning, per-player loot and gold, rarity and affixes, chests, and durability.
+This page covers Souls-style combat, heavy attacks, block and parry sources, dual-wielding, torch bashes, bows and arrows, two-handing, tool hits on enemies, executions, damage types and status effects, fall damage, downed/revive/death, enemies and factions, town NPCs and raiders, perception and taunts, scaling, bosses and summoning, per-player loot and gold, rarity and affixes, chests, and durability.
 
 ← [Home](Home.md)
 
@@ -8,7 +8,14 @@ Combat is deliberate: stamina-gated attacks, dodge rolls, blocking, parrying and
 
 ## Stamina costs
 
-Light attacks, heavy attacks, dodge rolls, blocking (per hit absorbed), sprinting (per second) and each bow shot cost stamina. Class abilities cost mana and/or stamina set per ability. See [Survival](Survival.md) for stamina regen.
+Light attacks, off-hand light attacks, heavy attacks, dodge rolls, blocking (per hit absorbed), sprinting (per second) and each bow shot cost stamina. Class abilities cost mana and/or stamina set per ability. See [Survival](Survival.md) for stamina regen.
+
+## Heavy attacks
+
+- RT (middle mouse) makes a heavy attack with your Right Hand weapon, or unarmed with an empty Right Hand.
+- A heavy attack deals ×1.6 damage and ×2.0 poise damage compared with a light attack with the same weapon (starting values, tunable), and trains the same skill.
+- With a bow, axe, pickaxe, Fishing Rod or torch in your Right Hand, RT does nothing. With a shovel or Hammer, RT does that tool's own action instead (see [Co-op and Controls](Co-op-and-Controls.md)).
+- Class abilities never get the heavy attack bonus.
 
 ## Dodge roll
 
@@ -26,10 +33,32 @@ An Over-Encumbered character (carrying too much weight) also cannot dodge roll.
 
 ## Block and parry
 
-- **Block** with a shield or weapon to cut incoming damage by the item's block percentage. A shield of a category none of your classes allows blocks at half its percentage. Each blocked hit drains stamina. If stamina hits 0 while blocking, your guard breaks and you are staggered.
+- **Block** to cut incoming damage by the blocking item's block percentage. Which item blocks depends on your hands (see Dual-wielding below). A shield or weapon of a category none of your classes allows blocks at half its percentage. Each blocked hit drains stamina. If stamina hits 0 while blocking, your guard breaks and you are staggered.
 - Blocking also halves the poise damage you take (×0.5, starting value, tunable).
-- A bow can't block, and a stowed Left Hand item (see Two-handing) can't block or parry.
-- **Parry** needs a parry-capable item (shields, some weapons). A parry inside the parry window staggers the attacker and opens a riposte window. A riposte is a critical hit. Parry isn't available with a bow.
+- A bow can't block, torches and tools never block or parry, and a stowed Left Hand item (see Two-handing) can't block, parry or attack.
+- **Parry** uses the same item that blocks (or your Left Hand weapon when dual-wielding), and only works if that item is parry-capable (shields, some weapons). A parry inside the parry window staggers the attacker and opens a riposte window. A riposte is a critical hit. Parry isn't available with a bow.
+
+## Dual-wielding
+
+Any one-handed weapon except a Staff can go in your Left Hand. What LT (right mouse) does depends on your hands; the first matching row applies:
+
+| Hands | LT | Parry (LB + LT) |
+|-------|----|-----------------|
+| Bow in the Right Hand | Aims | Not available |
+| Two-handed weapon, or two-handing a one-handed weapon | Blocks with that weapon (no 50% empty-hand reduction) | That weapon, if parry-capable |
+| One-handed weapon in the Left Hand | Off-hand light attack (you can't block) | The Left Hand weapon, if parry-capable |
+| Shield in the Left Hand | Blocks with the shield | The shield, if parry-capable |
+| Torch in the Left Hand | Nothing (no block) | The Right Hand weapon, if parry-capable |
+| Empty Left Hand, weapon in the Right Hand | Blocks with the Right Hand weapon at 50% of its block percentage (starting value, tunable) | The Right Hand weapon, if parry-capable |
+| Empty Left Hand, Right Hand empty or holding a tool or torch | Nothing | Not available |
+
+- An **off-hand light attack** uses the Left Hand weapon's own damage values, poise damage and category skill, and has its own stamina cost (starting value, tunable).
+- Heavy attacks, executions and class abilities always use your Right Hand.
+
+## Torch bash
+
+- A light attack with a torch in your Right Hand is a **torch bash**: an unarmed hit that also builds up Burn on the target (starting value, tunable). It trains One-Handed like other unarmed hits.
+- A light attack with a tool in your Right Hand is still a tool swing (see Tools against enemies).
 
 ## Bows and arrows
 
@@ -57,7 +86,7 @@ Press Y (keyboard R) with a one-handed weapon in your Right Hand to hold it in b
 ## Tools against enemies
 
 - Tools (axe, pickaxe, shovel, Hammer) have their own base damage but no weapon category.
-- With an axe or pickaxe in your Right Hand, RT does nothing.
+- With an axe or pickaxe in your Right Hand, RT does nothing (no heavy attack with any tool).
 - A tool swing that hits a Hostile (including Bandits, Beastmen and raiders), Boss or Wildlife enemy deals 50% (starting value, tunable) of the damage the formula gives with the tool's base damage and the unarmed profile's scaling and damage type.
 - Tool hits on enemies give **no skill XP at all**: no weapon skill, and no Woodcutting or Mining.
 - A tool hit on a town NPC counts as an attack: it costs the same reputation and makes Guards react the same way.
@@ -105,7 +134,7 @@ An execution is a finishing move on a weakened enemy.
 - Poise regenerates after 3 seconds (starting value, tunable) without taking hits.
 - A player's max Poise = a base value + the Poise of every equipped armor piece.
 - Poise damage comes from:
-  - the weapon (or the unarmed profile) for weapon hits
+  - the weapon (or the unarmed profile) for weapon hits, ×2.0 for a heavy attack (starting value, tunable)
   - each class ability's own poise damage
   - racial abilities: Felari Pounce 60, Ursan Mauling Roar 100 (a Boss takes 25% of Mauling Roar's)
   - each enemy attack's poise damage
@@ -121,7 +150,7 @@ Damage = (WeaponBase + StatScaling + AffixFlat)
        × (1 + SkillBonus + AffixPercent)
        × (1 − TargetResistance)
        × RequirementPenalty × (1 − WeakenedPenalty) × CritMultiplier
-       × TwoHandingMultiplier
+       × TwoHandingMultiplier × HeavyAttackMultiplier
 ```
 
 - **WeaponBase:** the weapon's base damage. For a bow shot, the bow's base damage plus the arrow's ArrowDamage. For spells, the spell's base damage.
@@ -131,7 +160,9 @@ Damage = (WeaponBase + StatScaling + AffixFlat)
 - **WeakenedPenalty:** 0.2 while Weakened, otherwise 0. Weakened only lowers damage dealt, never healing.
 - **CritMultiplier:** applies only to a player's riposte critical hits. Enemies never land critical hits.
 - **TwoHandingMultiplier:** ×1.25 while two-handing a one-handed weapon, otherwise 1.
-- **Unarmed:** with an empty Right Hand, or a tool or torch in it, the unarmed profile is used (Blunt damage, STR scaling, One-Handed skill).
+- **HeavyAttackMultiplier:** ×1.6 for a heavy attack hit (starting value, tunable), otherwise 1.
+- **Unarmed:** with an empty Right Hand, or a tool or torch in it, the unarmed profile is used (Blunt damage, STR scaling, One-Handed skill). A torch bash also builds up Burn.
+- **Off-hand light attacks** use the Left Hand weapon's base damage, scaling, category skill and requirement penalties.
 - **Non-spell class abilities** deal a percentage of this damage (for example 150%) using the Right Hand weapon, or the unarmed profile.
 - **Felari Pounce** always uses the unarmed profile at 100%, with every penalty above applied. See [Races and Character Creation](Races-and-Character-Creation.md).
 
@@ -203,7 +234,7 @@ A world setting, off by default. When off, player attacks, spells and area effec
 - You die when bleed-out ends. If every player is downed or dead at once, all downed players die.
 - In a single-player session there is no Downed state. 0 health means death.
 - You respawn 5 seconds later at your bed in this world, or at the world spawn point if you have no bed or it was destroyed.
-- On respawn: full health, 50% Hunger and Thirst, body temperature 37 °C, Fatigue 0, and **Weakened** for 5 minutes (−20% damage dealt, −20% max stamina; healing isn't reduced).
+- On respawn: full health, full Mana, 50% Hunger and Thirst, body temperature 37 °C, Fatigue 0, and **Weakened** for 5 minutes (−20% damage dealt, −20% max stamina; healing isn't reduced).
 - Equipped gear loses 10% durability (jewelry has no durability). **No items are dropped and no gold is lost.**
 - Leaving cleanly while Downed (or any save written while Downed or dead) counts as a death: you respawn with the death effects on your next world entry. If your connection drops unexpectedly instead, your character keeps its last autosave.
 
@@ -216,7 +247,7 @@ A world setting, off by default. When off, player attacks, spells and area effec
 | Boss | One per region, summoned at an arena altar. |
 
 - Each enemy has a category, a faction (none, Bandits, Beastmen or a kingdom), a skeleton type, a level, health, poise, resistances, damage, attacks, perception radius, loot table, optional hunting yield, region and XP rewards.
-- Region monsters (faction none) spawn from their region's list, filtered by time of day. Spawn density and the maximum live enemies per streamed chunk are set per region.
+- Region monsters (Hostile and Wildlife rows with faction none) spawn from their region's list, filtered by time of day. Bosses never spawn this way: they appear only when summoned at their arena altar. Spawn density and the maximum live enemies per streamed chunk are set per region.
 - Bandits and Beastmen spawn only at their camps and in raids. Kingdom raiders spawn only in raids. See [Factions and Kingdoms](Factions-and-Kingdoms.md) and [Raids](Raids.md).
 - Enemies never spawn within 25 m of a placed building piece, within 40 m of a player (starting values, tunable), or inside a town's protected radius. Raiders ignore the building-piece rule but keep the 40 m rule. Camp spawn points ignore both rules, so camps always refill.
 

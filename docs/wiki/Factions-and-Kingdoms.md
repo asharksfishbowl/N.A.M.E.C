@@ -151,7 +151,8 @@ Example: with CHA modifier +2 and Honored tier, an item worth 100 costs 100 × 0
 | Escort | Lead an NPC to another town (capital, town 1 or town 2) of the same kingdom |
 | Deliver | Carry a quest item to a Quest Giver in another town of the same kingdom |
 
-- **Escort** fails if the NPC dies, gets too far from you, or you leave the world. An Escort quest still active when your character enters a world (for example after a crash) fails too.
+- **Escort** fails if the NPC dies, gets too far from you, or you leave the world before it arrives. An Escort quest not yet completed when your character enters a world (for example after a crash) fails too. The escort NPC doesn't flee when hit: it keeps following you.
+- When the escort NPC reaches the destination town, it leaves, and the completed quest stays in your log (even across worlds and saves) until you turn it in or abandon it.
 - **Quest items** weigh nothing and can't be dropped, stored or sold.
 
 ### Credit in co-op

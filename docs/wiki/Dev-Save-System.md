@@ -22,7 +22,8 @@ A character is portable: the same character save loads into any world. Save file
 | Progression | Stats, spent and unspent stat points, classes, class levels, skill XP, boss first-kill flags, ability bar | character-progression |
 | Jobs | Job levels and XP | crafting-jobs |
 | Survival | Survival meter values (Breath is not saved) | survival |
-| Inventory | Every item instance (definition ID, quantity, rarity, affixes, durability (none for jewelry), item level, dye colors, consumable potency value), equipped slots, favorites, hotkeys, sort choice | inventory |
+| Health and Mana | Current Health and Mana, restored on world entry after equipment and effects apply, clamped to current MaxHealth and MaxMana. Stamina is not saved and starts full. | game-foundation |
+| Inventory | Every item instance (definition ID, quantity, rarity, affixes, durability (none for jewelry), item level, dye colors, consumable potency value, rune tier, waterskin remaining drinks), equipped slots, favorites, hotkeys, sort choice | inventory |
 | Shovel | Dig/Fill mode and selected fill material (default Dig and Soil), per character | voxel-world |
 | Factions | Gold, reputation per faction, active quests (objective parameters, progress, tracked flag), completed questline steps per kingdom | factions-kingdoms |
 | Death | Dead-respawn flag | combat-loot |
@@ -41,14 +42,14 @@ Two-handing state is not saved: every character loads holding its Right Hand wea
 ### Gold, reputation, quests and dyes
 
 - A character save from before these existed migrates to the starting reputation values (+30 own kingdom, 0 other kingdoms, −100 Bandits and Beastmen), 0 gold and an empty quest log.
-- Quests reference only kingdoms, town slots (capital, town 1, town 2), enemy rows, item definitions and faction/region pairs, so an active quest stays valid in every world. An active Escort quest fails when the character leaves the world, and an Escort quest still active in a loaded character save fails on world entry (escort NPCs are not saved).
+- Quests reference only kingdoms, town slots (capital, town 1, town 2), enemy rows, item definitions and faction/region pairs, so an active quest stays valid in every world. An Escort quest whose objective is not complete fails when the character leaves the world, and one still incomplete in a loaded character save fails on world entry (escort NPCs are not saved). A completed Escort quest stays saved until turn-in or abandon.
 - If an item stores a dye color ID no longer in `DT_Crafting_DyeColors`, that zone shows its default color and the item still loads.
 - Cancelling creation, or removing the local player mid-creation, writes no save.
 
 ### Dead-respawn flag
 
-- Any character save written while the character is Downed or dead (autosave, disconnect, or exit, including host exit) sets the dead-respawn flag instead of saving the character at 0 health.
-- On the next world entry the character spawns at its bed or the world spawn point with the death effects (full health, 50% Hunger and Thirst, BodyTemperature 37 °C, Fatigue 0, Weakened, −10% durability; starting values, tunable), and the flag clears.
+- Any character save written while the character is Downed or dead (autosave, disconnect, or exit, including host exit) sets the dead-respawn flag instead of saving the character at 0 health. The flag takes precedence over the saved Health and Mana: the character respawns with full Health and full Mana.
+- On the next world entry the character spawns at its bed or the world spawn point with the death effects (full health, full Mana, 50% Hunger and Thirst, BodyTemperature 37 °C, Fatigue 0, Weakened, −10% durability; starting values, tunable), and the flag clears.
 - If a remote client's connection drops unexpectedly while Downed, no final save is sent, and the character keeps its last autosave state.
 
 ## `UNamecWorldSave` contents

@@ -122,14 +122,15 @@ Every weapon and shield has exactly one category.
 | Bow | Both hand slots | Archery | Carpenter |
 | Shield | Left Hand | Block | Armorsmith |
 
+- Every one-handed category except Staff can also go in your Left Hand for dual-wielding. Off-hand hits train that weapon's own skill. See [Combat and Loot](Combat-and-Loot.md).
 - A spear is wielded one-handed, so you can carry a shield with it.
-- A staff is a melee focus in your Right Hand. Your Left Hand can hold a shield or torch with it. Its melee hits train One-Handed. Spells still come only from class abilities.
+- A staff is a melee focus in your Right Hand only. Your Left Hand can hold a shield, torch or one-handed weapon with it. Its melee hits train One-Handed. Spells still come only from class abilities.
 - Tools (axes, pickaxes, shovels, Hammers, Fishing Rods) and torches have no weapon category. See [Combat and Loot](Combat-and-Loot.md) for tool hits on enemies.
 ## Wearing or wielding outside your classes
 
 - Any character can equip any weapon or armor.
 - A weapon of a category no held class allows deals 50% damage (starting value, tunable). Example: a Mage with a One-Handed Sword deals 50% damage, a Warlock with the same sword deals full damage.
-- A shield of a category no held class allows has its block percentage halved.
+- A shield or weapon of a category no held class allows has its block percentage halved.
 - An armor piece of a category no held class allows gives 50% of its Armor and resistance values.
 - Gear below its stat requirements (for example STR 16) takes the same 50% penalty.
 - Penalties multiply. An armor piece both outside your classes and below requirements gives 25%.

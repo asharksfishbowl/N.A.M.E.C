@@ -20,7 +20,7 @@ This page covers the engine and GAS approach, module layout, the C++ vs Blueprin
   - `UNamecSurvivalAttributeSet`: Hunger, Thirst, BodyTemperature, Fatigue, Stamina, MaxStamina, StaminaRegen, Breath.
 - Derived values recalculate via attribute-change callbacks, never polled per tick.
 - The survival tick is a GAS periodic gameplay effect (1 s, starting value, tunable), not actor Tick.
-- Class abilities are `UGameplayAbility` subclasses. Core combat abilities: `GA_LightAttack`, `GA_HeavyAttack`, `GA_Dodge`, `GA_Block`, `GA_Parry`, `GA_Execute`.
+- Class abilities are `UGameplayAbility` subclasses. Core combat abilities: `GA_LightAttack`, `GA_OffHandAttack`, `GA_HeavyAttack`, `GA_Dodge`, `GA_Block`, `GA_Parry`, `GA_Execute`.
 - Town NPCs (`ANamecTownNPC`) subclass `ANamecEnemyBase` and use `UNamecEnemyAttributeSet`, so they share enemy GAS combat.
 - Racial active abilities are also `UGameplayAbility` subclasses (`GA_Race_SecondWind`, `GA_Race_Pounce`, `GA_Race_RallyHowl`, `GA_Race_ShedSkin`, `GA_Race_SwingLeap`, `GA_Race_MaulingRoar`), granted by the server on spawn. They are not rows in `DT_Progression_ClassAbilities`: they cost no stamina or mana, have no RequiredStat and award no class XP.
 - Racial passives and downsides are infinite-duration gameplay effects applied by the server on spawn and never removed.
@@ -139,6 +139,7 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 | `NamecForageNode.h` | Harvestable plants |
 | `Building/NamecBuildPiece.h` | Placeable piece actor with snap points and health |
 | `Building/NamecBuildComponent.h` | Placement mode and preview, rotation, snap, deconstruction hold (placement mode only), staying in placement mode while the piece's item remains |
+| `Building/NamecTrainingDummyPiece.h` | Training dummy build piece that registers player hits without losing piece health |
 | `Building/NamecMirrorPiece.h` | Mirror build piece that opens the appearance editor |
 | `Building/NamecDyeStationPiece.h` | Dye Station build piece that opens the dye screen and validates dye requests |
 | `Hazards/NamecHazardVolume.h` | Poison Water and Lava contact effects (Poison buildup, Fire damage, Burn buildup) |
@@ -148,11 +149,11 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 
 | File | Purpose |
 |------|---------|
-| `NamecCombatComponent.h` | Lock-on, poise, guard, parry state, two-handing state with the stowed Left Hand item (ends on a Right Hand change or Left Hand equip; not saved) |
+| `NamecCombatComponent.h` | Lock-on, poise, guard, parry state, block and parry item selection and LT action per hand configuration, two-handing state with the stowed Left Hand item (ends on a Right Hand change or Left Hand equip; not saved) |
 | `NamecDamageExecution.h` | GAS execution calculation: outgoing damage (including two-handing and arrow damage), incoming enemy damage and poise damage (including the block poise multiplier), healing |
 | `Abilities/GA_BowAim.h`, `Abilities/GA_BowFire.h` | Bow aim and fire (aimed and quick shots), bow shot stamina cost, arrow consumption, "No arrows" |
 | `NamecProjectile.h` | Server-spawned replicated projectile that resolves bow hits, plus the client's cosmetic predicted projectile |
-| `Abilities/` | `GA_LightAttack`, `GA_HeavyAttack`, `GA_Dodge`, `GA_Block`, `GA_Parry` |
+| `Abilities/` | `GA_LightAttack`, `GA_OffHandAttack`, `GA_HeavyAttack`, `GA_Dodge`, `GA_Block`, `GA_Parry` |
 | `Abilities/GA_Execute.h` | Plays the paired execution montages and applies the kill at the kill notify |
 | `NamecExecutionComponent.h` | Execution candidate detection, owning-viewport prompt, server validation, invulnerability, rewards |
 | `NamecExecutionCamera.h` | Third-person execution camera used for first-person executions |
@@ -166,7 +167,7 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 | File | Purpose |
 |------|---------|
 | `NamecLootSubsystem.h` | Per-player drop rolling, including jewelry rolling Magic or above |
-| `NamecItemInstance.h` | Item instance with rarity, affixes, durability (none for jewelry), item level, dye colors, consumable potency value |
+| `NamecItemInstance.h` | Item instance with rarity, affixes, durability (none for jewelry), item level, dye colors, consumable potency value, rune tier, waterskin remaining drinks |
 | `NamecLootPickup.h` | Per-player pickup actor (owner-only relevance, rendering and pickup), shared world pickup mode, and gold amount |
 | `NamecLootChest.h` | Generated loot chest with per-character-GUID opened state and per-player rolls |
 
@@ -174,9 +175,9 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 
 | File | Purpose |
 |------|---------|
-| `NamecInventoryComponent.h` | Item storage (one row per item definition plus potency value), weight, equip slots, favorites, hotkeys |
+| `NamecInventoryComponent.h` | Item storage (one row per item definition plus potency value, rune tier and waterskin remaining drinks), weight, equip slots, favorites, hotkeys |
 | `NamecItemCategories.h` | Armor category enum and weapon category enum (hand use, trained skill) |
-| `NamecItemDefinition.h` | Item definition data asset (weight, `Value`, category, slot, armor category, weapon category, `Poise` for armor, `PoiseDamage` for weapons, `WeaponBase` for weapons and tools, `ArrowDamage` for arrows, Insulation or Cooling for capes, jewelry's no-durability flag, dye zones and mask channels, quest item flag, effects) |
+| `NamecItemDefinition.h` | Item definition data asset (weight, `Value`, category, slot, armor category, weapon category, `Poise` for armor, `PoiseDamage` for weapons, block percentage and parry-capable flag for weapons and shields, `WeaponBase` for weapons and tools, `ArrowDamage` for arrows, Insulation or Cooling for capes, `DrinkCapacity` for waterskins, jewelry's no-durability flag, dye zones and mask channels, quest item flag, effects) |
 | `NamecContainerActor.h` | Placeable storage container (subclass of `ANamecBuildPiece`) with weight capacity |
 
 ### `Source/NAMEC/Multiplayer/`
@@ -185,7 +186,7 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 |------|---------|
 | `NamecSessionSubsystem.h` | Host/find/join LAN sessions, password, version check |
 | `NamecLocalPlayerManager.h` | Controller join prompt, local player add/remove, controller disconnect handling |
-| `NamecCharacterPayload.h` | Serializable character state struct for join and save sync, including race, sex, `FNamecAppearance`, item dye colors, gold, reputation and quest state |
+| `NamecCharacterPayload.h` | Serializable character state struct for join and save sync, including race, sex, `FNamecAppearance`, item dye colors, current Health and Mana, gold, reputation and quest state |
 | `NamecSplitScreenLayout.h` | Viewport layout rules for 1–4 players |
 | `NamecSplitScreenScalabilitySubsystem.h` | Picks and applies the High or Split rendering tier from the machine's local viewport count |
 
@@ -200,7 +201,7 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 | `NamecTownNPC.h` | `ANamecTownNPC` (subclass of `ANamecEnemyBase`) with Guard, Vendor, Quest Giver, Citizen and Guard Captain behavior, and the post-fine Guard truce |
 | `NamecVendorComponent.h` | Buy and sell validation and price calculation |
 | `NamecQuestBoard.h` | `ANamecQuestBoard` interactable with per-world offers |
-| `NamecQuestComponent.h` | Per-character quest log, progress, tracked flags, questline steps, abandon |
+| `NamecQuestComponent.h` | Per-character quest log, progress, tracked flags, questline steps, abandon, Escort failure and completion rules |
 | `NamecQuestSubsystem.h` | Offer rolling, kill and camp credit, turn-in rewards |
 | `NamecCampActor.h` | Bandit and Beastmen camp spawn points, cleared state, respawn timer |
 | `NamecRaidSubsystem.h` | Base detection, base value, real-time raid roll clock and roll, raider source and band selection, spawning, the raid's building piece snapshot and merges, retreat and end |
@@ -246,7 +247,7 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 | `Content/Input/IMC_Gamepad.uasset` | Enhanced Input mapping context with gamepad defaults |
 | `Content/Input/IMC_KeyboardMouse.uasset` | Enhanced Input mapping context with keyboard and mouse defaults |
 | `Content/Input/Actions/` | One `UInputAction` asset per input action |
-| `Content/Input/Contexts/` | Higher-priority mapping contexts for tool, shovel, Hammer, placement mode, bow, Fishing Rod, bite window and bed bindings, added only while each context is active |
+| `Content/Input/Contexts/` | Higher-priority mapping contexts for tool, shovel, Hammer, placement mode, bow, Fishing Rod, bite window, torch, Left Hand weapon, Left Hand torch and bed bindings, added only while each context is active |
 | `Content/Survival/Effects/` | `GE_Freezing`, `GE_Cold`, `GE_Hot`, `GE_Overheating`, `GE_Wet`, `GE_Salty`, starvation and dehydration effects |
 | `Content/Inventory/Effects/GE_OverEncumbered.uasset` | Over-Encumbered gameplay effect |
 | `Content/Character/Races/Effects/` | Passive and downside gameplay effects for all six races |

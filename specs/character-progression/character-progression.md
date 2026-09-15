@@ -42,11 +42,11 @@ Characters grow along three independent tracks: D&D-style stats raised with poin
 12. Eleven classes exist: Warrior, Knight, Barbarian, Ranger, Rogue, Mage, Cleric, Druid, Paladin, Warlock, Bard. Each class is a row in `DT_Progression_Classes` with: stat bonuses (applied only for the starting class), an ability list, allowed armor categories (Requirement 28), and allowed weapon categories (Requirement 30).
 13. At creation the player picks exactly one starting class.
 14. Class slots unlock at character levels 1, 10, 25, and 40 (tuning values). When a slot unlocks, the player may choose any class not already held, via the Character screen, at any time afterward.
-15. All held classes are active simultaneously. The player can equip and use any ability, weapon, or armor category allowed by any held class. Any character can also equip a weapon or armor piece of a category no held class allows. Such a weapon deals 50% damage, such a shield has its block percentage halved (`specs/combat-loot/combat-loot.md` Requirement 4), and such an armor piece gives 50% of its Armor and resistance values (Requirement 28), using the penalty value of `specs/combat-loot/combat-loot.md` Requirement 36. This category penalty multiplies with any stat-requirement penalty on the same item. Weapon categories are defined in Requirement 29 and armor categories in Requirement 27. Tools, torches, capes, and jewelry have no weapon or armor category, so the category penalty never applies to them.
+15. All held classes are active simultaneously. The player can equip and use any ability, weapon, or armor category allowed by any held class. Any character can also equip a weapon or armor piece of a category no held class allows. Such a weapon deals 50% damage, such a shield or weapon has its block percentage halved (`specs/combat-loot/combat-loot.md` Requirement 4), and such an armor piece gives 50% of its Armor and resistance values (Requirement 28), using the penalty value of `specs/combat-loot/combat-loot.md` Requirement 36. This category penalty multiplies with any stat-requirement penalty on the same item. Weapon categories are defined in Requirement 29 and armor categories in Requirement 27. Tools, torches, capes, and jewelry have no weapon or armor category, so the category penalty never applies to them.
 16. Each class defines 8 abilities (starting count). Abilities are GAS `UGameplayAbility` subclasses. Spells are class abilities tagged with one magic school (Destruction, Restoration, Nature, or Arcane). Spells are not items. Each ability row in `DT_Progression_ClassAbilities` has: owning class, unlock class level, base XP, school (optional; set only for spells), mana cost, stamina cost, cooldown, base damage (set only for spells), WeaponDamagePercent (set only for non-spell abilities that deal damage; e.g., 1.5), BaseHealing (set only for abilities that heal), PoiseDamage, RequiredStat, and RequiredValue. Healing uses the formula in `specs/combat-loot/combat-loot.md` Requirement 39, and poise damage follows `specs/combat-loot/combat-loot.md` Requirement 38. A spell's damage uses its base damage, and a non-spell ability's damage is WeaponDamagePercent × the weapon damage of the Right Hand weapon, or of the Unarmed weapon profile when the Right Hand is empty or holds a tool or torch (`specs/combat-loot/combat-loot.md` Requirement 8). When the caster's RequiredStat score is below RequiredValue, the ability deals 50% damage and healing, using the same penalty value as `specs/combat-loot/combat-loot.md` Requirement 36.
 17. Each held class has its own class level (1–20, tuning value). Class XP is awarded each time one of that class's abilities hits a target or completes its effect, with base XP per ability in `DT_Progression_ClassAbilities` and required XP per class level in `DT_Progression_ClassXPCurve`. Class XP feeds character XP at the same 25% share as skill XP. Each ability unlocks at the class level listed in `DT_Progression_ClassAbilities`, and a newly held class starts at class level 1 with its level-1 abilities.
 18. The player equips up to 6 abilities on an ability bar (tuning value), drawn from any held classes plus the character's racial active ability (`specs/character-creation/character-creation.md` Requirement 11). The racial active ability always occupies one bar slot and cannot be removed, so at most 5 class abilities are equipped at the starting bar size. Moving an ability onto an occupied slot swaps the two abilities. Ability bar inputs:
-    - Gamepad: hold LB and press A, B, X, or Y for abilities 1–4, and hold LB and press RB or RT for abilities 5–6. Block is on LT.
+    - Gamepad: hold LB and press A, B, X, or Y for abilities 1–4, and hold LB and press RB or RT for abilities 5–6. LT blocks, aims a bow, or makes an off-hand light attack (`specs/combat-loot/combat-loot.md` Requirement 59).
     - Keyboard: Z, X, C, V, B, N for abilities 1–6.
     
     The full default binding table is `specs/game-foundation/game-foundation.md` Requirement 14.
@@ -106,10 +106,11 @@ Characters grow along three independent tracks: D&D-style stats raised with poin
     | Bow | Two-handed item, both hand slots (`specs/combat-loot/combat-loot.md` Requirement 55) | Archery | Carpenter |
     | Shield | Left Hand | Block | Armorsmith |
 
+    - Every one-handed weapon category except Staff can also be held in the Left Hand for dual-wielding. Its off-hand hits train its own category's skill (`specs/combat-loot/combat-loot.md` Requirement 59).
     - A spear is wielded one-handed, so the Left Hand can hold a shield with it.
-    - A staff is a melee focus: it is a Right Hand weapon, the Left Hand may hold a shield or torch with it, and its melee hits train One-Handed. Spells still come only from class abilities (Requirement 16), never from the staff.
+    - A staff is a melee focus: it is a Right Hand weapon that can't be held in the Left Hand, the Left Hand may hold a shield, torch, or one-handed weapon with it, and its melee hits train One-Handed. Spells still come only from class abilities (Requirement 16), never from the staff.
     - A shield trains Block through blocked hits (Requirement 21).
-    - Tools (axes, pickaxes, shovels, Hammers, Fishing Rods) and torches have no weapon category (`specs/combat-loot/combat-loot.md` Requirement 56).
+    - Tools (axes, pickaxes, shovels, Hammers, Fishing Rods) and torches have no weapon category (`specs/combat-loot/combat-loot.md` Requirement 56). Tools are Right Hand only, and shields are Left Hand only (`specs/inventory/inventory.md` Requirement 12).
 30. Allowed weapon categories per class, stored in `DT_Progression_Classes`:
 
     | Class | Allowed weapon categories |
@@ -126,7 +127,7 @@ Characters grow along three independent tracks: D&D-style stats raised with poin
     | Warlock | Staff, Dagger, One-Handed Sword |
     | Bard | One-Handed Sword, Dagger, Bow |
 
-    Any character can equip any weapon category. A weapon whose category no held class allows deals 50% damage, and a shield whose category no held class allows has its block percentage halved (Requirement 15), using the penalty value of `specs/combat-loot/combat-loot.md` Requirement 36.
+    Any character can equip any weapon category. A weapon whose category no held class allows deals 50% damage, and a shield or weapon whose category no held class allows has its block percentage halved (Requirement 15), using the penalty value of `specs/combat-loot/combat-loot.md` Requirement 36.
 
 ## Data Flow
 1. Player performs an action (e.g., a pickaxe removes an ore voxel).
@@ -135,14 +136,14 @@ Characters grow along three independent tracks: D&D-style stats raised with poin
 4. The same call adds `skillXP × 25%` (skill XP after the step 3 multipliers) to character XP and checks the character XP curve.
 5. On level-up, the component updates GAS attributes and passive bonuses, grants a stat point if character level changed, unlocks a class slot if a milestone was reached, and broadcasts `OnSkillLevelUp` / `OnCharacterLevelUp`.
 6. Progression state replicates to the owning client. The HUD listens to the broadcasts and shows a toast.
-7. On save, `UNamecProgressionComponent` serializes stats, spent/unspent points, classes, class levels, skill XP, boss first-kill flags, and equipped ability bar into `UNamecCharacterSave`.
+7. On save, `UNamecProgressionComponent` serializes stats, spent/unspent points, classes, class levels, skill XP, boss first-kill flags, equipped ability bar, and current Health and Mana into `UNamecCharacterSave` (`specs/game-foundation/game-foundation.md` Requirement 6).
 
 ## Edge Cases
 1. When an action would award XP to a skill already at max level, no skill XP is added, but the character XP share is still awarded.
 2. When a character is at max character level, character XP stops accruing, and the XP bar shows "MAX".
 3. When a single action levels a skill more than once (large XP gain), each level-up applies in order and each perk unlocks. One toast shows the final level.
 4. When a player spends a stat point that would push a stat above 30, the spend button is disabled for that stat.
-5. When a player hits a training dummy (a Carpenter-crafted damageable target actor that is not an enemy), another player, or a creature in the `Wildlife` category of `DT_Combat_Enemies` (passive animals that never attack), weapon and magic skills get no XP. Skinning Wildlife still awards Hunting XP.
+5. When a player hits a training dummy (a Carpenter building piece that registers player hits without losing health and is not an enemy; `specs/voxel-world/voxel-world.md` Requirement 44), another player, or a creature in the `Wildlife` category of `DT_Combat_Enemies` (passive animals that never attack), weapon and magic skills get no XP. Class abilities that hit a training dummy award no class XP. Skinning Wildlife still awards Hunting XP.
 6. When a player repeatedly digs and refills the same voxel, Mining awards XP only for stone or ore voxels that are not flagged player-placed (see `specs/voxel-world/voxel-world.md` Requirements 1 and 12). Player-placed voxels award no XP.
 7. When a player unlocks a class slot but has not chosen a class, the slot stays open and the Character screen shows a notification badge until filled.
 

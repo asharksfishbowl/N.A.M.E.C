@@ -141,6 +141,7 @@ Loose pickups and fiber are how a character with nothing starts crafting. See [C
 - There is **no structural integrity**. A piece never collapses from lack of support.
 - Each piece has health and a material tier (wood, stone, reinforced, etc.).
 - Only boss attacks, enemy area attacks, raider attacks and falling logs damage pieces. Player attacks, spells and area abilities never do, whatever the friendly-fire setting. Only raiders target buildings. See [Raids](Raids.md).
+- **Training dummies** are the one piece that reacts to your hits: every player hit plays its hit reaction but never lowers its health and gives no skill XP or class XP. Boss, enemy area, raider and falling-log damage still hurt it like any other piece.
 - A destroyed piece drops 50% of its materials (starting value, tunable).
 - A Hammer can deconstruct **any** piece, placed by any player, for a 100% refund, using the hold in placement mode.
 - Destroying or deconstructing a storage container drops its contents on the ground for anyone to take.

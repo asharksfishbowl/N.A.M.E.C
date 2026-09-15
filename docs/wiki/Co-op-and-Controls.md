@@ -81,7 +81,11 @@ Some bindings change with what you're holding or doing. Each one replaces the no
 - **Hammer:** RT (middle mouse) opens the build menu. Choosing a piece enters placement mode.
 - **Placement mode:** RB (left mouse) places, D-pad Left/Right (mouse wheel) rotates, B (right mouse) cancels, and holding X (F) for 1 second (starting value, tunable) on a placed piece deconstructs it. While placement mode is on, these replace the hotkey cycles, using a consumable, dodge roll and sprint, and block. Deconstructing works only in placement mode. After placing, you stay in placement mode while you still have that piece's item.
 - **Bow** (a two-handed item): a bow can't block, so LT (right mouse) aims, RB (left mouse) fires an aimed shot while aiming, and RB without aiming fires a quick shot at 50% damage. RT does nothing. There is no parry with a bow.
-- **Fishing Rod:** RB (left mouse) casts. During the bite window, A (E) reels in, even if you aren't looking at anything you can interact with. This is the one time A doesn't jump or interact.
+- **Fishing Rod:** RB (left mouse) casts, and RT does nothing. During the bite window, A (E) reels in, even if you aren't looking at anything you can interact with. This is the one time A doesn't jump or interact.
+- **Torch in your Right Hand:** RB (left mouse) makes a torch bash that builds up Burn, and RT does nothing.
+- **One-handed weapon in your Left Hand:** LT (right mouse) makes an off-hand light attack instead of blocking. LB + LT parries only if that weapon is parry-capable.
+- **Torch in your Left Hand:** LT (right mouse) does nothing. LB + LT parries with your Right Hand weapon if it's parry-capable.
+- A bow in your Right Hand, or two-handing your Right Hand weapon, overrides both Left Hand rules: LT aims with a bow, and blocks with the two-handed weapon. See [Combat and Loot](Combat-and-Loot.md).
 - **In bed:** B (Space) gets you out of bed.
 
 | Action | Gamepad | Keyboard & mouse (local player 1 only) |
@@ -97,8 +101,9 @@ Some bindings change with what you're holding or doing. Each one replaces the no
 | Toggle two-handing the Right Hand weapon (see [Combat and Loot](Combat-and-Loot.md)) | Y (when no execution prompt is shown) | R (when no execution prompt is shown) |
 | Execute (see [Combat and Loot](Combat-and-Loot.md)) | Y (only while an execution prompt is shown) | R (only while an execution prompt is shown) |
 | Light attack | RB | Left mouse button |
-| Heavy attack (does nothing with a bow, axe or pickaxe) | RT | Middle mouse button |
-| Block (not with a bow) | LT | Right mouse button |
+| Heavy attack (see [Combat and Loot](Combat-and-Loot.md); does nothing with a bow, axe, pickaxe, Fishing Rod or torch) | RT | Middle mouse button |
+| Block (not with a bow, or with a weapon or torch in the Left Hand) | LT | Right mouse button |
+| Off-hand light attack (see [Combat and Loot](Combat-and-Loot.md)) | LT (one-handed weapon in the Left Hand) | Right mouse button (one-handed weapon in the Left Hand) |
 | Parry (not with a bow) | LB + LT | Left Alt + right mouse button |
 | Swing the Right Hand tool (axe, pickaxe, shovel, Hammer) | RB (tool in hand) | Left mouse button (tool in hand) |
 | Toggle shovel Dig/Fill mode (see [World and Building](World-and-Building.md)) | RT (shovel in hand) | Middle mouse button (shovel in hand) |

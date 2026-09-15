@@ -45,7 +45,7 @@ Two local players on one machine selecting the same character are blocked locall
 - On every autosave, the host sends `ClientSaveCharacter(CharacterPayload)` to each client, which writes `UNamecCharacterSave` locally.
 - On clean disconnect or exit, a final `ClientSaveCharacter` is sent before the connection closes.
 - On an unexpected drop, no final send arrives. The client saves its last received payload, which is the last autosave (up to 5 minutes, starting value, tunable, of progress lost).
-- Character inventory (including dye colors), gold, reputation per faction and quest state are part of the payload and leave with the player. World containers, Vendor stock, Quest Board offers, NPC respawn timers and camp states stay in the world save.
+- Current Health and Mana, character inventory (including dye colors), gold, reputation per faction and quest state are part of the payload and leave with the player. World containers, Vendor stock, Quest Board offers, NPC respawn timers and camp states stay in the world save.
 - The payload carries race, sex and `FNamecAppearance`. On spawn, the server applies the racial passive and downside effects, grants the racial active ability, and replicates race, sex and appearance to all clients.
 
 ## Spawning

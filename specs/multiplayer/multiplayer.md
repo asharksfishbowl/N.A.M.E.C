@@ -85,7 +85,7 @@ Up to 4 players share a world through any mix of local split-screen and LAN, for
 ## Key Files
 - `Source/NAMEC/Multiplayer/NamecSessionSubsystem.h` — new; host/find/join LAN sessions, password, version check.
 - `Source/NAMEC/Multiplayer/NamecLocalPlayerManager.h` — new; controller join prompt, local player add/remove, controller disconnect handling.
-- `Source/NAMEC/Multiplayer/NamecCharacterPayload.h` — new; serializable character state struct used for join and save sync, including race, sex, `FNamecAppearance`, item dye colors, gold, reputation, and quest state.
+- `Source/NAMEC/Multiplayer/NamecCharacterPayload.h` — new; serializable character state struct used for join and save sync, including race, sex, `FNamecAppearance`, item dye colors, current Health and Mana (`specs/game-foundation/game-foundation.md` Requirement 6), gold, reputation, and quest state.
 - `Source/NAMEC/Multiplayer/NamecSplitScreenLayout.h` — new; viewport layout rules for 1–4 players.
 - `Source/NAMEC/Core/NamecGameMode.h` — new; player registration, capacity checks, spawning.
 - `Source/NAMEC/UI/Lobby/` — new; Join LAN Game list, character select per local player.
