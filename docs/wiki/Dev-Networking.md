@@ -87,7 +87,7 @@ Split-screen players share one connection, so loot ownership is per player (char
 
 ### Owning-viewport UI
 
-- The execution prompt, dye preview, vendor, quest board and quest giver screens, the Quests tab and the HUD quest tracker all render only in the owning local player's viewport.
+- The execution prompt, dye preview, enchanting screen, vendor, quest board and quest giver screens, the Quests tab and the HUD quest tracker all render only in the owning local player's viewport.
 
 ### Server-validated requests
 
@@ -99,6 +99,7 @@ Split-screen players share one connection, so loot ownership is per player (char
 | `ServerTurnInQuest(QuestGiverId, QuestId)` | Location, reputation tier, completed objectives |
 | `ServerPayFine(GuardCaptainId)` | Range, Hostile tier with the Guard Captain's kingdom, gold at least the fine |
 | `ServerApplyDye(DyeStationId, ItemInstanceId, Zone, ColorId)` / `ServerClearDyeZone(DyeStationId, ItemInstanceId, Zone)` | Range, item ownership, zone defined on the item, dye item held (Apply) |
+| `ServerApplyRune(AltarId, ItemInstanceId, RuneInstanceId, AffixIndex)` | Range, item and rune both still in the inventory, rune type matches the action (add or reroll, with a valid affix for a reroll), affix cap, item can carry affixes. A failed request consumes nothing. No Enchanter level needed, no Job XP, any altar tier. |
 
 ## Disconnects
 
@@ -126,5 +127,5 @@ Pause menu: the world pauses only in a session with one player total.
 - [Voxel World](../../specs/voxel-world/voxel-world.md) (Requirement 15, Edge Cases 6–7)
 - [Character Creation](../../specs/character-creation/character-creation.md) (Requirements 13 and 24, Data Flow 4–6, Edge Case 3)
 - [Factions and Kingdoms](../../specs/factions-kingdoms/factions-kingdoms.md) (Data Flow 3–6)
-- [Crafting Jobs](../../specs/crafting-jobs/crafting-jobs.md) (Data Flow 8)
+- [Crafting Jobs](../../specs/crafting-jobs/crafting-jobs.md) (Data Flow 8 and 9)
 - [Enemy AI](../../specs/enemy-ai/enemy-ai.md) (Requirements 2, 20, 24 and 41, Edge Case 5)

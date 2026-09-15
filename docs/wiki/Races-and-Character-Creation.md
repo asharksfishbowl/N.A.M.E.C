@@ -81,7 +81,7 @@ See [Survival](Survival.md) for Breath, swimming, climbing and comfort ranges, a
 
 ## Male and female
 
-You choose Male or Female. This picks only the body, voice and animations. Stats, abilities, carry weight, collision size and every other gameplay value are identical. Sex cannot be changed after creation.
+You choose Male or Female. This picks only the body and voice. Every race and sex shares one player animation set, retargeted to each of the 12 bodies. Stats, abilities, carry weight, collision size and every other gameplay value are identical. Sex cannot be changed after creation.
 
 ## Appearance
 

@@ -24,7 +24,7 @@ This page covers split-screen layouts, joining, LAN play, portable characters, d
 
 - Each local player has their own HUD, menus, inventory, crafting UI and camera mode (first/third person).
 - Local player 1 can use keyboard and mouse or a controller. Players 2–4 use controllers only.
-- Graphics settings scale down automatically at 3–4 viewports on your machine (lighting quality, shadows, foliage density, view distance). See [Engine and Rendering](Dev-Engine-and-Rendering.md).
+- Graphics scale down automatically at 3–4 viewports on your machine (lighting quality, shadows, foliage density, view distance), but never above your own graphics settings: each one uses the lower of your setting and the 3–4 viewport value. At 1–2 viewports your settings apply unchanged. See [Engine and Rendering](Dev-Engine-and-Rendering.md).
 
 ### Joining locally
 

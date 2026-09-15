@@ -1,6 +1,6 @@
 # Combat and Loot
 
-This page covers Souls-style combat, heavy attacks, block and parry sources, dual-wielding, torch bashes, bows and arrows, two-handing, tool hits on enemies, executions, damage types and status effects, fall damage, downed/revive/death, enemies and factions, town NPCs and raiders, perception and taunts, scaling, bosses and summoning, per-player loot and gold, rarity and affixes, chests, and durability.
+This page covers Souls-style combat, heavy attacks, block and parry sources, dual-wielding, torch bashes, bows and arrows, two-handing, tool hits on enemies, executions, damage types, status effects and their sources, poisons and weapon oils, fall damage, downed/revive/death, enemies and factions, town NPCs and raiders, perception and taunts, scaling, bosses and summoning, per-player loot and gold, rarity and affixes, chests, and durability.
 
 Enemy behaviour, enemies fighting each other, enemies picking up and wearing loot, enemy levels and Veterans are on [Enemies and AI](Enemies-and-AI.md).
 
@@ -209,9 +209,20 @@ IncomingDamage = (EnemyDamage + EquippedWeaponBase) × LevelDamageMultiplier
 | Frostbite | Reduces stamina regen |
 
 - Effects build up and last for set durations.
+- **Where buildup comes from:** besides hazards and torch bashes, any enemy attack, any Guard attack, and any weapon can carry a status buildup: one status and an amount per hit (set per attack or per weapon). Every hit from it that deals damage adds that buildup. A humanoid enemy's weapon attacks also add the buildup of the weapon it picked up and wields.
 - Every buildup you receive is multiplied by (1 − your status-effect resistance). WIS raises status-effect resistance.
 - A Sauren also takes 25% less Poison buildup, and has +25% Poison resistance.
 - The Sauren's Shed Skin clears all four of these effects, both the buildup and the active effect. It does not clear Weakened, Wet, Salty or survival states.
+
+### Poisons and weapon oils
+
+- Alchemist poisons and weapon oils are consumables. Using one (Use, or X / F with it selected) uses up 1 and **coats the weapon in your Right Hand** with its buildup (status and amount) for **20 hits** (starting value, tunable, set per item).
+- Each hit with the coated weapon that deals damage adds the coating's buildup and uses up one of its hits. When none are left, the coating is gone.
+- A new coating replaces the old one, and the old one's remaining hits are lost.
+- The coating doesn't replace the weapon's own buildup: if the weapon already builds up a different status, both apply.
+- The coating is saved on that weapon with its remaining hits, and stays on it when you unequip, drop, store or hand it over.
+- With an empty Right Hand, or a tool or torch in it, you can't use a poison or oil, and nothing is used up.
+- An enemy that picks up a coated weapon gets no benefit from the coating, and its hits don't use it up.
 
 ### Fall damage
 
@@ -274,6 +285,7 @@ A world setting, off by default. When off, player attacks, spells and area effec
 ### Raiders
 
 - Raiders go for the pieces in the raid's snapshot of the base first (including stations, containers and beds), moving to the next nearest piece when one is destroyed. See [Raids](Raids.md).
+- A raider that can't find any path to its target attacks the first building piece in its way, even one that isn't part of the snapshot. Breaking that piece doesn't end the raid or add it to the snapshot.
 - A raider you damage turns on you, and goes back to the base once you're Downed, dead or out of its perception radius. An enemy or Guard that damages a raider gets the same treatment. Taunts work as usual.
 - Only raiders attack building pieces. Normal enemies never do.
 
@@ -363,7 +375,7 @@ Any boss can be re-summoned for more loot with a new offering.
 ### Durability and requirements
 
 - Equipment loses durability with use. At 0 it is unusable, not destroyed, and keeps its hotkey. Jewelry has no durability.
-- Repair at the item's crafting station or with a Repair Kit. See [Crafting and Jobs](Crafting-and-Jobs.md).
+- Repair at the station of the recipe that made the item, or with a Repair Kit. An item with no recipe at all can only be repaired with a Repair Kit. See [Crafting and Jobs](Crafting-and-Jobs.md).
 - Gear may have stat requirements (for example STR 16). You can still equip it, at 50% damage or 50% Armor and resistance.
 
 ## Source spec

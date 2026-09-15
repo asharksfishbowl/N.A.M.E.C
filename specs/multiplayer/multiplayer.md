@@ -29,7 +29,7 @@ Up to 4 players share a world through any mix of local split-screen and LAN, for
 6. Each local player has a fully independent HUD, menus, inventory screens, crafting UI, and camera mode (first/third person) within their own viewport, built on the unified Enhanced Input + Common UI system (`specs/engine-tech/engine-tech.md` Requirement 3).
 7. Local player 1 may use keyboard and mouse or a controller. Local players 2–4 use controllers only.
 8. A local player (other than player 1) can leave via the pause menu. Their character saves and their viewport is removed, and the layout re-flows. When local player 1 on a client machine leaves, every local player on that machine disconnects. When local player 1 on the host leaves, the session follows host exit (Requirement 21).
-9. Graphics scalability auto-adjusts by local viewport count using the High tier (1–2 viewports) and Split tier (3–4 viewports) rows in `DT_MP_SplitScreenScalability`, which set the GI method, VSM quality, foliage density, and view distance (`specs/engine-tech/engine-tech.md` Requirements 6–7).
+9. Graphics scalability auto-adjusts by local viewport count using the High tier (1–2 viewports) and Split tier (3–4 viewports) rows in `DT_MP_SplitScreenScalability` (`specs/engine-tech/engine-tech.md` Requirements 6–7). The user's machine-wide graphics settings are the ceiling: with 1–2 local viewports they apply unchanged, and with 3–4 local viewports the GI method, VSM quality, foliage density, and view distance are each the lower of the user's setting and the Split tier value.
 10. Split-screen players on the same machine share a camera-independent world. Each viewport's streaming radius counts as a separate streaming source for voxel chunks (see voxel-world spec).
 
 ### LAN

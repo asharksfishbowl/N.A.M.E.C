@@ -4,7 +4,7 @@ This page covers carry weight and encumbrance, equip load, equipment slots, cape
 
 ← [Home](Home.md)
 
-Inventory is a categorized list limited by total weight. There is no grid, no slot count and no stack limit: any quantity stacks in one row per item definition plus potency value, rune tier and waterskin remaining drinks, so consumables with different potency, runes with different tiers and waterskins with different drinks left are separate rows.
+Inventory is a categorized list limited by total weight. There is no grid, no slot count and no stack limit: any quantity stacks in one row per item definition plus potency value, rune tier, waterskin remaining drinks and the recipe that crafted it, so consumables with different potency, runes with different tiers, waterskins with different drinks left and items made by different recipes are separate rows.
 
 ## Carry weight
 
@@ -89,7 +89,7 @@ Each tier has its own i-frame window and roll recovery. Heavy armor can change y
 - **Each row:** icon, name (colored by rarity), quantity, weight, equipped/favorite marker.
 - **Detail panel:** stats, affixes, durability, requirements, Value, dye colors per zone, comparison with the equipped item in the same slot, 3D preview.
 - **Sort:** Name, Weight, Rarity, Item Level, Recently Acquired. Your sort choice is saved with your character.
-- **Actions:** Equip/Unequip, Use (consumables and waterskins; a waterskin drinks 1), Favorite/Unfavorite, Drop (choose quantity), Inspect.
+- **Actions:** Equip/Unequip, Use (consumables and waterskins; a waterskin drinks 1, and a poison or weapon oil coats your Right Hand weapon, see [Combat and Loot](Combat-and-Loot.md)), Favorite/Unfavorite, Drop (choose quantity), Inspect.
 - The screen also opens the hand-crafting menu. See [Crafting and Jobs](Crafting-and-Jobs.md).
 - The footer always shows carried weight / max carry weight and your gold.
 - Your inventory is locked while you are Downed.
@@ -105,8 +105,10 @@ Each tier has its own i-frame window and roll recovery. Heavy armor can change y
 - Every item keeps its own dye colors in 4 zones (Primary, Secondary, Accent, Trim). An empty zone shows the item's default color. Only the zones the item has can be dyed. See [Crafting and Jobs](Crafting-and-Jobs.md).
 - Dye colors stay on the item when you drop it, another player picks it up, or it goes in a container. Everyone sees the colors on equipped gear.
 - Two otherwise identical items with different dye colors show as separate rows.
-- Consumables with different potency (for example a looted potion and one crafted by a high-level Alchemist) show as separate rows. Consumables with the same potency stack. Looted, bought and found arrows, potions and meals have Job level 1 potency.
+- Consumables with different potency (for example a looted potion and one crafted by a high-level Alchemist) show as separate rows. Consumables with the same potency made by the same recipe (or both uncrafted) stack. Looted, bought and found arrows, potions and meals have Job level 1 potency.
 - Runes with different tiers, and waterskins with different drinks left, show as separate rows. Each keeps its tier or drinks through saving, dropping and containers.
+- Every crafted item remembers the recipe that made it. Items of the same kind made by different recipes (or one crafted and one not) show as separate rows. See [Crafting and Jobs](Crafting-and-Jobs.md).
+- A weapon keeps its poison or oil coating and remaining hits through saving, dropping and containers.
 - Dye items are listed under Materials.
 - **Quest items** weigh nothing, are listed under Misc, and can't be dropped, stored in a container or sold. They disappear when the quest is turned in or abandoned.
 
@@ -146,6 +148,6 @@ Each tier has its own i-frame window and roll recovery. Heavy armor can change y
 - [Inventory](../../specs/inventory/inventory.md)
 - [Character Creation](../../specs/character-creation/character-creation.md) (racial carry weight and equip load)
 - [Factions and Kingdoms](../../specs/factions-kingdoms/factions-kingdoms.md) (gold, Value, quest items)
-- [Crafting Jobs](../../specs/crafting-jobs/crafting-jobs.md) (dyes)
-- [Combat and Loot](../../specs/combat-loot/combat-loot.md) (arrows, bows, two-handing, jewelry rarity)
+- [Crafting Jobs](../../specs/crafting-jobs/crafting-jobs.md) (dyes, recipe provenance)
+- [Combat and Loot](../../specs/combat-loot/combat-loot.md) (arrows, bows, two-handing, jewelry rarity, weapon coatings)
 - [Character Progression](../../specs/character-progression/character-progression.md) (weapon and armor categories)

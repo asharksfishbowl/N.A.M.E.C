@@ -24,7 +24,7 @@ A character is portable: the same character save loads into any world. Save file
 | Jobs | Job levels and XP | crafting-jobs |
 | Survival | Survival meter values (Breath is not saved) | survival |
 | Health and Mana | Current Health and Mana, restored on world entry after equipment and effects apply, clamped to current MaxHealth and MaxMana. Stamina is not saved and starts full. | game-foundation |
-| Inventory | Every item instance (definition ID, quantity, rarity, affixes, durability (none for jewelry), item level, dye colors, consumable potency value, rune tier, waterskin remaining drinks), equipped slots, favorites, hotkeys, sort choice | inventory |
+| Inventory | Every item instance (definition ID, quantity, rarity, affixes, durability (none for jewelry), item level, dye colors, consumable potency value, rune tier, waterskin remaining drinks, the recipe row ID of a crafted item, and a weapon's poison or oil coating with its status, buildup amount and remaining hits), equipped slots, favorites, hotkeys, sort choice | inventory |
 | Shovel | Dig/Fill mode and selected fill material (default Dig and Soil), per character | voxel-world |
 | Factions | Gold, reputation per faction, active quests (objective parameters, progress, tracked flag), completed questline steps per kingdom | factions-kingdoms |
 | Death | Dead-respawn flag | combat-loot |
@@ -45,6 +45,7 @@ Two-handing state is not saved: every character loads holding its Right Hand wea
 - A character save from before these existed migrates to the starting reputation values (+30 own kingdom, 0 other kingdoms, −100 Bandits and Beastmen), 0 gold and an empty quest log.
 - Quests reference only kingdoms, town slots (capital, town 1, town 2), enemy rows, item definitions and faction/region pairs, so an active quest stays valid in every world. An Escort quest whose objective is not complete fails when the character leaves the world, and one still incomplete in a loaded character save fails on world entry (escort NPCs are not saved). A completed Escort quest stays saved until turn-in or abandon.
 - If an item stores a dye color ID no longer in `DT_Crafting_DyeColors`, that zone shows its default color and the item still loads.
+- If an item stores a recipe row ID no longer in `DT_Crafting_Recipes`, the item still loads and uses the first recipe row for its item definition, or none.
 - Cancelling creation, or removing the local player mid-creation, writes no save.
 
 ### Dead-respawn flag
@@ -61,10 +62,10 @@ Two-handing state is not saved: every character loads holding its Right Hand wea
 | World settings | Friendly fire, LAN hosting, password, Raids |
 | Time and weather | Current in-game time of day, the world's total elapsed in-game time, each region's current weather |
 | Terrain | Per-chunk edit deltas over the generated base, including each changed voxel's player-placed flag |
-| Building | Placed building pieces, including crafting stations with bound attachments and tier, storage containers with their contents, and doors with their open or closed state |
+| Building | Placed building pieces, including each piece's recipe row ID (decides its deconstruct refund and destroyed drop), crafting stations with bound attachments and tier, storage containers with their contents, and doors with their open or closed state |
 | Pickups | Shared world pickups, including dropped gold, per-player loot that has converted into shared pickups (with each one's remaining despawn time), and the picked-up items and gold of every live non-Veteran enemy, written as pickups where it stands. Unconverted per-player loot actors are not saved. |
 | Veterans | One record per living Veteran: Veteran GUID, enemy row ID, faction, current level, XP, current health (saved without player-count scaling), equipped and carried items, gold, home position, name, title, kill counts, and camp and spawn point for a camp Veteran |
-| Gathering | Tree harvest states, forage timers, Loose Stick and Loose Stone collected states and respawn timers |
+| Gathering | Tree harvest states (including whether the stump was removed), forage timers, Loose Stick and Loose Stone collected states and respawn timers |
 | Respawn | Bed respawn points per character GUID |
 | Loot chests | Opened state per character GUID |
 | Bosses | Boss defeat flags (`BossDefeated[RegionId]`) |
@@ -87,7 +88,7 @@ Not saved: character positions (every world entry spawns at the bed or world spa
 | Section | Contents |
 |---------|----------|
 | One per local player slot (1–4) | Input remaps, Night Eyes toggle, "Execution prompts" option, and every other per-local-player Setting |
-| Machine-wide | Global settings (graphics, audio) |
+| Machine-wide | Global settings: audio, and graphics (GI method, VSM quality, foliage density, view distance). The graphics settings are the ceiling for the 3–4 viewport Split tier (see [Engine and Rendering](Dev-Engine-and-Rendering.md)). |
 
 - Per-local-player settings belong to the slot, not to a character or a controller: whoever joins as local player 2 uses slot 2's settings.
 - The settings save is written whenever a Settings change is applied, using the same atomic write as the other saves.
@@ -130,11 +131,12 @@ For remote players, the host sends the character payload on each autosave and a 
 ## Source specs
 
 - [Game Foundation](../../specs/game-foundation/game-foundation.md) (Requirements 6–8, Edge Cases 1–4)
-- [Combat and Loot](../../specs/combat-loot/combat-loot.md) (Requirements 45 and 57, Edge Case 1)
-- [Voxel World](../../specs/voxel-world/voxel-world.md) (Requirements 42 and 45)
+- [Combat and Loot](../../specs/combat-loot/combat-loot.md) (Requirements 45, 57 and 61, Edge Case 1)
+- [Voxel World](../../specs/voxel-world/voxel-world.md) (Requirements 20, 24, 42 and 45)
+- [Engine Tech](../../specs/engine-tech/engine-tech.md) (Requirement 7)
 - [Inventory](../../specs/inventory/inventory.md) (Data Flow 4)
 - [Multiplayer](../../specs/multiplayer/multiplayer.md) (Requirements 16–17)
 - [Character Creation](../../specs/character-creation/character-creation.md) (Requirements 6, 13, 16, 24 and 28, Data Flow 3, Edge Cases 1, 2, 10 and 11)
 - [Factions and Kingdoms](../../specs/factions-kingdoms/factions-kingdoms.md) (Requirements 11, 19, 25, 28, 34, 37, 40, 48 and 59, Edge Case 1)
-- [Crafting Jobs](../../specs/crafting-jobs/crafting-jobs.md) (Requirement 11, Edge Case 9)
+- [Crafting Jobs](../../specs/crafting-jobs/crafting-jobs.md) (Requirements 11 and 24, Edge Cases 9 and 13)
 - [Enemy AI](../../specs/enemy-ai/enemy-ai.md) (Requirements 20, 34, 46 and 53, Edge Cases 4, 6, 7, 8 and 18)

@@ -34,7 +34,7 @@ Rows marked *(Evaluate)* are provisional. The benchmark decides whether they kee
 | Substrate | Production-Ready, on by default | All materials. Dye zone colors are material parameters set at runtime on Mutable-built character meshes and held weapons and shields, not Mutable inputs. | Blendable GBuffer path |
 | PCG Framework (runtime, seeded) | Production-Ready | Placing trees, forage, loose pickups, rocks, props and vegetation from the world seed | Seeded placement in C++ |
 | Mutable | Production-Ready | Appearance presets, armor fit across the 12 race × sex bodies, and visible gear on humanoid enemies (which use those same bodies). Generated materials keep dye zones as runtime parameters. | Per-variant armor meshes with skeletal mesh merging |
-| IK Retargeter | Production-Ready | Sharing animation across races and sexes, and retargeting humanoid enemy families to their player body | Authored animation sets per body |
+| IK Retargeter | Production-Ready | One shared player animation set retargeted to all 12 race × sex bodies (sex picks only body mesh and voice), and retargeting each humanoid enemy family's animation set to its player body | Authored animation sets per body |
 | Motion Matching (core only) | Production-Ready | Player and NPC locomotion | State-machine locomotion |
 | Motion Warping | Production-Ready | Execution and attack alignment | Unwarped root-motion montages |
 | Gameplay Ability System | Production-Ready | Stats, abilities, damage, status effects | None (required) |
@@ -113,6 +113,9 @@ Each machine picks a tier from its **own** number of local viewports. A LAN clie
 
 (all settings are starting values, tuned from the benchmark results)
 
+- **Your graphics settings are the ceiling.** With 1–2 viewports, the machine-wide graphics settings the user picked apply unchanged. With 3–4 viewports, GI, VSM quality, foliage density and view distance each use `min(user setting, Split tier value)`: the Split tier can lower a setting but never raises one above the user's. GI is ordered Lumen HWRT High > Lumen Lite > Lumen Medium > Lumen off with a skylight.
+- Changing a graphics setting recomputes the applied values straight away. Going back to 1–2 viewports restores every user setting.
+- The benchmark runs each tier at its row values directly, not at the user's settings.
 - The tier switches when a local player joins or leaves and the count crosses between 2 and 3.
 - Foliage density only thins out cosmetic scatter. Trees, forage, loose pickups and collidable rocks are the same in both tiers.
 - Tiers are rows in `DT_MP_SplitScreenScalability`. See [Data Tables](Dev-Data-Tables.md).
@@ -160,6 +163,7 @@ If every step is applied and a target is still missed, the performance targets g
 ## Source specs
 
 - [Engine Tech](../../specs/engine-tech/engine-tech.md)
-- [Game Foundation](../../specs/game-foundation/game-foundation.md) (Requirements 1 and 13)
+- [Game Foundation](../../specs/game-foundation/game-foundation.md) (Requirements 1, 6 and 13)
+- [Character Creation](../../specs/character-creation/character-creation.md) (Requirement 14)
 - [Voxel World](../../specs/voxel-world/voxel-world.md) (Requirement 2)
 - [Enemy AI](../../specs/enemy-ai/enemy-ai.md) (Requirements 11 and 31)

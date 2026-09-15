@@ -25,7 +25,7 @@ This page covers the engine and GAS approach, module layout, the C++ vs Blueprin
 - Racial active abilities are also `UGameplayAbility` subclasses (`GA_Race_SecondWind`, `GA_Race_Pounce`, `GA_Race_RallyHowl`, `GA_Race_ShedSkin`, `GA_Race_SwingLeap`, `GA_Race_MaulingRoar`), granted by the server on spawn. They are not rows in `DT_Progression_ClassAbilities`: they cost no stamina or mana, have no RequiredStat and award no class XP.
 - Racial passives and downsides are infinite-duration gameplay effects applied by the server on spawn and never removed.
 - Poison, Bleed, Burn and Frostbite buildup and active effects carry the gameplay tag `Status.Negative.Cleansable` (removed by Sauren Shed Skin).
-- Damage, incoming damage, poise damage and healing are implemented in one GAS execution calculation (`NamecDamageExecution`).
+- Damage, incoming damage, poise damage, status buildup from attacks, weapons and weapon coatings, and healing are implemented in one GAS execution calculation (`NamecDamageExecution`).
 - Gameplay effects named in the specs: `GE_Freezing`, `GE_Cold`, `GE_Hot`, `GE_Overheating`, `GE_Wet`, `GE_Salty`, starvation and dehydration effects, `GE_OverEncumbered`.
 
 ## C++ vs Blueprint
@@ -67,7 +67,7 @@ Reference PC: NVIDIA RTX 3060-class GPU, 6-core CPU, 16 GB RAM, at 1080p.
 | 1–2 | 60 fps |
 | 3–4 | 30 fps |
 
-Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports) from `DT_MP_SplitScreenScalability`. The targets are first measured by the benchmark milestone, which must pass before content production, and the voxel-world acceptance test measures them in the Temperate region. See [Engine and Rendering](Dev-Engine-and-Rendering.md).
+Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports) from `DT_MP_SplitScreenScalability`, capped by the user's machine-wide graphics settings (unchanged at 1–2 viewports, the lower of the user's setting and the Split value at 3–4). The targets are first measured by the benchmark milestone, which must pass before content production, and the voxel-world acceptance test measures them in the Temperate region. See [Engine and Rendering](Dev-Engine-and-Rendering.md).
 
 ## Key files
 
@@ -119,7 +119,8 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 | `NamecJobComponent.h` | Per-character Job XP, levels, perks |
 | `NamecCraftingStation.h` | Station actor (subclass of `ANamecBuildPiece`), attachment binding and tier, craft queues, material reservation |
 | `NamecRecipeTypes.h` | Recipe and Job DataTable row structs |
-| `NamecEnchantingService.h` | Affix add/reroll logic, including adding an affix to Common jewelry (which makes it Magic) |
+| `NamecEnchantingService.h` | Affix add/reroll logic, including adding an affix to Common jewelry (which makes it Magic), and `ServerApplyRune` validation, rune consumption and no Job XP |
+| `NamecRecipeProvenance.h` | Stores the recipe row ID on crafted items and resolves an item's or placed piece's provenance recipe (stored row, first recipe row for the item, or none) for refunds, destroyed-piece drops and repair |
 | `NamecDyeTypes.h` | Dye zone enum (Primary, Secondary, Accent, Trim) and `DT_Crafting_DyeColors` row struct |
 
 ### `Source/NAMEC/Survival/`
@@ -141,9 +142,9 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 | `NamecTerrainEditComponent.h` | Dig/fill/mine requests and validation, shovel Dig/Fill mode and selected fill material (Dig and Soil defaults, saved per character, "No <material>" and "Not enough <material>") |
 | `NamecDigDepthQuery.h` | Per-column lookup of the nearest generated air voxel, used for the dig depth limit |
 | `NamecClimateSubsystem.h` | Region lookup, day/night, weather |
-| `NamecTreeActor.h` | Tree health, felling (swap to a simulating actor with the same Nanite mesh), regrowth |
+| `NamecTreeActor.h` | Tree health, felling (swap to a simulating actor with the same Nanite mesh), the stump actor and its shovel removal (Wood and Woodcutting XP, not a terrain edit), regrowth at the stump's origin |
 | `NamecForageNode.h` | Harvestable plants |
-| `Building/NamecBuildPiece.h` | Placeable piece actor with snap points and health |
+| `Building/NamecBuildPiece.h` | Placeable piece actor with snap points, health, and its provenance recipe row ID (used for deconstruct refunds and destroyed-piece drops) |
 | `Building/NamecBuildComponent.h` | Placement mode and preview, rotation, snap, deconstruction hold (placement mode only), staying in placement mode while the piece's item remains |
 | `Building/NamecDoorPiece.h` | Door build piece: Interact open/close toggle, replicated and saved open state, closed-door navmesh area impassable for enemies, raiders and NPCs |
 | `Building/NamecTrainingDummyPiece.h` | Training dummy build piece that registers player hits without losing piece health |
@@ -157,7 +158,7 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 | File | Purpose |
 |------|---------|
 | `NamecCombatComponent.h` | Lock-on, poise, guard, parry state, block and parry item selection and LT action per hand configuration, two-handing state with the stowed Left Hand item (ends on a Right Hand change or Left Hand equip; not saved) |
-| `NamecDamageExecution.h` | GAS execution calculation: outgoing damage (including two-handing and arrow damage), incoming enemy damage and poise damage (including the block poise multiplier), healing |
+| `NamecDamageExecution.h` | GAS execution calculation: outgoing damage (including two-handing and arrow damage), incoming enemy damage and poise damage (including the block poise multiplier), status buildup from enemy and Guard attacks, weapons and weapon coatings, healing |
 | `Abilities/GA_BowAim.h`, `Abilities/GA_BowFire.h` | Bow aim and fire (aimed and quick shots), bow shot stamina cost, arrow consumption, "No arrows" |
 | `NamecProjectile.h` | Server-spawned replicated projectile that resolves bow hits, plus the client's cosmetic predicted projectile |
 | `Abilities/` | `GA_LightAttack`, `GA_OffHandAttack`, `GA_HeavyAttack`, `GA_Dodge`, `GA_Block`, `GA_Parry` |
@@ -174,7 +175,7 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 | File | Purpose |
 |------|---------|
 | `NamecLootSubsystem.h` | Per-player drop rolling, including jewelry rolling Magic or above |
-| `NamecItemInstance.h` | Item instance with rarity, affixes, durability (none for jewelry), item level, dye colors, consumable potency value, rune tier, waterskin remaining drinks |
+| `NamecItemInstance.h` | Item instance with rarity, affixes, durability (none for jewelry), item level, dye colors, consumable potency value, rune tier, waterskin remaining drinks, provenance recipe row ID, weapon coating (status, buildup amount, remaining hits) |
 | `NamecLootPickup.h` | Per-player pickup actor (owner-only relevance, rendering and pickup), shared world pickup mode, gold amount, lootable flag and Smart Object slot, and conversion of per-player loot into shared pickups after 2 real-time minutes |
 | `NamecLootChest.h` | Generated loot chest with per-character-GUID opened state and per-player rolls |
 
@@ -182,9 +183,9 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 
 | File | Purpose |
 |------|---------|
-| `NamecInventoryComponent.h` | Item storage (one row per item definition plus potency value, rune tier and waterskin remaining drinks), weight, equip slots, favorites, hotkeys |
+| `NamecInventoryComponent.h` | Item storage (one row per item definition plus potency value, rune tier, waterskin remaining drinks and provenance recipe row ID), poison and weapon oil Use coating the Right Hand weapon, weight, equip slots, favorites, hotkeys |
 | `NamecItemCategories.h` | Armor category enum and weapon category enum (hand use, trained skill) |
-| `NamecItemDefinition.h` | Item definition data asset (weight, `Value`, category, slot, armor category, weapon category, `Poise` for armor, `PoiseDamage` and damage type for weapons, block percentage and parry-capable flag for weapons and shields, `WeaponBase` for weapons and every tool except the Fishing Rod, `ArrowDamage` for arrows, Insulation or Cooling for capes, `DrinkCapacity` for waterskins, jewelry's no-durability flag, dye zones and mask channels, quest item flag, effects) |
+| `NamecItemDefinition.h` | Item definition data asset (weight, `Value`, category, slot, armor category, weapon category, `Poise` for armor, `PoiseDamage`, damage type and optional status buildup for weapons, coating buildup and coating hit count for poisons and weapon oils, block percentage and parry-capable flag for weapons and shields, `WeaponBase` for weapons and every tool except the Fishing Rod, `ArrowDamage` for arrows, Insulation or Cooling for capes, `DrinkCapacity` for waterskins, jewelry's no-durability flag, dye zones and mask channels, quest item flag, effects) |
 | `NamecContainerActor.h` | Placeable storage container (subclass of `ANamecBuildPiece`) with weight capacity |
 
 ### `Source/NAMEC/Multiplayer/`
@@ -195,7 +196,7 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 | `NamecLocalPlayerManager.h` | Controller join prompt, local player add/remove, controller disconnect handling |
 | `NamecCharacterPayload.h` | Serializable character state struct for join and save sync, including race, sex, `FNamecAppearance`, item dye colors, current Health and Mana, gold, reputation and quest state |
 | `NamecSplitScreenLayout.h` | Viewport layout rules for 1–4 players |
-| `NamecSplitScreenScalabilitySubsystem.h` | Picks and applies the High or Split rendering tier from the machine's local viewport count |
+| `NamecSplitScreenScalabilitySubsystem.h` | Picks the High or Split rendering tier from the machine's local viewport count and applies the user's graphics settings unchanged (High) or min(user setting, Split value) per setting (Split), recomputing on a settings change |
 
 ### `Source/NAMEC/Factions/`
 
@@ -217,10 +218,10 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 
 | File | Purpose |
 |------|---------|
-| `NamecEnemyAIComponent.h` | StateTree host, home position, home radius and leash, the seven AI states, replicated AI state, AI LOD perception intervals |
+| `NamecEnemyAIComponent.h` | StateTree host, home position, home radius and leash, the seven AI states (including a raider attacking the first building piece blocking its path to an unreachable target), replicated AI state, AI LOD perception intervals |
 | `NamecHostilityQuery.h` | Hostility group lookup, `DT_EnemyAI_Hostility` cell lookup, hostile-target and damage filter |
 | `NamecEnemyLootComponent.h` | Lootable pickup perception, Smart Object claims, pickup requests, carried items and gold, drops on death, despawn and world save |
-| `NamecEnemyEquipmentComponent.h` | Humanoid equipment slots, Item Score, equip decision, attribute changes, Mutable-built equipped visuals |
+| `NamecEnemyEquipmentComponent.h` | Humanoid equipment slots, Item Score, equip decision, attribute changes, the wielded weapon's own status buildup on weapon attacks, Mutable-built equipped visuals |
 | `NamecEnemyProgressionComponent.h` | Enemy XP sources, gained levels, per-level multipliers, current level, level-up event, name plate data |
 | `NamecVeteranSubsystem.h` | Veteran promotion, caps, names and titles, records and save/load, home spawning and home validity, camp Veterans, raid leader selection |
 | `StateTree/` | StateTree tasks, conditions and evaluators for the AI states |
@@ -239,7 +240,7 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 | Folder | Purpose |
 |--------|---------|
 | `CharacterScreen/` | Stat point spending, class selection, ability bar |
-| `Crafting/` | Station UI, queue display, hand-crafting menu, dye screen with character preview |
+| `Crafting/` | Station UI, queue display, hand-crafting menu, dye screen with character preview, Enchanting Altar enchanting screen |
 | `Inventory/` | Inventory list, detail panel, transfer view, Favorites quick menu, footer gold display and Drop Gold action |
 | `Building/` | Hammer build menu |
 | `Vendor/` | Vendor screen |

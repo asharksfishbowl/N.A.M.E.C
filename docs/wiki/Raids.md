@@ -80,6 +80,7 @@ Raid chance = base chance + coefficient × base value + hostility factor of ever
 - When raiders spawn, the server takes a **snapshot** of the base's building pieces and its center. New pieces join the snapshot only if the base merges with another group during the raid.
 - Raiders go for the pieces in the snapshot first, including crafting stations, storage containers, beds and doors.
 - Raiders can't open doors. A closed door blocks their path, so they have to destroy it to get through.
+- A raider with no path at all to its target attacks the first building piece in its way, even one outside the snapshot (for example a wall you built after the raid started). Destroying that piece doesn't end the raid, doesn't add the piece to the snapshot, and doesn't count toward "every piece in the snapshot is destroyed".
 - A raider you hit turns on you, and returns to the base once you're Downed, dead or out of its sight range. Enemies and Guards that hit a raider get the same treatment.
 - When nobody is attacking it, a raider can pick up items on the ground, including a destroyed chest's spilled contents.
 - Raider attacks damage building pieces. Normal enemies never do.

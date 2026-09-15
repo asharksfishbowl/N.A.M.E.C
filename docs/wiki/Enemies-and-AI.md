@@ -18,7 +18,7 @@ All AI runs on the host. Other machines only see the result (movement, animation
 | Loot | Walks to an item on the ground and picks it up (see below). |
 | Flee | Runs away. Only some enemies flee at low health, set per enemy. Wildlife always flees. |
 | Return | Walks home after going more than 40 m from home. It ignores everything on the way. A normal enemy heals to full when it gets home. A Veteran doesn't. |
-| Raid | Raiders follow the raid rules. See [Raids](Raids.md). |
+| Raid | Raiders follow the raid rules. A raider with no path to its target attacks the first building piece in its way, even one outside the raid's snapshot. See [Raids](Raids.md). |
 
 (15 m, 1.5×, 10 s and 40 m are starting values, tunable)
 
@@ -77,7 +77,7 @@ Only **humanoid** enemies equip items. Every other enemy just carries them.
 - **Slots:** Right Hand, Left Hand, Head, Chest, Hands, Legs, Feet.
 - They never equip rings, amulets, cloaks, bags, arrows, bows, tools or torches, or anything at 0 durability. Those are carried.
 - A humanoid enemy equips a picked-up item only if its **Item Score** beats what's already in that slot (an empty slot always loses). Item Score adds up the item's damage, armor, resistances and affixes. A two-handed weapon has to beat the main-hand and off-hand items combined.
-- Worn armor gives the enemy its Armor, resistances and Poise. A wielded weapon adds its damage to the enemy's weapon attacks and changes their damage type.
+- Worn armor gives the enemy its Armor, resistances and Poise. A wielded weapon adds its damage to the enemy's weapon attacks, changes their damage type, and adds the weapon's own status buildup (Poison, Bleed, Burn or Frostbite) if it has one. A poison or oil coating on the weapon does nothing for the enemy and isn't used up.
 - Other affixes do nothing for the enemy. Stat requirements and class penalties don't apply to enemies.
 - Gear is visible on the enemy, dyes included. Humanoid enemies use the same bodies as the playable races, so every armor piece fits them.
 - Enemies never wear gear down: durability doesn't change while they use it.

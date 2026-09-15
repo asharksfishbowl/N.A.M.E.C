@@ -62,7 +62,7 @@ Players create a character by choosing a name, one of six races, a sex, an appea
     - Pounce and Swing Leap are root-motion leap abilities that respect collision and cannot pass through terrain or building pieces.
 
 ### Sex
-14. The player selects Male or Female. Sex selects the body mesh set, voice set, and animation set only. Animation sets are shared across races and sexes with the IK Retargeter per `specs/engine-tech/engine-tech.md` Requirement 3. Stats, abilities, carry weight, and every other gameplay value are identical between sexes.
+14. The player selects Male or Female. Sex selects only the body mesh set and the voice set. Every character, of every race and sex, uses one shared player animation set, retargeted to each of the 12 race × sex bodies with the IK Retargeter per `specs/engine-tech/engine-tech.md` Requirement 3, so neither race nor sex selects an animation set. Stats, abilities, carry weight, and every other gameplay value are identical between sexes.
 
 ### Appearance
 15. Appearance is preset-based, built using Mutable per `specs/engine-tech/engine-tech.md` Requirement 3. Each race row lists which options it supports, and each option is a list of presets or a bounded slider:
@@ -128,6 +128,7 @@ Players create a character by choosing a name, one of six races, a sex, an appea
 - [ ] A new Human Warrior starts with STR 13, CON 12, and every other stat 11.
 - [ ] A new Ursan Mage starts with STR = 12 + the Mage's STR bonus, CON = 11 + the Mage's CON bonus, and every other stat = 10 + the Mage's bonus to that stat.
 - [ ] Male and female characters of the same race and class have identical stats, abilities, carry weight, and collision capsule.
+- [ ] Characters of all 12 race × sex bodies play the same shared player animation set through their IK Retargeter assets, and changing sex on step 2 changes the preview's body mesh and voice but not its animation set.
 - [ ] Each race's active ability starts in the last ability bar slot (slot 6 at the starting bar size), can be moved to another slot (swapping with any ability already there), and cannot be removed.
 - [ ] A Sauren's comfort range lower bound is 6 °C higher than a Human's in the same region, with the same WIS modifier and the same equipment.
 - [ ] Mauling Roar deals 100 poise damage to a Hostile enemy and 25 poise damage to a Boss, and a taunted non-Boss enemy targets the Ursan for 6 s, then returns to its threat table.
@@ -146,7 +147,8 @@ Players create a character by choosing a name, one of six races, a sex, an appea
 ## Key Files
 - `Source/NAMEC/Character/Creation/NamecCharacterCreationWidget.h` — new; creation step screens and navigation.
 - `Source/NAMEC/Character/Creation/NamecCharacterDraft.h` — new; in-progress creation state struct.
-- `Source/NAMEC/Character/Creation/NamecCharacterFactory.h` — new; validation, starting stats, GUID, equipped starting items (Requirement 28), save creation.- `Source/NAMEC/Character/Creation/NamecCharacterPreview.h` — new; preview actor with rotate, zoom, and preview outfits.
+- `Source/NAMEC/Character/Creation/NamecCharacterFactory.h` — new; validation, starting stats, GUID, equipped starting items (Requirement 28), save creation.
+- `Source/NAMEC/Character/Creation/NamecCharacterPreview.h` — new; preview actor with rotate, zoom, and preview outfits.
 - `Source/NAMEC/Character/Appearance/NamecAppearance.h` — new; `FNamecAppearance` struct.
 - `Source/NAMEC/Character/Appearance/NamecAppearanceComponent.h` — new; builds body and equipment visuals from race, sex, and appearance; replicates appearance.
 - `Source/NAMEC/Character/Races/NamecRaceDefinition.h` — new; `DT_Character_Races` row struct.
@@ -156,6 +158,7 @@ Players create a character by choosing a name, one of six races, a sex, an appea
 - `Source/NAMECEditor/NamecWearableVariantValidator.h` — new; editor-only module `NAMECEditor`; data validator for 12 body variants, Requirement 19 visibility settings, 12 first-person hand armor variants, dye zone masks on every variant, and humanoid `DT_EnemyAI_SkeletonFamilies` rows (body race and sex, appearance preset, IK Retargeter asset) (Requirement 20).
 - `Source/NAMEC/World/Building/NamecMirrorPiece.h` — new; Mirror build piece that opens the appearance editor.
 - `Content/Character/Mutable/` — new; Mutable Customizable Object assets for the six race bodies, appearance options, the 12 body variants of every wearable (including the Plain Shirt and Plain Trousers, Requirement 28), and materials that keep each dye zone's mask channel as a runtime material parameter (Requirements 15–18; `specs/crafting-jobs/crafting-jobs.md` Requirement 20).
+- `Content/Character/Animation/` — new; the one shared player animation set and the IK Retargeter assets that retarget it to each of the 12 race × sex bodies (Requirement 14).
 - `Content/Character/Races/Effects/` — new; passive and downside gameplay effects for all six races.
 - `Content/Data/DT_Character_Races.uasset` — new; six race rows, plus taunt duration, Boss taunt duration and poise damage percentage, Mirror interaction range, Night Eyes night hours, Rally Howl CHA coefficients, and other character creation tuning values (Requirement 26).
 - `Content/Data/DT_Character_AppearanceOptions.uasset` — new; per-race preset counts and slider ranges.

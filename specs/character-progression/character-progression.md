@@ -59,7 +59,7 @@ Characters grow along three independent tracks: D&D-style stats raised with poin
     - **Movement & utility:** Sprinting, Climbing, Swimming, Stealth.
     - **Magic schools:** Destruction, Restoration, Nature, Arcane.
 21. Skill XP is awarded only on a **meaningful use**, defined per skill in `DT_Progression_SkillXPSources`. In this spec, a hostile enemy is any creature in the `Hostile` or `Boss` category of `DT_Combat_Enemies`, which includes Bandits, Beastmen, and kingdom raiders (`specs/factions-kingdoms/factions-kingdoms.md` Requirement 2). Town NPCs are not hostile enemies and award no skill XP (`specs/combat-loot/combat-loot.md` Requirement 42).
-    - Woodcutting — each hit that damages a tree; bonus on felling.
+    - Woodcutting — each hit that damages a tree; bonus on felling; each stump removed with a shovel swing (`specs/voxel-world/voxel-world.md` Requirement 20).
     - Mining — each voxel of ore or stone removed with a pickaxe.
     - Foraging — each plant harvested.
     - Fishing — each fish caught. Fishing: equip a Fishing Rod (Carpenter recipe) in the Right Hand, cast into a water volume with the cast input (gamepad RB, keyboard left mouse button), wait for a bite (random 5–20 s, shortened by Fishing skill), and press the reel-in input (gamepad A, keyboard E; `specs/game-foundation/game-foundation.md` Requirement 14) within a 1-second bite window to catch. During the bite window, gamepad A reels in even when no interactable is targeted. A miss catches nothing.
@@ -176,7 +176,7 @@ Characters grow along three independent tracks: D&D-style stats raised with poin
 - `Source/NAMEC/UI/CharacterScreen/` — new; stat point spending, class selection, ability bar.
 - `Content/Data/DT_Progression_Classes.uasset` — new; 11 class rows, including allowed armor categories (Requirement 28) and allowed weapon categories (Requirement 30).
 - `Content/Data/DT_Progression_ClassAbilities.uasset` — new; per-ability unlock level, base XP, school, mana cost, stamina cost, cooldown, base damage (spells), damage type (spells), WeaponDamagePercent (non-spell abilities), BaseHealing (healing abilities), PoiseDamage, RequiredStat, and RequiredValue.
-- `Content/Data/DT_Progression_SkillXPSources.uasset` — new; base XP per action and difficulty multipliers.
+- `Content/Data/DT_Progression_SkillXPSources.uasset` — new; base XP per action (including stump removal for Woodcutting, Requirement 21) and difficulty multipliers.
 - `Content/Data/DT_Progression_SkillXPCurve.uasset` — new; XP per skill level.
 - `Content/Data/DT_Progression_ClassXPCurve.uasset` — new; XP per class level.
 - `Content/Data/DT_Progression_CharacterXPCurve.uasset` — new; XP per character level.

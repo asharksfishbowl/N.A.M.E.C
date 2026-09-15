@@ -1,6 +1,6 @@
 # Crafting and Jobs
 
-This page covers the 9 crafting Jobs, stations, hand-crafting and the fresh-character path, station tiers and boss gating, crafted gear quality, Enchanter runes, repair, and dyes.
+This page covers the 9 crafting Jobs, stations, hand-crafting and the fresh-character path, station tiers and boss gating, crafted gear quality, Enchanter runes and the enchanting screen, repair, which recipe an item came from, and dyes.
 
 ← [Home](Home.md)
 
@@ -14,7 +14,7 @@ Every character can level every Job, independent of class. Jobs level 1–100 (s
 | Armorsmith | Metal armor (Metal category), shields (Shield category) | Forge |
 | Carpenter | Wooden building pieces, furniture (including beds and Mirrors, Carpenter level 5), storage containers (chests, barrels, crates), training dummies, torches, bows, staves, arrows, wooden tools (including Hammers and Fishing Rods), stone tools (Stone Axe, Stone Pickaxe, Stone Shovel), Workbenches, Campfires, Stonecutters, Alchemy Tables, Looms, Tanning Racks, Dye Stations | Workbench |
 | Mason | Stone building pieces, Forges, Enchanting Altars, stone fortifications | Stonecutter |
-| Alchemist | Potions (healing, mana, resistance), poisons, weapon oils, dyes | Alchemy Table |
+| Alchemist | Potions (healing, mana, resistance), poisons and weapon oils (coat your weapon with a status buildup; see [Combat and Loot](Combat-and-Loot.md)), dyes | Alchemy Table |
 | Cook | Meals that restore hunger and thirst and grant timed buffs | Cooking Fire (the Campfire is the tier-1 Cooking Fire) |
 | Tailor | Cloth armor, cold-weather and hot-weather clothing (all Cloth category), cloth capes (no armor category), bags | Loom |
 | Leatherworker | Leather armor (Leather category), leather cloaks (no armor category), waterskins | Tanning Rack |
@@ -99,13 +99,13 @@ Equipment outputs (weapons, armor, tools, clothing, capes) roll rarity and affix
 | 4 | 40 | 50 |
 | 5 | 50 | 60 |
 
-Consumables (potions, meals, arrows) do not roll affixes. Their potency scales with Job level. For arrows (a Carpenter recipe), the crafter's Carpenter level raises the arrow's ArrowDamage. See [Combat and Loot](Combat-and-Loot.md).
+Consumables (potions, meals, arrows, poisons, weapon oils) do not roll affixes. The potency of potions, meals and arrows scales with Job level. Poisons and weapon oils have no potency: their coating buildup and hit count are fixed per item and don't change with Job level. For arrows (a Carpenter recipe), the crafter's Carpenter level raises the arrow's ArrowDamage. See [Combat and Loot](Combat-and-Loot.md).
 
 Arrows, potions and meals with no crafter (looted, bought from a Vendor, or found) have the potency of a Job level 1 craft. Consumables with different potency don't stack together: they show as separate inventory rows (see [Inventory](Inventory.md)).
 
 ## Enchanter runes
 
-Runes are applied at an Enchanting Altar and do one of two things:
+Runes are applied at an Enchanting Altar. Each rune is either an add rune or a reroll rune:
 
 - **Add** one affix to an item that has fewer affixes than its rarity's maximum. The affix type is random from the slot's pool, excluding types already on the item. Exception: an add rune also works on a Common Plain Ring or Plain Amulet with 0 affixes, and the new affix makes it Magic.
 - **Reroll** one chosen affix. It becomes a different random type from the slot's pool, excluding every type already on the item (including the one being rerolled).
@@ -118,12 +118,30 @@ Both roll the new affix's value. A rune's tier is the tier of the Enchanting Alt
 
 (starting values, tunable)
 
+**Applying a rune:**
+
+- Interact with an Enchanting Altar and open its enchanting screen. Pick an item (equipped or not), a rune, and for a reroll rune the affix to reroll.
+- Applying uses up the rune. It needs no Enchanter level, gives no Job XP, and works at an altar of any tier: only the rune's own tier limits the value.
+- The server checks that you're in range, that you still hold the item and the rune, that the rune type matches the action, that an add rune's item is below its affix cap (or is a Common Plain Ring or Plain Amulet), and that the item can carry affixes at all. If anything fails, nothing is used up.
+- If the item or the rune leaves your inventory while the screen is open, applying fails and nothing changes.
+- The screen closes without applying if you're Downed, take damage, walk away, or the altar is destroyed, just like the Dye Station. Several players can use one altar at once.
+
 ## Repair
 
 Equipment loses durability with use. At 0 it is unusable but not destroyed. Jewelry has no durability and never needs repair.
 
-- **Station repair:** at the station of the item's crafting Job, restore full durability for 25% (starting value, tunable) of the item's recipe materials, rounded up. Dropped items with no recipe use their base item type's recipe.
+- **Station repair:** at the station of the Job that owns the item's recipe (see Which recipe an item came from, below), restore full durability for 25% (starting value, tunable) of that recipe's materials, rounded up.
 - **Repair Kit:** a Blacksmith recipe (Job level 1). Repairs any item to full at any crafting station, with no Job level requirement, using one kit.
+- An item with no recipe at all can only be repaired with a Repair Kit.
+
+## Which recipe an item came from
+
+- Every crafted item remembers the recipe row that made it, including hand-crafted items. This is saved on the item and stays with it when it's dropped, stored, picked up by someone else, or placed as a building piece.
+- That recipe decides what you get back when you deconstruct a placed piece, what a destroyed piece drops, and what a station repair costs. For example, a Workbench made from Wood refunds Wood, and one made from Stick, Stone and Fiber refunds those.
+- Items nobody crafted (loot, Vendor stock, quest rewards, starting clothes) use the first recipe listed for that item.
+- If no recipe exists for the item at all, deconstructing or destroying it gives nothing back, and only a Repair Kit repairs it.
+- Two copies of the same item made by different recipes (or one crafted and one not) show as separate inventory rows.
+
 
 ## Dyes
 
@@ -158,3 +176,5 @@ Armor, clothing, cloaks, bags, shields and weapons each have 1–4 dye zones: **
 - [Crafting Jobs](../../specs/crafting-jobs/crafting-jobs.md)
 - [Character Progression](../../specs/character-progression/character-progression.md) (which Job crafts each weapon category)
 - [Inventory](../../specs/inventory/inventory.md) (capes and jewelry)
+- [Combat and Loot](../../specs/combat-loot/combat-loot.md) (weapon coatings and repair, Requirements 35 and 61)
+- [Voxel World](../../specs/voxel-world/voxel-world.md) (deconstruct refunds and destroyed-piece drops, Requirements 26 and 27)

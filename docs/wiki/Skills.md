@@ -21,7 +21,7 @@ This page covers use-based skill leveling, every skill and how it earns XP, mile
 
 | Skill | Earns XP for |
 |-------|--------------|
-| Woodcutting | Each hit that damages a tree, plus a bonus for felling it |
+| Woodcutting | Each hit that damages a tree, plus a bonus for felling it, and each stump removed with a shovel |
 | Mining | Each voxel of stone or ore removed with a pickaxe |
 | Foraging | Each plant harvested |
 | Fishing | Each fish caught |

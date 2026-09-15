@@ -110,8 +110,9 @@ See [Factions and Kingdoms](Factions-and-Kingdoms.md).
 - Each tree has health and a required axe tier.
 - Axe damage scales with axe tier, STR modifier and Woodcutting skill.
 - At 0 health the tree falls with physics, away from the player who landed the last hit. A falling log damages players and enemies it lands on, even with friendly fire off.
-- Chop the fallen log into Wood pickups. The stump can be dug out for extra wood.
-- A harvested tree regrows after 3 in-game days (starting value, tunable), unless someone placed a building piece or dug terrain within 3 m of it.
+- Chop the fallen log into Wood pickups. A stump is left behind.
+- **Stumps:** hit a stump with a shovel (in either Dig or Fill mode) to remove it. It drops Wood (amount per tree type, starting value, tunable) and gives Woodcutting XP. Removing a stump isn't digging: no terrain changes, and it doesn't stop the tree regrowing. A removed stump stays removed after saving.
+- A harvested tree regrows after 3 in-game days (starting value, tunable) where its stump stands, unless someone placed a building piece or dug terrain within 3 m of it. A stump still there at that point is replaced by the new tree.
 
 ## Forage and loose pickups
 
@@ -145,6 +146,7 @@ Loose pickups and fiber are how a new character, who has only its starting cloth
 - **Doors:** a newly placed door starts closed. Interact with a door to open or close it. Every player sees the same state, and it's saved with the world. Enemies, raiders and NPCs can't open doors: a closed door blocks their path, so raiders have to destroy it. A closed door counts as a wall for shelter, an open one doesn't (see [Survival](Survival.md)).
 - A destroyed piece drops 50% of its materials (starting value, tunable).
 - A Hammer can deconstruct **any** piece, placed by any player, for a 100% refund, using the hold in placement mode.
+- The materials refunded or dropped are those of the recipe that made the piece's item (so a Workbench made from Wood gives back Wood). A piece nobody crafted uses the first recipe for that item, and a piece with no recipe at all gives back nothing. See [Crafting and Jobs](Crafting-and-Jobs.md).
 - Destroying or deconstructing a storage container drops its contents on the ground for anyone to take.
 - Building is blocked inside a boss arena, within 20 m of the world spawn point, inside a town's protected radius, and inside a Bandit or Beastmen camp's radius.
 
