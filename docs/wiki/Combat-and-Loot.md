@@ -70,6 +70,7 @@ Any one-handed weapon except a Staff can go in your Left Hand. What LT (right mo
 - **Each shot uses 1 arrow** from your Ammo slot. With no arrows equipped the bow can't fire, and "No arrows" shows in your viewport.
 - **Damage:** the normal damage formula, with the bow's base damage plus the arrow's own ArrowDamage. Arrows are Carpenter recipes, and the crafter's Carpenter level raises ArrowDamage. Looted or bought arrows have Job level 1 potency (see [Crafting and Jobs](Crafting-and-Jobs.md)).
 - **Hits are decided by the server.** The server spawns the arrow and resolves what it hits. Your game may show a predicted arrow straight away, but that arrow never deals damage.
+- **Class abilities with a bow:** a damaging non-spell class ability used with a bow equipped counts as a bow shot. It uses the bow's and the arrow's damage (times the ability's percentage), uses 1 arrow, and fires a server-side arrow. With no arrows it can't be used, and "No arrows" shows. It costs the ability's own mana and stamina, not the bow shot stamina.
 - Hits that damage a hostile enemy train Archery. See [Skills](Skills.md).
 
 ## Two-handing
@@ -85,7 +86,7 @@ Press Y (keyboard R) with a one-handed weapon in your Right Hand to hold it in b
 
 ## Tools against enemies
 
-- Tools (axe, pickaxe, shovel, Hammer) have their own base damage but no weapon category.
+- Tools (axe, pickaxe, shovel, Hammer, Fishing Rod) have no weapon category. Every tool except the Fishing Rod has its own base damage. A Fishing Rod casts instead of swinging, so it never makes a tool hit.
 - With an axe or pickaxe in your Right Hand, RT does nothing (no heavy attack with any tool).
 - A tool swing that hits a Hostile (including Bandits, Beastmen and raiders), Boss or Wildlife enemy deals 50% (starting value, tunable) of the damage the formula gives with the tool's base damage and the unarmed profile's scaling and damage type.
 - Tool hits on enemies give **no skill XP at all**: no weapon skill, and no Woodcutting or Mining.
@@ -106,7 +107,7 @@ An execution is a finishing move on a weakened enemy.
 - The enemy is a Hostile enemy (including Bandits, Beastmen and raiders). Never a Boss, Wildlife or town NPC.
 - It is within 2.5 m and in front of you (starting value, tunable).
 - It is below 20% health (starting value, tunable), **or** it is in the riposte window after **your** parry.
-- You aren't Downed, already executing, in the air, climbing or swimming, and you have no menu or interaction screen open.
+- You aren't Downed, already executing, in the air, climbing or swimming, and you have no menu or interaction screen open (any menu or screen counts, for example the inventory, pause menu, build menu, a crafting station, a vendor, or the Guard Captain's fine screen).
 - If several enemies qualify, your lock-on target is used when it qualifies, otherwise the closest one.
 
 **Executing:**
@@ -126,7 +127,7 @@ An execution is a finishing move on a weakened enemy.
 
 **Co-op:** if two players try to execute the same enemy, the first request the server gets wins. If the attacker disconnects mid-animation, the enemy is released at its current health.
 
-**Settings:** "Execution prompts" (on by default, per local player) hides prompts and turns executions off. Y and R then always toggle two-handing.
+**Settings:** "Execution prompts" (on by default, per local player, saved per local player slot) hides prompts and turns executions off. Y and R then always toggle two-handing.
 
 ## Poise and stagger
 

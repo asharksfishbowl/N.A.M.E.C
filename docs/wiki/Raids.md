@@ -71,7 +71,8 @@ Raid chance = base chance + coefficient × base value + hostility factor of ever
 ## What raiders do
 
 - When raiders spawn, the server takes a **snapshot** of the base's building pieces and its center. New pieces join the snapshot only if the base merges with another group during the raid.
-- Raiders go for the pieces in the snapshot first, including crafting stations, storage containers and beds.
+- Raiders go for the pieces in the snapshot first, including crafting stations, storage containers, beds and doors.
+- Raiders can't open doors. A closed door blocks their path, so they have to destroy it to get through.
 - A raider you hit turns on you, and returns to the base once you're Downed, dead or out of its sight range.
 - Raider attacks damage building pieces. Normal enemies never do.
 - Destroyed containers drop their contents as shared pickups. A destroyed bed clears its respawn point. A destroyed station cancels its crafting queues.
@@ -94,5 +95,5 @@ Raid chance = base chance + coefficient × base value + hostility factor of ever
 ## Source specs
 
 - [Factions and Kingdoms](../../specs/factions-kingdoms/factions-kingdoms.md) (Requirements 50–60)
-- [Voxel World](../../specs/voxel-world/voxel-world.md) (Requirements 11 and 26)
+- [Voxel World](../../specs/voxel-world/voxel-world.md) (Requirements 11, 26 and 45)
 - [Combat and Loot](../../specs/combat-loot/combat-loot.md) (Requirement 43)

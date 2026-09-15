@@ -141,11 +141,11 @@ Example: a Mage wearing Leather gets 50% of its Armor. A Ranger wearing the same
 
 - Each held class has its own class level, 1–20 (starting value, tunable). A newly added class starts at class level 1 with its level-1 abilities.
 - Each class has 8 abilities (starting count, tunable). Each ability unlocks at a set class level.
-- Class XP is earned each time one of that class's abilities hits a target or completes its effect.
+- Class XP is earned each time one of that class's abilities hits a target or completes its effect, including heals, buffs and revives on teammates.
 - Abilities cost mana and/or stamina and have cooldowns.
 - **Spells** are class abilities tagged with one magic school: Destruction, Restoration, Nature or Arcane. Spells are not items.
 - Spell damage uses the spell's base damage. Spell power comes from INT (Destruction, Arcane) or WIS (Restoration, Nature).
-- A non-spell damaging ability deals a percentage of your Right Hand weapon's damage (for example 150%). With an empty Right Hand, or a tool or torch in it, the unarmed profile is used.
+- A non-spell damaging ability deals a percentage of your Right Hand weapon's damage (for example 150%). With an empty Right Hand, or a tool or torch in it, the unarmed profile is used. With a bow equipped, the ability counts as a bow shot: it adds the arrow's damage, uses 1 arrow, and can't be used with no arrows (see [Combat and Loot](Combat-and-Loot.md)).
 - Healing abilities scale with WIS and, for spells, the school's skill. Healing never goes above max health.
 - Each ability has a required stat and value. Below it, the ability deals 50% damage and healing.
 

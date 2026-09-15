@@ -53,7 +53,9 @@ Cooked meals (Cook Job) grant a timed buff to one derived stat. Only one meal bu
 | Poison | Swamp and Jungle hazard water | Restores Thirst like Fresh water, and builds up Poison |
 | Salt | The ocean | No Thirst. Applies "Salty": increased Thirst drain for 60 seconds |
 
-Waterskins (Leatherworker) hold as many drinks as their item's drink capacity (starting value 5) and refill at Fresh water. Each waterskin remembers its own drinks left, so waterskins with different amounts show as separate inventory rows (see [Inventory](Inventory.md)).
+**Drinking from water:** aim at a water surface within reach (starting value, tunable) and press A (E) when nothing else interactable is targeted. Each press drinks once. You can't drink or refill while swimming. At Salt or Poison water, holding the button does nothing extra: no refill and no second drink.
+
+Waterskins (Leatherworker) hold as many drinks as their item's drink capacity (starting value 5). **Hold A (E) for 1 second** (starting value, tunable) at Fresh water to refill every waterskin you carry. Use a waterskin from the inventory, or hotkey it like a consumable, to drink 1: it restores Thirst like a drink of Fresh water. An empty waterskin can't be used but stays in your inventory. Each waterskin remembers its own drinks left, so waterskins with different amounts show as separate inventory rows (see [Inventory](Inventory.md)).
 
 ## Temperature
 
@@ -66,7 +68,7 @@ Ambient temperature = region base temperature + time-of-day offset + weather off
 
 ### Shelter
 
-You are sheltered with a roof (terrain or building piece) within 4 m overhead **and** walls in at least 3 of 6 horizontal directions within 5 m. Shelter removes the weather offset. If the roof or walls are dug out, shelter updates on the next tick.
+You are sheltered with a roof (terrain or building piece) within 4 m overhead **and** walls in at least 3 of 6 horizontal directions within 5 m. A closed door counts as a wall, an open door doesn't. Shelter removes the weather offset. If the roof or walls are dug out, shelter updates on the next tick.
 
 ### Comfort range
 

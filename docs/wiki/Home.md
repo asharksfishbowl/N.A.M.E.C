@@ -30,7 +30,7 @@ The wiki is a readable summary. The specs in `specs/` are authoritative (see [Sp
 - [Architecture](Dev-Architecture.md): engine, GAS, module layout, platform abstraction, performance, key files
 - [Engine and Rendering](Dev-Engine-and-Rendering.md): engine pin, adopted, avoided and evaluated UE 5.8 features, the Nanite plan, terrain rendering, scalability tiers, the benchmark milestone
 - [Data Tables](Dev-Data-Tables.md): every `DT_*` tuning table by system
-- [Save System](Dev-Save-System.md): character and world saves, versioning, atomic writes, autosave
+- [Save System](Dev-Save-System.md): character, world and settings saves, versioning, atomic writes, autosave
 - [Networking](Dev-Networking.md): listen server, session flow, payload sync, loot relevance, disconnects
 - [Specs and Pipeline](Dev-Specs-and-Pipeline.md): spec index and the agent pipeline
 

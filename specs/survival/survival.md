@@ -24,12 +24,15 @@ Characters manage four survival pressures — hunger, thirst, temperature, and s
 4. Hunger and Thirst start at 100 and drain over time. Drain rates per minute come from `DT_Survival_DrainRates` and are multiplied by activity (sprinting, combat, mining raise drain) and reduced by CON modifier.
 5. Eating restores Hunger. Drinking restores Thirst. Values per item come from the item definition.
 6. Water sources: drinking from Fresh water volumes (lakes, rivers) restores Thirst directly. Waterskins (Leatherworker) store `DrinkCapacity` drinks, a per-item value on the waterskin's item definition (starting value 5), and refill to `DrinkCapacity` at Fresh water. A waterskin's remaining drinks are stored on its item instance, saved with it, and waterskins with different remaining drinks are separate inventory rows (`specs/inventory/inventory.md` Edge Case 12). Drinking from Poison water volumes (`specs/voxel-world/voxel-world.md` Requirement 31) restores Thirst like Fresh water and applies Poison buildup at the drinking value in `DT_Combat_StatusEffects`. Drinking from Salt water volumes (the ocean) gives no Thirst and adds a "Salty" effect that increases Thirst drain for 60 seconds.
+   - **Drinking from a water volume:** the Interact input while aiming at a water volume's surface within drinking reach (tuning value), when no other interactable is targeted, drinks once (`specs/game-foundation/game-foundation.md` Requirement 14). While the character is swimming, water surfaces are not targetable for drinking or refilling. At Salt or Poison water, a press drinks once however long it is held, and holding does nothing more: no refill and no second drink. Each drink applies that water's effect above, and a Fresh or Poison water drink restores the Thirst per drink (tuning value).
+   - **Refilling waterskins:** holding the Interact input for 1 s (tuning value in `DT_Core_Input`) while aiming at a Fresh water surface within drinking reach refills every carried waterskin to its `DrinkCapacity`, and does not drink.
+   - **Drinking from a waterskin:** a waterskin has the Use action (`specs/inventory/inventory.md` Requirement 10) and can be hotkeyed as a consumable (`specs/inventory/inventory.md` Requirement 16). Use drinks 1: the waterskin's remaining drinks drop by 1 and the character regains Thirst like one drink of Fresh water. A waterskin with 0 remaining drinks cannot be used and stays in the inventory.
 7. At Hunger 0, the character loses 1% max health per 5 seconds and health regen stops. At Thirst 0, the character loses 1% max health per 3 seconds and max stamina is halved (tuning values).
 8. Cooked meals (Cook Job) grant a timed buff to one derived stat. Only one meal buff is active at a time, and a new meal replaces the old.
 
 ### Temperature
 9. Ambient temperature at the character's location = region base temperature (from `DT_World_Climates`) + time-of-day offset + weather offset (includes wind) + altitude offset + local heat sources.
-10. Heat sources (campfire, forge, torch-in-hand, lava) add warmth within a radius defined per source. Shelter (a roof voxel/building piece within 4 m overhead plus walls in at least 3 of 6 horizontal directions within 5 m) removes the weather offset.
+10. Heat sources (campfire, forge, torch-in-hand, lava) add warmth within a radius defined per source. Shelter (a roof voxel/building piece within 4 m overhead plus walls in at least 3 of 6 horizontal directions within 5 m) removes the weather offset. A closed door counts as a wall, and an open door does not (`specs/voxel-world/voxel-world.md` Requirement 45).
 11. Clothing and armor have Insulation (cold protection) and Cooling (heat protection) values. Each climate row in `DT_World_Climates` has a comfort range of ambient temperatures (starting value 10–26 °C). A character's comfort range is the climate comfort range, first shifted by the character's racial comfort offsets (`specs/character-creation/character-creation.md` Requirement 12: Sauren lower bound +6 °C, Ursan upper bound −6 °C), then with the lower bound lowered by total Insulation (total equipped Insulation plus racial built-in Insulation, e.g., Ursan Thick Hide), the upper bound raised by total equipped Cooling, and both bounds widened by WIS modifier. The Insulation, Cooling, and WIS coefficients live in `DT_Survival_Temperature`.
 12. Effective ambient temperature is the Requirement 9 ambient temperature, including the Wet modifier (Requirement 14). When effective ambient temperature is inside the character's comfort range, BodyTemperature drifts toward 37 °C. When effective ambient temperature is below the range, BodyTemperature drifts downward away from 37 °C, and when it is above the range, BodyTemperature drifts upward away from 37 °C. The outside-range drift rate is proportional to the distance outside the range. Both drift rates live in `DT_Survival_Temperature`.
 13. Temperature states and effects:
@@ -77,12 +80,13 @@ Characters manage four survival pressures — hunger, thirst, temperature, and s
 4. When a shelter's roof or walls are dug out while a character is inside, shelter state recomputes on the next survival tick.
 5. When a player is at Hunger 0 and Thirst 0 at the same time, both health-loss effects apply.
 6. When a player sleeps but another player is in combat (dealt damage to or took damage from a hostile enemy within the last 10 seconds, tuning value), time skip is blocked and all sleeping players see "Cannot sleep — a player is in combat".
-7. When the shelter check runs, it uses at most one upward check and six horizontal checks per character per tick. Each check queries terrain via `UNamecVoxelWorld` density lookups and building pieces via physics traces. A character has walls when at least 3 of the 6 horizontal checks hit.
+7. When the shelter check runs, it uses at most one upward check and six horizontal checks per character per tick. Each check queries terrain via `UNamecVoxelWorld` density lookups and building pieces via physics traces, which count a closed door and ignore an open door (Requirement 10). A character has walls when at least 3 of the 6 horizontal checks hit.
 8. When a raid is active at any base (`specs/factions-kingdoms/factions-kingdoms.md` Requirement 58), time skip is blocked and all sleeping players see "Cannot sleep — a raid is in progress". A sleep time skip does not advance the real-time raid roll clock and triggers no raid roll (`specs/factions-kingdoms/factions-kingdoms.md` Requirement 53), and Vendor restock, Quest Board refresh, town NPC respawn, and camp respawn timers count skipped time.
 
 ## Acceptance Criteria
 - [ ] A character standing idle in the temperate region loses Hunger at the rate in `DT_Survival_DrainRates`.
 - [ ] At Thirst 0 the character loses health, and max stamina is halved.
+- [ ] Interacting with a Fresh water surface within drinking reach drinks once and restores the Thirst per drink, holding Interact there for 1 s refills every carried waterskin to its `DrinkCapacity`, and using a waterskin with 3 drinks leaves it at 2 and restores the same Thirst as one Fresh water drink. Holding Interact at Salt water drinks once and refills no waterskin, and a swimming character cannot drink from or refill at a water surface.
 - [ ] Standing in a tundra region in no clothing drops BodyTemperature below 34 °C and applies Freezing.
 - [ ] Standing within a campfire's radius in the tundra keeps BodyTemperature in the comfortable band.
 - [ ] With effective ambient temperature inside the character's comfort range, a BodyTemperature of 35 °C drifts back toward 37 °C.
@@ -92,13 +96,14 @@ Characters manage four survival pressures — hunger, thirst, temperature, and s
 - [ ] Pressing B (keyboard Space) in bed gets the character out of bed, and the bed stays the respawn point.
 - [ ] Hunger/Thirst/Temperature/Fatigue icons appear only past their warning thresholds.
 - [ ] Survival meters are unchanged across save → quit → load.
+- [ ] A character under a roof with walls in 2 horizontal directions and a closed door in a third is sheltered, and opening that door removes shelter on the next survival tick.
 - [ ] Swimming at 0 stamina loses 2% max health per second, and a non-Sauren character staying underwater for 30 seconds empties Breath and then loses 5% max health per second.
 - [ ] The Breath meter appears on the HUD only while the character's head is underwater.
 
 ## Key Files
 - `Source/NAMEC/Survival/NamecSurvivalAttributeSet.h` — new; Hunger, Thirst, BodyTemperature, Fatigue, Stamina, MaxStamina, StaminaRegen, Breath attributes.
-- `Source/NAMEC/Survival/NamecSurvivalComponent.h` — new; per-tick survival computation and status effects.
-- `Source/NAMEC/Survival/NamecShelterQuery.h` — new; shelter detection against voxel data.
+- `Source/NAMEC/Survival/NamecSurvivalComponent.h` — new; per-tick survival computation and status effects, drinking from water volumes, waterskin refill, and waterskin Use (Requirement 6).
+- `Source/NAMEC/Survival/NamecShelterQuery.h` — new; shelter detection against voxel data and building pieces, counting closed doors as walls and ignoring open doors (Requirement 10).
 - `Source/NAMEC/Survival/NamecHeatSourceComponent.h` — new; attachable heat source for fires, forges, torches.
 - `Source/NAMEC/Survival/NamecSleepSubsystem.h` — new; bed tracking, entering and leaving bed (Requirement 18), and time skip.
 - `Content/Survival/Effects/` — new; `GE_Freezing`, `GE_Cold`, `GE_Hot`, `GE_Overheating`, `GE_Wet`, `GE_Salty`, starvation and dehydration effects.
@@ -106,4 +111,4 @@ Characters manage four survival pressures — hunger, thirst, temperature, and s
 - `Content/Data/DT_Survival_Temperature.uasset` — new.
 - `Content/Data/DT_Survival_StaminaCosts.uasset` — new; stamina costs per action, including the per-shot bow shot cost and the off-hand light attack cost (Requirement 15).
 - `Content/Data/DT_Survival_Movement.uasset` — new; base swim speed and base climb speed as fractions of base walk speed (Requirement 25).
-- `Content/Data/DT_Survival_Penalties.uasset` — new; starvation, dehydration, temperature, Wet, sleep, swimming exhaustion, and Breath tuning values.
+- `Content/Data/DT_Survival_Penalties.uasset` — new; starvation, dehydration, temperature, Wet, sleep, swimming exhaustion, Breath, drinking reach, and Thirst per drink tuning values.

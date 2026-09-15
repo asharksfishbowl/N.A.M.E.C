@@ -72,11 +72,11 @@ This page covers split-screen layouts, joining, LAN play, portable characters, d
 
 ## Controls
 
-All bindings are defaults and can be remapped per local player in Settings. Chorded bindings (LB held + a button, Left Alt + RMB) take priority, so the plain action never fires while its chord modifier is held. While an execution prompt is showing in your viewport, Y (or R) executes instead of toggling two-handing, and LB + Y still casts ability 4. Every menu and the HUD work with a gamepad alone.
+All bindings are defaults and can be remapped per local player in Settings. Remaps are saved per local player slot on this machine (see [Save System](Dev-Save-System.md)). Chorded bindings (LB held + a button, Left Alt + RMB) take priority, so the plain action never fires while its chord modifier is held. While an execution prompt is showing in your viewport, Y (or R) executes instead of toggling two-handing, and LB + Y still casts ability 4. Every menu and the HUD work with a gamepad alone.
 
 Some bindings change with what you're holding or doing. Each one replaces the normal binding of that button only while its situation lasts, and chords still take priority:
 
-- **Tool in your Right Hand** (axe, pickaxe, shovel, Hammer): RB (left mouse) swings the tool instead of a light attack. With an axe or pickaxe, RT does nothing.
+- **Tool in your Right Hand** (axe, pickaxe, shovel, Hammer, Fishing Rod): RB (left mouse) swings the tool instead of a light attack, except that a Fishing Rod casts (see below). With an axe or pickaxe, RT does nothing.
 - **Shovel:** RT (middle mouse) toggles Dig/Fill mode. D-pad Left/Right (mouse wheel) cycles the fill material: Soil, Sand, Gravel, Stone. While a shovel is equipped, the D-pad Left/Right hand hotkey cycles don't work.
 - **Hammer:** RT (middle mouse) opens the build menu. Choosing a piece enters placement mode.
 - **Placement mode:** RB (left mouse) places, D-pad Left/Right (mouse wheel) rotates, B (right mouse) cancels, and holding X (F) for 1 second (starting value, tunable) on a placed piece deconstructs it. While placement mode is on, these replace the hotkey cycles, using a consumable, dodge roll and sprint, and block. Deconstructing works only in placement mode. After placing, you stay in placement mode while you still have that piece's item.
@@ -87,13 +87,16 @@ Some bindings change with what you're holding or doing. Each one replaces the no
 - **Torch in your Left Hand:** LT (right mouse) does nothing. LB + LT parries with your Right Hand weapon if it's parry-capable.
 - A bow in your Right Hand, or two-handing your Right Hand weapon, overrides both Left Hand rules: LT aims with a bow, and blocks with the two-handed weapon. See [Combat and Loot](Combat-and-Loot.md).
 - **In bed:** B (Space) gets you out of bed.
+- **Aiming at water** (only when nothing else interactable is targeted, and never while swimming, so A still swims and jumps in water): at Fresh water, tapping A (E) drinks once instead of jumping, and holding it for 1 second (starting value, tunable) refills all your waterskins instead. At Salt or Poison water, pressing A (E) drinks once however long you hold it, with no refill and no second drink. See [Survival](Survival.md).
 
 | Action | Gamepad | Keyboard & mouse (local player 1 only) |
 |--------|---------|----------------------------------------|
 | Move | Left stick | W A S D |
 | Look | Right stick | Mouse |
 | Jump | A (when no interactable is targeted) | Space |
-| Interact (including revive hold, Vendors, Quest Givers, Guard Captains, Quest Boards and the Dye Station) | A (when an interactable is targeted) | E |
+| Interact (including revive hold, Vendors, Quest Givers, Guard Captains, Quest Boards, the Dye Station, doors, and water when nothing else is targeted) | A (when an interactable is targeted) | E |
+| Drink from water (see [Survival](Survival.md); not while swimming) | A, released before 1 s (Fresh water), or held any length (Salt or Poison water) | E, released before 1 s (Fresh water), or held any length (Salt or Poison water) |
+| Refill all waterskins | Hold A for 1 s (Fresh water targeted) | Hold E for 1 s (Fresh water targeted) |
 | Climb (hold against a surface steeper than 60°) | Hold A | Hold Space |
 | Dodge roll | B (tap) | Left Shift (tap) |
 | Sprint | B (hold) | Left Shift (hold) |

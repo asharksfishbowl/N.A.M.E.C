@@ -73,7 +73,8 @@ Each skill unlocks a perk at levels 25, 50, 75 and 100. Example from the spec: W
 
 ## Anti-farming rules
 
-- Hitting a **training dummy** (a Carpenter building piece that reacts to hits but never loses health from them), **another player**, or a **Wildlife** creature (passive animals that never attack) gives no weapon or magic skill XP, and class abilities that hit a training dummy give no class XP. Skinning Wildlife still gives Hunting XP.
+- Hitting a **training dummy** (a Carpenter building piece that reacts to hits but never loses health from them) or a **Wildlife** creature (passive animals that never attack), or damaging **another player**, gives no weapon or magic skill XP, and class abilities that hit a training dummy give no class XP. Skinning Wildlife still gives Hunting XP.
+- Helping another player is different: a heal, buff or revive spell or ability on a teammate gives magic school XP (for spells) and class XP as normal.
 - Digging and refilling the same spot: Mining XP comes only from stone or ore that is not player-placed. Voxels you filled in give no XP.
 - Filling and re-digging never produces a net gain of items either. See [World and Building](World-and-Building.md).
 - Armor skills need 3 or more matching pieces, and only hits from hostile enemies count.

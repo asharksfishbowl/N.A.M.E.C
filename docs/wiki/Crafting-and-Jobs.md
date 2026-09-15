@@ -55,7 +55,7 @@ A hand-crafting menu, opened from the inventory screen, crafts without any stati
 
 All seven are Carpenter recipes at Job level 1 and give Carpenter XP. The specs fix which of the four materials the Stone Axe, Stone Pickaxe, Stone Shovel and Workbench use. The Stone Shovel is a Tier 0 shovel and, like every shovel, digs only soft materials (see [World and Building](World-and-Building.md)). Exact inputs for the Hammer, Campfire and Torch, and all quantities, are set per recipe in data.
 
-**Bootstrap path for a character with no items:**
+**Bootstrap path for a new character with only its starting clothes:**
 
 1. Pick up Loose Sticks and Loose Stones by hand, and harvest Fiber from fiber plants.
 2. Hand-craft a Stone Axe, a Stone Pickaxe and a Stone Shovel.

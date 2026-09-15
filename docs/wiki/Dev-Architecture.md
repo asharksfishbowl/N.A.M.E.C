@@ -89,12 +89,12 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 | `NamecCameraComponent.h` | First/third-person toggle |
 | `Creation/NamecCharacterCreationWidget.h` | Creation step screens and navigation |
 | `Creation/NamecCharacterDraft.h` | In-progress creation state struct (`FNamecCharacterDraft`) |
-| `Creation/NamecCharacterFactory.h` | Name and option validation, starting stats, GUID, racial ability placement, save creation |
+| `Creation/NamecCharacterFactory.h` | Name and option validation, starting stats, GUID, racial ability placement, equipped starting items, save creation |
 | `Creation/NamecCharacterPreview.h` | Preview actor with rotate, zoom and preview outfits |
 | `Appearance/NamecAppearance.h` | `FNamecAppearance` struct (race ID, sex, one value per option) |
 | `Appearance/NamecAppearanceComponent.h` | Builds body and equipment visuals from race, sex and appearance; replicates appearance |
 | `Races/NamecRaceDefinition.h` | `DT_Character_Races` row struct |
-| `Races/NamecNightEyesComponent.h` | Owning-viewport night vision post-process, night and underground activation, Settings toggle |
+| `Races/NamecNightEyesComponent.h` | Owning-viewport night vision post-process, night and underground activation, Settings toggle (saved per local player slot) |
 | `Races/Abilities/` | `GA_Race_SecondWind`, `GA_Race_Pounce`, `GA_Race_RallyHowl`, `GA_Race_ShedSkin`, `GA_Race_SwingLeap`, `GA_Race_MaulingRoar` |
 
 ### `Source/NAMEC/Progression/`
@@ -121,7 +121,7 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 | File | Purpose |
 |------|---------|
 | `NamecSurvivalAttributeSet.h` | Hunger, Thirst, BodyTemperature, Fatigue, Stamina, MaxStamina, StaminaRegen, Breath |
-| `NamecSurvivalComponent.h` | Per-tick survival computation and status effects |
+| `NamecSurvivalComponent.h` | Per-tick survival computation and status effects, drinking from water, waterskin refill and Use |
 | `NamecShelterQuery.h` | Shelter detection against voxel data |
 | `NamecHeatSourceComponent.h` | Attachable heat source for fires, forges, torches |
 | `NamecSleepSubsystem.h` | Bed tracking, entering and leaving bed, and time skip |
@@ -139,6 +139,7 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 | `NamecForageNode.h` | Harvestable plants |
 | `Building/NamecBuildPiece.h` | Placeable piece actor with snap points and health |
 | `Building/NamecBuildComponent.h` | Placement mode and preview, rotation, snap, deconstruction hold (placement mode only), staying in placement mode while the piece's item remains |
+| `Building/NamecDoorPiece.h` | Door build piece: Interact open/close toggle, replicated and saved open state, closed-door navmesh area impassable for enemies, raiders and NPCs |
 | `Building/NamecTrainingDummyPiece.h` | Training dummy build piece that registers player hits without losing piece health |
 | `Building/NamecMirrorPiece.h` | Mirror build piece that opens the appearance editor |
 | `Building/NamecDyeStationPiece.h` | Dye Station build piece that opens the dye screen and validates dye requests |
@@ -177,7 +178,7 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 |------|---------|
 | `NamecInventoryComponent.h` | Item storage (one row per item definition plus potency value, rune tier and waterskin remaining drinks), weight, equip slots, favorites, hotkeys |
 | `NamecItemCategories.h` | Armor category enum and weapon category enum (hand use, trained skill) |
-| `NamecItemDefinition.h` | Item definition data asset (weight, `Value`, category, slot, armor category, weapon category, `Poise` for armor, `PoiseDamage` for weapons, block percentage and parry-capable flag for weapons and shields, `WeaponBase` for weapons and tools, `ArrowDamage` for arrows, Insulation or Cooling for capes, `DrinkCapacity` for waterskins, jewelry's no-durability flag, dye zones and mask channels, quest item flag, effects) |
+| `NamecItemDefinition.h` | Item definition data asset (weight, `Value`, category, slot, armor category, weapon category, `Poise` for armor, `PoiseDamage` for weapons, block percentage and parry-capable flag for weapons and shields, `WeaponBase` for weapons and every tool except the Fishing Rod, `ArrowDamage` for arrows, Insulation or Cooling for capes, `DrinkCapacity` for waterskins, jewelry's no-durability flag, dye zones and mask channels, quest item flag, effects) |
 | `NamecContainerActor.h` | Placeable storage container (subclass of `ANamecBuildPiece`) with weight capacity |
 
 ### `Source/NAMEC/Multiplayer/`
@@ -212,7 +213,8 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 |------|---------|
 | `NamecCharacterSave.h` | Character save object with `SaveVersion` |
 | `NamecWorldSave.h` | World save object with `SaveVersion` |
-| `NamecSaveMigrations.cpp` | Version migration functions |
+| `NamecSettingsSave.h` | Machine-local settings save object with `SaveVersion`: one section per local player slot (1–4) and one machine-wide section |
+| `NamecSaveMigrations.cpp` | Version migration functions for all three save types |
 
 ### `Source/NAMEC/UI/`
 
@@ -227,7 +229,7 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 | `Quests/` | Quest board screen, quest giver screen, Quests tab with Reputation section, HUD quest tracker |
 | `HUD/NamecExecutionPromptWidget.h` | Per-viewport execution prompt |
 | `Lobby/` | Join LAN Game list, character select per local player |
-| `Settings/InputRemapScreen/` | Per-local-player binding remap screen |
+| `Settings/InputRemapScreen/` | Per-local-player binding remap screen, saving to that local player slot's section of the settings save |
 | `OnScreenKeyboard/NamecOnScreenKeyboardWidget.h` | Per-viewport gamepad on-screen keyboard for name entry, used through `INamecPlatform` |
 
 ### `Source/NAMECEditor/` (editor-only module)
@@ -247,7 +249,7 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 | `Content/Input/IMC_Gamepad.uasset` | Enhanced Input mapping context with gamepad defaults |
 | `Content/Input/IMC_KeyboardMouse.uasset` | Enhanced Input mapping context with keyboard and mouse defaults |
 | `Content/Input/Actions/` | One `UInputAction` asset per input action |
-| `Content/Input/Contexts/` | Higher-priority mapping contexts for tool, shovel, Hammer, placement mode, bow, Fishing Rod, bite window, torch, Left Hand weapon, Left Hand torch and bed bindings, added only while each context is active |
+| `Content/Input/Contexts/` | Higher-priority mapping contexts for tool, shovel, Hammer, placement mode, bow, Fishing Rod, bite window, torch, Left Hand weapon, Left Hand torch, bed and aiming-at-water bindings, added only while each context is active |
 | `Content/Survival/Effects/` | `GE_Freezing`, `GE_Cold`, `GE_Hot`, `GE_Overheating`, `GE_Wet`, `GE_Salty`, starvation and dehydration effects |
 | `Content/Inventory/Effects/GE_OverEncumbered.uasset` | Over-Encumbered gameplay effect |
 | `Content/Character/Races/Effects/` | Passive and downside gameplay effects for all six races |

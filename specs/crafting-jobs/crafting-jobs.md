@@ -55,7 +55,7 @@ Crafting is organized into nine Jobs that any character can level, independent o
     - Stone Axe, Stone Pickaxe, and Stone Shovel — Stick, Stone, and Fiber. The Stone Shovel is a Tier 0 shovel and, like every shovel, digs only soft materials (`specs/voxel-world/voxel-world.md` Requirement 12).
     - Workbench — two recipe rows: one from Stick, Stone, and Fiber, and one from Wood (gathered with the Stone Axe).
     
-    Stick and Stone come from Loose Stick and Loose Stone pickups collected by hand, and Fiber comes from fiber plant forage nodes (`specs/voxel-world/voxel-world.md` Requirements 22 and 30), so a character with no items and no tools can reach every hand-crafting recipe.
+    Stick and Stone come from Loose Stick and Loose Stone pickups collected by hand, and Fiber comes from fiber plant forage nodes (`specs/voxel-world/voxel-world.md` Requirements 22 and 30), so a character with only the starting clothes (`specs/character-creation/character-creation.md` Requirement 28) and no tools can reach every hand-crafting recipe.
 17. Tier-1 station recipes, all at required Job level 1, so a new character can reach a tier-1 station for every Job:
     - Workbench and Campfire — Carpenter, hand-crafted (Requirement 16).
     - Stonecutter, Alchemy Table, Loom, Tanning Rack — Carpenter, at a Workbench.
@@ -92,7 +92,7 @@ Crafting is organized into nine Jobs that any character can level, independent o
 10. When a player dyes an equipped item, every client sees the new color on that player's character without the item being re-equipped.
 
 ## Acceptance Criteria
-- [ ] A new character with no items collects Loose Sticks, Loose Stones, and Fiber by hand, hand-crafts a Stone Axe, Stone Pickaxe, and Stone Shovel, gathers Wood and Stone with the axe and pickaxe, digs Soil with the shovel, and hand-crafts a Workbench and Hammer without any station.
+- [ ] A new character with only the starting clothes collects Loose Sticks, Loose Stones, and Fiber by hand, hand-crafts a Stone Axe, Stone Pickaxe, and Stone Shovel, gathers Wood and Stone with the axe and pickaxe, digs Soil with the shovel, and hand-crafts a Workbench and Hammer without any station.
 - [ ] A Carpenter 1 character hand-crafts a Stone Shovel from Stick, Stone, and Fiber, and the Stone Shovel digs Soil but cannot dig Stone.
 - [ ] Starting from that Workbench, the same character obtains a tier-1 station for every Job and crafts a Level-1 recipe for all nine Jobs at the matching tier-1 stations.
 - [ ] Hand-crafting a Torch awards Carpenter Job XP.

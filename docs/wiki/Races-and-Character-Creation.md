@@ -22,6 +22,7 @@ Each step is its own screen with Back and Next:
 5. **Name & Confirm**
 
 - A 3D preview is shown on every step. You can rotate it, zoom between full body and face, and switch between three preview outfits: starting clothes, Leather armor and Metal armor.
+- **Starting clothes:** every new character starts with exactly two items, a Plain Shirt (Chest) and Plain Trousers (Legs), already equipped. They're Cloth clothing with 0 Armor, 0 Insulation and 0 Cooling, have 2 dye zones, are worth 0 gold and can't be sold.
 - The Confirm screen sums up your race and its traits, sex, starting class and its abilities, and your final starting stats.
 - **Going back:**
   - Changing race after visiting later steps resets your appearance to that race's default look. Sex and class are kept.
@@ -58,7 +59,7 @@ All numbers are starting values, tunable.
   - Racial abilities cost no stamina or mana, have no stat requirement, never level up and give no class XP.
 - **Night Eyes:**
   - Turns on automatically at night (20:00–06:00 in-game) and whenever you are underground (in a cave or with terrain overhead).
-  - Only you see it, in your own viewport. You can turn it off in Settings.
+  - Only you see it, in your own viewport. You can turn it off in Settings (saved per local player slot).
   - Falls of 8 m or more deal normal fall damage for the full distance.
 - **Pounce** uses the normal unarmed damage formula, including penalties like Weakened, and trains One-Handed.
 - **Pounce and Swing Leap** stop at the last clear spot if they would hit terrain, a building piece or a boss arena barrier.

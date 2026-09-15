@@ -17,7 +17,7 @@ This page lists every `DT_*` DataTable named in the specs, grouped by system, wi
 | Table | Purpose | Columns / values mentioned |
 |-------|---------|----------------------------|
 | `DT_Core_Save` | Save tuning | Autosave interval (5 min) |
-| `DT_Core_Input` | Input thresholds | View hold time for camera toggle (0.5 s), Hammer deconstruct hold (1 s), stick flick threshold |
+| `DT_Core_Input` | Input thresholds | View hold time for camera toggle (0.5 s), Hammer deconstruct hold (1 s), waterskin refill hold (1 s), stick flick threshold |
 
 ## Character (character-creation)
 
@@ -39,7 +39,7 @@ This page lists every `DT_*` DataTable named in the specs, grouped by system, wi
 | `DT_Progression_SkillBonuses` | Passive per-level skill bonuses | e.g. Mining dig speed and ore yield chance, Stealth perception-radius reduction |
 | `DT_Progression_SkillPerks` | Milestone perks at 25/50/75/100 | e.g. Woodcutting 50 double-log chance |
 | `DT_Progression_DerivedStats` | Stat-to-derived-value coefficients | Per-stat coefficients (STR, DEX, CON, INT, WIS, CHA), base MaxStamina coefficient (CON), spell StatScaling coefficients (INT, WIS), WIS healing coefficient, base MaxPoise, MaxCarryWeight (base 150, +10 × STR mod, bag/perk/affix bonuses; racial bonus from `DT_Character_Races`), MaxEquipLoad (base 40, +3 × STR mod, +2 × CON mod; racial multiplier from `DT_Character_Races`) |
-| `DT_Progression_Rules` | Progression tuning | Stat cap (30), character level cap (50), class level cap (20), skill level cap (100), stat points per level (1), class slot levels (1/10/25/40), ability bar size (6), XP share (25%) |
+| `DT_Progression_Rules` | Progression tuning | Stat cap (30), character level cap (50), class level cap (20), skill level cap (100), stat points per level (1), class slot levels (1/10/25/40), ability bar size (6), XP share (25%), new character starting items (Plain Shirt in Chest, Plain Trousers in Legs) |
 
 ## Crafting (crafting-jobs)
 
@@ -62,7 +62,7 @@ This page lists every `DT_*` DataTable named in the specs, grouped by system, wi
 | `DT_Survival_Temperature` | Temperature model | Insulation, Cooling and WIS coefficients for comfort range, inside-range and outside-range drift rates, heat source max contributions |
 | `DT_Survival_StaminaCosts` | Stamina costs | Light attack, off-hand light attack, heavy attack, dodge roll, block per hit, sprint per second, bow shot (per aimed or quick shot), climbing, swimming |
 | `DT_Survival_Movement` | Swim and climb speed | Base swim speed and base climb speed as fractions of base walk speed (0.5 each) |
-| `DT_Survival_Penalties` | Survival tuning | Survival tick (1 s); starvation (1% / 5 s, regen stop); dehydration (1% / 3 s, max stamina ×0.5); temperature state penalties; Wet duration (60 s); stamina regen delay (1 s); sleep (06:00 skip, −5 Fatigue/s, 10 s combat block); swimming exhaustion (2%/s); Breath (30 s, 2 s refill, 5%/s) |
+| `DT_Survival_Penalties` | Survival tuning | Survival tick (1 s); starvation (1% / 5 s, regen stop); dehydration (1% / 3 s, max stamina ×0.5); temperature state penalties; Wet duration (60 s); stamina regen delay (1 s); sleep (06:00 skip, −5 Fatigue/s, 10 s combat block); swimming exhaustion (2%/s); Breath (30 s, 2 s refill, 5%/s); drinking reach; Thirst per drink |
 
 ## World (voxel-world)
 

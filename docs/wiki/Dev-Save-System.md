@@ -1,15 +1,16 @@
 # Save System
 
-This page covers the two save types and their full contents, SaveVersion and migration, atomic writes, autosave cadence, and corrupt or newer-save handling.
+This page covers the three save types and their full contents, SaveVersion and migration, atomic writes, autosave cadence, and corrupt or newer-save handling.
 
 ← [Home](Home.md)
 
-## Two independent save types
+## Three independent save types
 
 | Save | Class | One per | Stored on |
 |------|-------|---------|-----------|
 | Character save | `UNamecCharacterSave` (`Source/NAMEC/Save/NamecCharacterSave.h`) | Character | The local user's save directory on the machine that owns the character |
 | World save | `UNamecWorldSave` (`Source/NAMEC/Save/NamecWorldSave.h`) | World | The host machine |
+| Settings save | `UNamecSettingsSave` (`Source/NAMEC/Save/NamecSettingsSave.h`) | Machine | The local user's save directory on that machine (never sent to other machines) |
 
 A character is portable: the same character save loads into any world. Save file paths go through the platform abstraction (`INamecPlatform`).
 
@@ -33,7 +34,7 @@ Two-handing state is not saved: every character loads holding its Right Hand wea
 
 ### Race and appearance
 
-- Confirming character creation writes a new `UNamecCharacterSave` with a new character GUID.
+- Confirming character creation writes a new `UNamecCharacterSave` with a new character GUID and the starting items (Plain Shirt and Plain Trousers) equipped.
 - Ability bar in the save includes the racial ability's slot.
 - An appearance change at a Mirror applies immediately and is written on the next character save.
 - If a loaded save has an appearance option index outside the current range in `DT_Character_AppearanceOptions`, that option resets to the race default and the character still loads.
@@ -60,7 +61,7 @@ Two-handing state is not saved: every character loads holding its Right Hand wea
 | World settings | Friendly fire, LAN hosting, password, Raids |
 | Time and weather | Current in-game time of day, the world's total elapsed in-game time, each region's current weather |
 | Terrain | Per-chunk edit deltas over the generated base, including each changed voxel's player-placed flag |
-| Building | Placed building pieces, including crafting stations with bound attachments and tier, and storage containers with their contents |
+| Building | Placed building pieces, including crafting stations with bound attachments and tier, storage containers with their contents, and doors with their open or closed state |
 | Pickups | Shared world pickups, including dropped gold (per-player loot actors are not saved) |
 | Gathering | Tree harvest states, forage timers, Loose Stick and Loose Stone collected states and respawn timers |
 | Respawn | Bed respawn points per character GUID |
@@ -77,11 +78,21 @@ Not saved: character positions (every world entry spawns at the bed or world spa
 - When a chunk's edit delta list exceeds a size threshold, the server re-bakes it into a compressed full-chunk snapshot in the save.
 - Defeating a boss triggers a world save.
 
+## `UNamecSettingsSave` contents
+
+| Section | Contents |
+|---------|----------|
+| One per local player slot (1–4) | Input remaps, Night Eyes toggle, "Execution prompts" option, and every other per-local-player Setting |
+| Machine-wide | Global settings (graphics, audio) |
+
+- Per-local-player settings belong to the slot, not to a character or a controller: whoever joins as local player 2 uses slot 2's settings.
+- The settings save is written whenever a Settings change is applied, using the same atomic write as the other saves.
+
 ## SaveVersion and migration
 
-- Every save type carries an integer `SaveVersion`.
+- Every save type (character, world and settings) carries an integer `SaveVersion`.
 - Loading an **older** version runs a migration function (`Source/NAMEC/Save/NamecSaveMigrations.cpp`).
-- Loading a **newer** version than the build supports is refused with a user-facing message.
+- Loading a **newer** version than the build supports is refused with a user-facing message. Exception: a newer settings save is left untouched, and defaults are used for the session without being written back.
 - A character save newer than the build shows greyed out in the character list with "Requires newer version".
 - When a joining player's character is older than the host build, the host runs the character migration before spawning. When it is newer, the join is refused.
 
@@ -106,19 +117,19 @@ For remote players, the host sends the character payload on each autosave and a 
 
 | Case | Behaviour |
 |------|-----------|
-| Corrupt save (fails deserialization) | Show "Save could not be loaded", keep the file on disk untouched, return to the menu. Never overwrite it. |
+| Corrupt save (fails deserialization) | Character and world saves: show "Save could not be loaded", keep the file on disk untouched, return to the menu. Never overwrite it. Settings save: rename it to `.bak` and use default settings. |
 | Crash mid-save | Previous save remains valid (temp file + atomic rename). |
-| Newer `SaveVersion` than the build | Refused with a message. Characters show "Requires newer version". |
+| Newer `SaveVersion` than the build | Character and world saves: refused with a message. Characters show "Requires newer version". Settings save: left untouched, and defaults are used for the session without being written back. |
 | Insufficient disk space | Warning on the host HUD, retry on the next autosave. In-memory state is kept. |
 | Mid-craft disconnect or quit | Current craft is cancelled and reserved materials return to the inventory before the character saves. |
 
 ## Source specs
 
 - [Game Foundation](../../specs/game-foundation/game-foundation.md) (Requirements 6–8, Edge Cases 1–4)
-- [Combat and Loot](../../specs/combat-loot/combat-loot.md) (Requirement 57, Edge Case 1)
-- [Voxel World](../../specs/voxel-world/voxel-world.md) (Requirement 42)
+- [Combat and Loot](../../specs/combat-loot/combat-loot.md) (Requirements 45 and 57, Edge Case 1)
+- [Voxel World](../../specs/voxel-world/voxel-world.md) (Requirements 42 and 45)
 - [Inventory](../../specs/inventory/inventory.md) (Data Flow 4)
 - [Multiplayer](../../specs/multiplayer/multiplayer.md) (Requirements 16–17)
-- [Character Creation](../../specs/character-creation/character-creation.md) (Requirements 6, 16 and 24, Data Flow 3, Edge Cases 1, 2, 10 and 11)
+- [Character Creation](../../specs/character-creation/character-creation.md) (Requirements 6, 13, 16, 24 and 28, Data Flow 3, Edge Cases 1, 2, 10 and 11)
 - [Factions and Kingdoms](../../specs/factions-kingdoms/factions-kingdoms.md) (Requirements 11, 19, 25, 28, 34, 37, 40, 48 and 59, Edge Case 1)
 - [Crafting Jobs](../../specs/crafting-jobs/crafting-jobs.md) (Requirement 11, Edge Case 9)

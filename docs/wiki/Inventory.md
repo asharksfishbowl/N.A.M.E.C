@@ -89,7 +89,7 @@ Each tier has its own i-frame window and roll recovery. Heavy armor can change y
 - **Each row:** icon, name (colored by rarity), quantity, weight, equipped/favorite marker.
 - **Detail panel:** stats, affixes, durability, requirements, Value, dye colors per zone, comparison with the equipped item in the same slot, 3D preview.
 - **Sort:** Name, Weight, Rarity, Item Level, Recently Acquired. Your sort choice is saved with your character.
-- **Actions:** Equip/Unequip, Use, Favorite/Unfavorite, Drop (choose quantity), Inspect.
+- **Actions:** Equip/Unequip, Use (consumables and waterskins; a waterskin drinks 1), Favorite/Unfavorite, Drop (choose quantity), Inspect.
 - The screen also opens the hand-crafting menu. See [Crafting and Jobs](Crafting-and-Jobs.md).
 - The footer always shows carried weight / max carry weight and your gold.
 - Your inventory is locked while you are Downed.
@@ -112,7 +112,7 @@ Each tier has its own i-frame window and roll recovery. Heavy armor can change y
 
 ## Favorites and hotkeys
 
-- Any weapon, shield, tool, torch or consumable can be marked Favorite.
+- Any weapon, shield, tool, torch, consumable or waterskin can be marked Favorite. Waterskins join the consumables hotkey cycle.
 - The **Favorites quick menu** (gamepad D-pad Up, keyboard Q) lists favorites to equip or use. It does not pause the world.
 - **8 hotkey slots** are assigned from Favorites.
   - Keyboard: keys 1–8 activate them.

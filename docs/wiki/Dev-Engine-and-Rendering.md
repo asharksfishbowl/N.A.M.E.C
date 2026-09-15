@@ -28,8 +28,8 @@ Rows marked *(Evaluate)* are provisional. The benchmark decides whether they kee
 | Nanite Geometry Collections *(Evaluate)* | Supported; replication fixes still landing | Local fracture when a building piece is destroyed in a raid. Health and destroyed state stay server-side. | Authored damage-state mesh swaps plus VFX |
 | Classic Nanite trees and foliage | Beta | Trees, forage, vegetation. Real geometry leaves, Preserve Area, clamped WPO wind, WPO Disable Distance. | Non-Nanite foliage with LODs and impostors |
 | Felled trees as rigid Nanite meshes | Supported (rigid motion) | A felled tree swaps to a simulating actor with the same Nanite mesh | Non-Nanite LOD mesh on the falling actor |
-| Lumen with Hardware Ray Tracing | Production-Ready | GI and reflections at 1–2 viewports, and terrain lighting | Lumen Lite, then Lumen Medium/Low with a skylight |
-| Lumen Lite | Beta | GI at 3–4 viewports and the handheld console tier | Lumen Medium/Low with a skylight |
+| Lumen with Hardware Ray Tracing | Production-Ready | GI and reflections at 1–2 viewports, and terrain lighting | Lumen Lite, then Lumen Medium (only if it lights terrain), then Lumen off with a skylight |
+| Lumen Lite | Beta | GI at 3–4 viewports and the handheld console tier | Lumen Medium (only if it lights terrain), then Lumen off with a skylight |
 | Virtual Shadow Maps | Production-Ready | All shadows | Lower VSM quality |
 | Substrate | Production-Ready, on by default | All materials. Dye zone colors are material parameters set at runtime on Mutable-built character meshes and held weapons and shields, not Mutable inputs. | Blendable GBuffer path |
 | PCG Framework (runtime, seeded) | Production-Ready | Placing trees, forage, loose pickups, rocks, props and vegetation from the world seed | Seeded placement in C++ |
@@ -139,15 +139,15 @@ The **first required milestone**. No content production starts until a passing r
 
 (2 seconds, 200 pieces and the 120-second run are starting values, tunable)
 
-**Measured at 1, 2, 3 and 4 viewports:** average and 1% low fps, `stat gpu`, `NaniteStats`, VSM page invalidation, and draw calls. It also checks that re-meshed terrain chunks are lit correctly in both tiers.
+**Measured at 1, 2, 3 and 4 viewports:** average and 1% low fps, `stat gpu`, `NaniteStats`, VSM page invalidation, and draw calls. It also runs the **lighting check**: re-meshed terrain chunks must be lit correctly in both tiers. Lumen off with a skylight always counts as lit correctly.
 
-**Passes when** the run averages 60 fps or more at 1–2 viewports and 30 fps or more at 3–4. Results are recorded in the engine-tech roadmap, then the tiers are tuned to the best settings that still pass.
+**Passes when** the run averages 60 fps or more at 1–2 viewports and 30 fps or more at 3–4, **and** the lighting check passes for each tier. A run with unlit terrain fails, whatever its frame rate. Results are recorded in the engine-tech roadmap, then the tiers are tuned to the best settings that still pass.
 
-**If a target is missed,** these fallbacks are applied one at a time, in order, re-running after each:
+**If a frame rate target is missed,** these fallbacks are applied one at a time, in order, re-running after each. **If the lighting check fails,** the tier jumps straight to step 3 and steps GI down until terrain is lit correctly:
 
 1. Lower foliage density and view distance.
 2. Lower VSM quality one level and shorten the WPO Disable Distance.
-3. Step GI down (High tier: Lumen HWRT → Lumen Lite; Split tier: Lumen Lite → Lumen Medium → Lumen off with a skylight).
+3. Step GI down along Lumen HWRT → Lumen Lite → Lumen Medium → Lumen off with a skylight (the High tier starts at Lumen HWRT, the Split tier at Lumen Lite). Lumen Medium uses software ray tracing, so it's used only if the benchmark shows it lights terrain correctly, and is skipped otherwise.
 4. Replace Nanite trees and foliage with non-Nanite foliage.
 5. Replace destructible fracture with damage-state mesh swaps.
 6. Replace First Person Rendering with its fallback.

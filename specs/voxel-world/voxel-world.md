@@ -100,6 +100,9 @@ The world is a large, finite, seeded map rendered as smooth (non-blocky) voxel t
 ### Training Dummies
 44. A training dummy is a Carpenter building piece (`specs/crafting-jobs/crafting-jobs.md` Requirement 1) placed with the Hammer (Requirement 24). It is the one building piece that registers player hits: a player's weapon hit, tool swing, bow projectile, spell, or class or racial ability that reaches a training dummy counts as a hit on it and plays the dummy's hit reaction, under either friendly-fire setting. A player hit never reduces the dummy's piece health (Requirement 26) and awards no weapon or magic skill XP and no class XP (`specs/character-progression/character-progression.md` Edge Case 5). Boss attacks, enemy area-of-effect attacks, raider attacks, and falling tree logs reduce a training dummy's health like any other building piece.
 
+### Doors
+45. A door is a building piece (Requirement 24). A newly placed door starts closed. The Interact input (`specs/game-foundation/game-foundation.md` Requirement 14) on a door toggles it between open and closed, for any player. A door's open or closed state is server-authoritative, replicated to every client, and saved with the piece in `UNamecWorldSave` (`specs/game-foundation/game-foundation.md` Requirement 6). Enemies, raiders, and town and escort NPCs cannot open or close doors. A closed door blocks navigation: its navmesh area is impassable for enemies, raiders, and NPCs, and an open door's area is passable. Doors take damage like any other building piece (Requirement 26), and a door is a valid raider target (`specs/combat-loot/combat-loot.md` Requirement 43), so raiders get through a closed door only by destroying it. For the shelter check, a closed door counts as a wall and an open door does not (`specs/survival/survival.md` Requirement 10).
+
 ## Data Flow
 1. Host creates a world → `UNamecWorldGenerator` builds region layout, heightfield, caves with surface connections, ruins, capitals, towns, camps, resource placement within the dig depth limit, loot chest positions, and boss arena positions from the seed → the world save is created with the seed, size, voxel resolution, world settings (including Raids), and an empty edit list.
 2. As players move, `UNamecVoxelWorld` streams chunks around each player, generating base voxel data from the seed and then applying stored edit deltas for that chunk.
@@ -107,7 +110,7 @@ The world is a large, finite, seeded map rendered as smooth (non-blocky) voxel t
 4. Clients re-mesh affected chunks on receiving the replicated edit.
 5. A player chops a tree → server applies damage → on 0 health the server spawns the falling log physics actor (replicated), marks the tree harvested with a regrow timestamp, and awards Woodcutting XP.
 6. A player places a building piece → server validates snap position, collision, and blocked zones (boss arenas, world spawn point, town protected radii, camp radii), consumes the item, spawns the piece actor, and records it in the world save → the placing client stays in placement mode while the player holds another item of that piece, otherwise returns to the build menu (Requirement 43).
-7. On save, the host writes every `UNamecWorldSave` field listed in `specs/game-foundation/game-foundation.md` Requirement 6: world settings, time of day and weather, chunk edit deltas, placed pieces (including stations with tiers and containers with contents), shared world pickups, tree harvest states, forage timers, loose pickup collected states and respawn timers, bed respawn points per character GUID, loot chest opened state per character GUID, boss defeat flags, the world's elapsed in-game time, and the town, camp, Vendor stock, and Quest Board state listed there.
+7. On save, the host writes every `UNamecWorldSave` field listed in `specs/game-foundation/game-foundation.md` Requirement 6: world settings, time of day and weather, chunk edit deltas, placed pieces (including stations with tiers, containers with contents, and doors with their open or closed state), shared world pickups, tree harvest states, forage timers, loose pickup collected states and respawn timers, bed respawn points per character GUID, loot chest opened state per character GUID, boss defeat flags, the world's elapsed in-game time, and the town, camp, Vendor stock, and Quest Board state listed there.
 
 ## Edge Cases
 1. When a player digs beneath a placed building piece, the piece stays in place. Building pieces do not require terrain support.
@@ -149,6 +152,7 @@ The world is a large, finite, seeded map rendered as smooth (non-blocky) voxel t
 - [ ] A character with no tools collects a Loose Stick and a Loose Stone by hand in every region.
 - [ ] Standing in Swamp Poison Water builds up Poison, touching Lava deals Fire damage and builds up Burn, and walking on Deep Snow reduces movement speed by 30%.
 - [ ] Terrain edits and placed buildings persist across save → quit → load.
+- [ ] A newly placed door is closed, interacting with a door opens or closes it for every client, and its state survives save → quit → load. Enemies and raiders never open a door, path around a closed door as impassable, and pass through an open one, and raiders destroy a closed door in their raid's snapshot to get through it.
 - [ ] Terrain edits made by one LAN player appear for all other players.
 - [ ] The Temperate region is at the world center, and the Volcanic region is farthest from it.
 - [ ] On the reference PC in `specs/game-foundation/game-foundation.md` Requirement 13, the temperate region holds 60 fps with 2 split-screen viewports and 30 fps with 4, first measured by the benchmark milestone (`specs/engine-tech/engine-tech.md` Requirement 11).
@@ -163,6 +167,7 @@ The world is a large, finite, seeded map rendered as smooth (non-blocky) voxel t
 - `Source/NAMEC/World/NamecForageNode.h` — new; harvestable plants.
 - `Source/NAMEC/World/Building/NamecBuildPiece.h` — new; placeable piece actor with snap points and health.
 - `Source/NAMEC/World/Building/NamecTrainingDummyPiece.h` — new; training dummy build piece that registers player hits and plays its hit reaction without losing piece health (Requirement 44).
+- `Source/NAMEC/World/Building/NamecDoorPiece.h` — new; door build piece that starts closed when placed, with the Interact open/close toggle, replicated and saved open state, and the closed-door navmesh area that is impassable for enemies, raiders, and NPCs (Requirement 45).
 - `Source/NAMEC/World/Building/NamecBuildComponent.h` — new; placement mode and preview, rotation, snap, deconstruction hold (Requirement 41), staying in placement mode while the piece's item remains and returning to the build menu when none is left, and the placement-mode-only deconstruction rule (Requirement 43).
 - `Source/NAMEC/UI/Building/` — new; Hammer build menu (Requirement 41).
 - `Content/Data/DT_World_Climates.uasset` — new; 8 region rows, including comfort range and item-level band.
