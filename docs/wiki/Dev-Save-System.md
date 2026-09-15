@@ -18,12 +18,22 @@ A character is portable: the same character save loads into any world. Save file
 | Area | Contents | Owning spec |
 |------|----------|-------------|
 | Identity | Character GUID and name | game-foundation |
+| Race and appearance | Race, sex, and `FNamecAppearance` (race ID, sex, one value per appearance option) | character-creation |
 | Progression | Stats, spent and unspent stat points, classes, class levels, skill XP, boss first-kill flags, ability bar | character-progression |
 | Jobs | Job levels and XP | crafting-jobs |
 | Survival | Survival meter values (Breath is not saved) | survival |
 | Inventory | Every item instance (definition ID, quantity, rarity, affixes, durability, item level), equipped slots, favorites, hotkeys, sort choice | inventory |
 | Death | Dead-respawn flag | combat-loot |
-| Timed effects | Remaining duration of each active timed effect: Weakened, meal buff, Wet, Salty | game-foundation |
+| Timed effects | Remaining duration of each active timed effect: Weakened, meal buff, Wet, Salty (racial passives and downsides are not saved; they are reapplied on spawn) | game-foundation |
+
+### Race and appearance
+
+- Confirming character creation writes a new `UNamecCharacterSave` with a new character GUID.
+- Ability bar in the save includes the racial ability's slot.
+- An appearance change at a Mirror applies immediately and is written on the next character save.
+- If a loaded save has an appearance option index outside the current range in `DT_Character_AppearanceOptions`, that option resets to the race default and the character still loads.
+- If a save references a race ID missing from `DT_Character_Races`, the character shows greyed out with "Race data missing" and cannot be selected.
+- Cancelling creation, or removing the local player mid-creation, writes no save.
 
 ### Dead-respawn flag
 
@@ -94,3 +104,4 @@ For remote players, the host sends the character payload on each autosave and a 
 - [Game Foundation](../../specs/game-foundation/game-foundation.md) (Requirements 6–8, Edge Cases 1–4)
 - [Combat and Loot](../../specs/combat-loot/combat-loot.md) (Edge Case 1)
 - [Multiplayer](../../specs/multiplayer/multiplayer.md) (Requirements 16–17)
+- [Character Creation](../../specs/character-creation/character-creation.md) (Requirements 6, 16 and 24, Data Flow 3, Edge Cases 1, 2, 10 and 11)

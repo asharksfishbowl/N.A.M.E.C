@@ -92,7 +92,7 @@ The world is a large, finite, seeded map rendered as smooth (non-blocky) voxel t
 ## Edge Cases
 1. When a player digs beneath a placed building piece, the piece stays in place. Building pieces do not require terrain support.
 2. When a player digs next to a lake or lava pool, the liquid does not flow into the hole. Liquids are static volumes defined at generation.
-3. When a player digs the terrain out from under another player, that player falls normally under physics and takes fall damage.
+3. When a player digs the terrain out from under another player, that player falls normally under physics and takes fall damage (`specs/combat-loot/combat-loot.md` Requirement 40).
 4. When a player digs out the terrain beneath a tree, the tree stays standing. Trees are anchored at their origin.
 5. When a player tries to fill terrain in a space occupied by a player, enemy, or building piece, the fill is blocked for the occupied voxels only.
 6. When two players edit the same voxel in the same frame, the server applies edits in receive order. Both clients converge to the server state via replication.

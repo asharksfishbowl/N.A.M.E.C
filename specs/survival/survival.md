@@ -30,7 +30,7 @@ Characters manage four survival pressures — hunger, thirst, temperature, and s
 ### Temperature
 9. Ambient temperature at the character's location = region base temperature (from `DT_World_Climates`) + time-of-day offset + weather offset (includes wind) + altitude offset + local heat sources.
 10. Heat sources (campfire, forge, torch-in-hand, lava) add warmth within a radius defined per source. Shelter (a roof voxel/building piece within 4 m overhead plus walls in at least 3 of 6 horizontal directions within 5 m) removes the weather offset.
-11. Clothing and armor have Insulation (cold protection) and Cooling (heat protection) values. Each climate row in `DT_World_Climates` has a comfort range of ambient temperatures (starting value 10–26 °C). A character's comfort range is the climate comfort range with the lower bound lowered by total equipped Insulation, the upper bound raised by total equipped Cooling, and both bounds widened by WIS modifier. The Insulation, Cooling, and WIS coefficients live in `DT_Survival_Temperature`.
+11. Clothing and armor have Insulation (cold protection) and Cooling (heat protection) values. Each climate row in `DT_World_Climates` has a comfort range of ambient temperatures (starting value 10–26 °C). A character's comfort range is the climate comfort range, first shifted by the character's racial comfort offsets (`specs/character-creation/character-creation.md` Requirement 12: Sauren lower bound +6 °C, Ursan upper bound −6 °C), then with the lower bound lowered by total Insulation (total equipped Insulation plus racial built-in Insulation, e.g., Ursan Thick Hide), the upper bound raised by total equipped Cooling, and both bounds widened by WIS modifier. The Insulation, Cooling, and WIS coefficients live in `DT_Survival_Temperature`.
 12. Effective ambient temperature is the Requirement 9 ambient temperature, including the Wet modifier (Requirement 14). When effective ambient temperature is inside the character's comfort range, BodyTemperature drifts toward 37 °C. When effective ambient temperature is below the range, BodyTemperature drifts downward away from 37 °C, and when it is above the range, BodyTemperature drifts upward away from 37 °C. The outside-range drift rate is proportional to the distance outside the range. Both drift rates live in `DT_Survival_Temperature`.
 13. Temperature states and effects:
     - Cold (below 35.5 °C): stamina regen −25%.
@@ -43,7 +43,7 @@ Characters manage four survival pressures — hunger, thirst, temperature, and s
 
 ### Stamina & Fatigue
 15. Stamina is spent by dodge rolls, attacks, blocking hits, sprinting, climbing, and swimming (costs in `DT_Survival_StaminaCosts`). Stamina regenerates after a 1-second delay without spending (tuning value).
-16. Fatigue rises over time awake (starting value: 0 → 100 over 40 real-time minutes) and rises faster with stamina use: each stamina point spent adds Fatigue at the rate in `DT_Survival_DrainRates` (tuning value).
+16. Fatigue rises over time awake (starting value: 0 → 100 over 40 real-time minutes) and rises faster with stamina use: each stamina point spent adds Fatigue at the rate in `DT_Survival_DrainRates` (tuning value). A racial Fatigue multiplier (`specs/character-creation/character-creation.md` Requirement 12, Human Fleeting Vigor ×1.15) multiplies both sources.
 17. Effective MaxStamina = base MaxStamina × (1 − Fatigue / 200) × ThirstMultiplier × WeakenedMultiplier. ThirstMultiplier is the Requirement 7 max stamina multiplier (starting value 0.5) at Thirst 0, otherwise 1. WeakenedMultiplier is 1 minus the Weakened max stamina penalty from `specs/combat-loot/combat-loot.md` Requirement 17 (penalty starting value 0.2, so the multiplier is 0.8) while Weakened, otherwise 1. The multipliers stack multiplicatively. At Fatigue 100 with no other multiplier active, max stamina is 50%.
 18. Interacting with a placed bed sets that bed as the character's respawn point and puts the character in bed. The respawn point is stored in `UNamecWorldSave`, keyed by character GUID, so each world keeps its own bed per character. When that bed is destroyed or deconstructed, the respawn point is cleared, and the character respawns at the world spawn point.
 19. When every player in the session is in a bed at the same time, time skips to the next morning (06:00 in-game) and every player's Fatigue resets to 0. When at least one player is not in a bed, time does not skip, and each player in a bed loses 5 Fatigue per second (tuning value).
@@ -56,12 +56,15 @@ Characters manage four survival pressures — hunger, thirst, temperature, and s
 
 ### Swimming & Breath
 22. While swimming at 0 stamina, the character loses 2% max health per second (tuning value) until stamina regenerates above 0 or the character leaves the water.
-23. Diving underwater drains Breath, a GAS attribute in `UNamecSurvivalAttributeSet` that holds 30 seconds of air (tuning value). Breath drains while the character's head is underwater. After the head surfaces, Breath refills at a rate that takes it from empty to full in 2 seconds (tuning value). Breath is not saved: it is full on every world entry.
+23. Diving underwater drains Breath, a GAS attribute in `UNamecSurvivalAttributeSet` that holds 30 seconds of air (tuning value). A racial max Breath multiplier (`specs/character-creation/character-creation.md` Requirement 12, Sauren Amphibious ×3, 90 seconds of air at starting values) multiplies this capacity. Breath drains while the character's head is underwater. After the head surfaces, Breath refills at a rate that takes it from empty to full in 2 seconds (tuning value). Breath is not saved: it is full on every world entry.
 24. At Breath 0, the character loses 5% max health per second (tuning value) until the head surfaces.
+
+### Movement Speeds
+25. Base walk speed is 3.5 m/s and base sprint speed is 6.0 m/s (starting values in `DT_Survival_Movement`). Base swim speed and base climb speed are each 50% of base walk speed (starting values in `DT_Survival_Movement`). Racial swim and climb speed modifiers (`specs/character-creation/character-creation.md` Requirement 12) multiply the base value.
 
 ## Data Flow
 1. The survival periodic effect ticks on the server every second for each character.
-2. `UNamecSurvivalComponent` reads the character's activity state, equipped insulation/cooling, region climate from `UNamecClimateSubsystem`, nearby heat sources, and shelter state.
+2. `UNamecSurvivalComponent` reads the character's activity state, equipped insulation/cooling, racial built-in Insulation and racial comfort offsets (Requirement 11), region climate from `UNamecClimateSubsystem`, nearby heat sources, and shelter state.
 3. The component computes new Hunger, Thirst, Fatigue, and BodyTemperature values and applies them via gameplay effects.
 4. When a meter crosses a threshold, the component applies or removes the matching status gameplay effect (e.g., `GE_Freezing`).
 5. Attributes replicate to the owning client. The HUD binds to attribute-change delegates to show and hide icons.
@@ -87,7 +90,7 @@ Characters manage four survival pressures — hunger, thirst, temperature, and s
 - [ ] With 2 players both in beds, time skips to 06:00. With only 1 in bed, time does not skip.
 - [ ] Hunger/Thirst/Temperature/Fatigue icons appear only past their warning thresholds.
 - [ ] Survival meters are unchanged across save → quit → load.
-- [ ] Swimming at 0 stamina loses 2% max health per second, and staying underwater for 30 seconds empties Breath and then loses 5% max health per second.
+- [ ] Swimming at 0 stamina loses 2% max health per second, and a non-Sauren character staying underwater for 30 seconds empties Breath and then loses 5% max health per second.
 - [ ] The Breath meter appears on the HUD only while the character's head is underwater.
 
 ## Key Files
@@ -100,4 +103,5 @@ Characters manage four survival pressures — hunger, thirst, temperature, and s
 - `Content/Data/DT_Survival_DrainRates.uasset` — new.
 - `Content/Data/DT_Survival_Temperature.uasset` — new.
 - `Content/Data/DT_Survival_StaminaCosts.uasset` — new.
+- `Content/Data/DT_Survival_Movement.uasset` — new; base swim speed and base climb speed as fractions of base walk speed (Requirement 25).
 - `Content/Data/DT_Survival_Penalties.uasset` — new; starvation, dehydration, temperature, Wet, sleep, swimming exhaustion, and Breath tuning values.

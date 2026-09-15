@@ -24,7 +24,7 @@ Up to 4 players share a world through any mix of local split-screen and LAN, for
 3. Each machine supports up to 4 local players, limited by the remaining session capacity.
 
 ### Split-Screen
-4. When a controller that is not assigned to a local player presses Start during gameplay or in the lobby (the per-local-player character-select screen shown after a world is chosen and before the world loads; it is the only place local player 1 selects a character for play on the host), a join prompt appears. Confirming opens character select for that controller, and after selection the new local player spawns next to local player 1. When local player 1 is inside a sealed boss arena, the new local player spawns at their bed in this world, or at the world spawn point when no bed is set. On a client machine, the new local player registers with the host via `ServerRegisterLocalPlayers` with the same capacity, version, password, and duplicate-GUID checks as a join.
+4. When a controller that is not assigned to a local player presses Start during gameplay or in the lobby (the per-local-player character-select screen shown after a world is chosen and before the world loads; it is the only place local player 1 selects a character for play on the host), a join prompt appears. Confirming opens character select for that controller, which lists this machine's characters plus a "Create New" option that runs character creation in that viewport (`specs/character-creation/character-creation.md` Requirement 1), and after selection the new local player spawns next to local player 1. When local player 1 is inside a sealed boss arena, the new local player spawns at their bed in this world, or at the world spawn point when no bed is set. On a client machine, the new local player registers with the host via `ServerRegisterLocalPlayers` with the same capacity, version, password, and duplicate-GUID checks as a join.
 5. Viewport layouts: 1 player full screen; 2 players vertical split (side by side); 3 players one top half and two bottom quarters; 4 players quadrants.
 6. Each local player has a fully independent HUD, menus, inventory screens, crafting UI, and camera mode (first/third person) within their own viewport.
 7. Local player 1 may use keyboard and mouse or a controller. Local players 2–4 use controllers only.
@@ -35,7 +35,7 @@ Up to 4 players share a world through any mix of local split-screen and LAN, for
 ### LAN
 11. The host enables LAN hosting in world settings (on by default). The session advertises on the local network via Unreal's LAN session discovery (`OnlineSubsystemNull` with `bIsLANMatch = true`).
 12. The Join LAN Game screen lists discovered sessions with: world name, host name, current/max players, and game version.
-13. A joining machine lists its local players (1–4) and each picks a character from that machine's saves before connecting.
+13. A joining machine lists its local players (1–4) and each picks a character from that machine's saves, or creates one with "Create New" (`specs/character-creation/character-creation.md` Requirement 1), before connecting.
 14. Joining is refused with a clear message when: the session is full, the game version differs, or the joining machine has more local players than the remaining capacity.
 15. An optional world password is set in world settings. When set, joining requires entering it.
 
@@ -84,7 +84,7 @@ Up to 4 players share a world through any mix of local split-screen and LAN, for
 ## Key Files
 - `Source/NAMEC/Multiplayer/NamecSessionSubsystem.h` — new; host/find/join LAN sessions, password, version check.
 - `Source/NAMEC/Multiplayer/NamecLocalPlayerManager.h` — new; controller join prompt, local player add/remove, controller disconnect handling.
-- `Source/NAMEC/Multiplayer/NamecCharacterPayload.h` — new; serializable character state struct used for join and save sync.
+- `Source/NAMEC/Multiplayer/NamecCharacterPayload.h` — new; serializable character state struct used for join and save sync, including race, sex, and `FNamecAppearance`.
 - `Source/NAMEC/Multiplayer/NamecSplitScreenLayout.h` — new; viewport layout rules for 1–4 players.
 - `Source/NAMEC/Core/NamecGameMode.h` — new; player registration, capacity checks, spawning.
 - `Source/NAMEC/UI/Lobby/` — new; Join LAN Game list, character select per local player.

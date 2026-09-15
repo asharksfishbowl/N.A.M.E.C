@@ -7,6 +7,7 @@ N.A.M.E.C is a first/third-person 3D fantasy survival RPG for up to 4 players in
 | Spec | Covers |
 |------|--------|
 | `specs/game-foundation/game-foundation.md` | This file — project setup, glossary, save layout, data-driven tuning, platform rules |
+| `specs/character-creation/character-creation.md` | Character creation, six races with traits, sex, appearance customization, Mirror |
 | `specs/character-progression/character-progression.md` | D&D stats, character level, classes, use-based skills |
 | `specs/crafting-jobs/crafting-jobs.md` | Jobs, crafting stations, recipes, crafted item quality |
 | `specs/survival/survival.md` | Hunger, thirst, temperature, stamina, fatigue |
@@ -16,7 +17,8 @@ N.A.M.E.C is a first/third-person 3D fantasy survival RPG for up to 4 players in
 | `specs/multiplayer/multiplayer.md` | Split-screen, LAN, authority, portable characters |
 
 ## Glossary
-- **Character** — a player's persistent avatar (stats, classes, skills, jobs, inventory). Saved on the owning player's machine, portable between worlds.
+- **Character** — a player's persistent avatar (name, race, sex, appearance, stats, classes, skills, jobs, inventory). Saved on the owning player's machine, portable between worlds.
+- **Race** — one of six playable peoples (Human, Felari, Hundari, Sauren, Vanari, Ursan), each with stat bonuses, a passive, an active ability, and a downside (see character-creation spec).
 - **World** — a seeded generated map plus all terrain edits, placed structures, containers, and boss-defeat state. Saved on the host machine.
 - **Host** — the machine running the listen server. In pure split-screen play, the only machine.
 - **Local player** — one of up to 4 controllers/keyboard users on a single machine.
@@ -50,15 +52,15 @@ N.A.M.E.C is a first/third-person 3D fantasy survival RPG for up to 4 players in
 1. The project uses the latest stable Unreal Engine 5 release at project creation. The Researcher pins the exact version in the roadmap, and the version is recorded in `NAMEC.uproject`.
 2. Gameplay code is C++. Blueprints are used for content (enemy variants, item assets, UI layout), not for core system logic.
 3. Stats, abilities, damage, and status effects are built on Unreal's Gameplay Ability System (GAS). Each character owns one `UAbilitySystemComponent`. Each enemy also owns one `UAbilitySystemComponent` with an enemy attribute set (see combat-loot spec).
-4. The game module `Source/NAMEC/` is organized into subfolders: `Core/`, `Character/`, `Progression/`, `Crafting/`, `Survival/`, `World/`, `Combat/`, `Loot/`, `Inventory/`, `Multiplayer/`, `UI/`, `Save/`.
+4. The game module `Source/NAMEC/` is organized into subfolders: `Core/`, `Character/`, `Progression/`, `Crafting/`, `Survival/`, `World/`, `Combat/`, `Loot/`, `Inventory/`, `Multiplayer/`, `UI/`, `Save/`. Editor-only code (data validators) lives in a separate editor module `Source/NAMECEditor/`.
 5. All balance numbers live in DataTables under `Content/Data/`, one or more tables per system, and are named `DT_<System>_<Purpose>` (e.g., `DT_Progression_SkillXPCurve`). Per-item values (weight, damage, insulation) live in item definition data assets (see `specs/inventory/inventory.md`). Both are editable without recompiling.
 6. Save data is split into two independent save types:
-   - `UNamecCharacterSave` — one per character, stored in the local user's save directory on the machine that owns the character. Contents: character GUID and name; stats and spent/unspent stat points, classes, class levels, skill XP, boss first-kill flags, and ability bar (character-progression spec); Job levels and XP (crafting-jobs spec); survival meter values (survival spec; Breath is not saved); every item instance, equipped slots, favorites, hotkeys, and sort choice (inventory spec); the dead-respawn flag, set by any save written while the character is Downed or dead (combat-loot spec Edge Case 1); and the remaining duration of each active timed effect (Weakened, meal buff, Wet, Salty).
+   - `UNamecCharacterSave` — one per character, stored in the local user's save directory on the machine that owns the character. Contents: character GUID and name; race, sex, and `FNamecAppearance` (character-creation spec); stats and spent/unspent stat points, classes, class levels, skill XP, boss first-kill flags, and ability bar (character-progression spec); Job levels and XP (crafting-jobs spec); survival meter values (survival spec; Breath is not saved); every item instance, equipped slots, favorites, hotkeys, and sort choice (inventory spec); the dead-respawn flag, set by any save written while the character is Downed or dead (combat-loot spec Edge Case 1); and the remaining duration of each active timed effect (Weakened, meal buff, Wet, Salty).
    - `UNamecWorldSave` — one per world, stored on the host machine. Contents: world name, seed, size, voxel resolution (voxel-world spec Requirement 3), and world settings (friendly fire, LAN hosting, password); current in-game time of day and each region's current weather; terrain chunk edit deltas; placed building pieces, including crafting stations with their bound attachments and tier, and storage containers with their contents; shared world pickups (per-player loot actors are not saved); tree harvest states and forage timers; Loose Stick and Loose Stone pickup collected states and respawn timers; bed respawn points per character GUID; loot chest opened state per character GUID; and boss defeat flags. Character positions are not saved (multiplayer spec Requirement 16).
 7. Every save type carries an integer `SaveVersion`. Loading a save with an older `SaveVersion` runs a migration function; loading a newer `SaveVersion` than the build supports is refused with a user-facing message.
 8. The world autosaves every 5 minutes (tuning value, in `DT_Core_Save`) and on host exit. Character saves write on autosave, on disconnect, and on exit.
 9. All menus and HUD are navigable with a gamepad alone. Keyboard and mouse is supported for local player 1 only.
-10. Platform-specific calls (file paths, user accounts, controller pairing) go through an interface in `Source/NAMEC/Core/Platform/` so a console port swaps one implementation.
+10. Platform-specific calls (file paths, user accounts, controller pairing, on-screen text entry keyboard) go through an interface in `Source/NAMEC/Core/Platform/` so a console port swaps one implementation.
 11. The main menu offers: New World, Load World, Join LAN Game, Characters (create/delete/view), Settings, Quit.
 12. Camera supports first-person and third-person, toggled per local player with the camera toggle input (Requirement 14). The default is third-person.
 13. Performance targets on the reference PC (NVIDIA RTX 3060-class GPU, 6-core CPU, 16 GB RAM) at 1080p: 60 fps with 1–2 local viewports, 30 fps with 3–4 local viewports, using the scalability presets in `DT_MP_SplitScreenScalability`.
@@ -96,7 +98,7 @@ N.A.M.E.C is a first/third-person 3D fantasy survival RPG for up to 4 players in
 
 ## Data Flow
 1. Player launches game → main menu. The Characters screen only creates, deletes, and views characters. It does not select a character for play.
-2. Player selects New World (enters world name, seed or random, world size, and world settings per `specs/voxel-world/voxel-world.md` Requirement 5) or Load World → the lobby opens (`specs/multiplayer/multiplayer.md` Requirement 4). Local player 1 picks a character from this machine's saves, and additional local players press Start to join and each pick a character → each chosen `UNamecCharacterSave` loads into memory → host loads `UNamecWorldSave` and generates terrain from the seed, then applies saved terrain edits.
+2. Player selects New World (enters world name, seed or random, world size, and world settings per `specs/voxel-world/voxel-world.md` Requirement 5) or Load World → the lobby opens (`specs/multiplayer/multiplayer.md` Requirement 4). Local player 1 picks a character from this machine's saves or creates one with "Create New" (`specs/character-creation/character-creation.md` Requirement 1), and additional local players press Start to join and each pick or create a character → each chosen `UNamecCharacterSave` loads into memory → host loads `UNamecWorldSave` and generates terrain from the seed, then applies saved terrain edits.
 3. Local players can also join after the world loads by pressing Start (see multiplayer spec).
 4. Remote players choose Join LAN Game, discover the host, and connect, bringing their own characters.
 5. During play, systems read tuning from `Content/Data/` DataTables and mutate character state (server-authoritative) and world state.
@@ -112,7 +114,7 @@ N.A.M.E.C is a first/third-person 3D fantasy survival RPG for up to 4 players in
 - [ ] Project opens in the pinned Unreal Engine 5 version and builds with no errors.
 - [ ] `Source/NAMEC/` contains the subfolders listed in Requirement 4.
 - [ ] Changing a value in any `DT_*` table changes in-game behavior without a C++ rebuild.
-- [ ] A character created in World A can be loaded into World B with stats, classes, skills, jobs, and inventory intact.
+- [ ] A character created in World A can be loaded into World B with race, sex, appearance, stats, classes, skills, jobs, and inventory intact.
 - [ ] Killing the process during a save leaves the previous save loadable.
 - [ ] Every menu screen can be completed start-to-finish with a gamepad only.
 - [ ] Camera toggles between first- and third-person per local player.

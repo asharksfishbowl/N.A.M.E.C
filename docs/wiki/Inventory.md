@@ -10,7 +10,9 @@ Inventory is a categorized list limited by total weight. There is no grid, no sl
 
 - Each item has a weight (can be 0). A row weighs weight × quantity.
 - Carried weight includes equipped items.
-- **Max carry weight** = 150 + 10 × STR modifier + equipped bag bonus + perk and affix bonuses (starting values, tunable). STR 10 gives 150.
+- **Max carry weight** = 150 + 10 × STR modifier + equipped bag bonus + perk and affix bonuses + racial bonus (starting values, tunable).
+  - The racial bonus is +50 for an Ursan (Thick Hide) and 0 for every other race.
+  - For a non-Ursan with STR 10 and no bag, perk or affix bonuses, that gives 150.
 - There is **no hard cap**. You can always pick up, loot or receive an item.
 
 ## Over-Encumbered
@@ -28,7 +30,7 @@ It applies right away when a pickup pushes you over, or when STR drops (a debuff
 Equip load is separate from carried weight and controls dodge rolls.
 
 - **Equip load** = total weight of everything in equipment slots ÷ max equip load.
-- **Max equip load** = 40 + 3 × STR modifier + 2 × CON modifier.
+- **Max equip load** = (40 + 3 × STR modifier + 2 × CON modifier) × racial multiplier (starting values, tunable). The racial multiplier is 0.85 for a Vanari (Light Frame) and 1 for every other race.
 
 | Tier | Equip load | Dodge roll |
 |------|-----------|------------|
@@ -59,7 +61,8 @@ Each tier has its own i-frame window and roll recovery. Heavy armor can change y
 - Two-handed weapons use both hand slots.
 - Spells are not items and never go in a hand slot. They are used from the ability bar.
 - Clothing is Cloth armor category and shares the Head/Chest/Hands/Legs/Feet slots with armor.
-- Insulation and Cooling come from every equipped item in any slot, including affixes. See [Survival](Survival.md).
+- Insulation and Cooling come from every equipped item in any slot, including affixes. An Ursan's built-in Insulation adds to that total. See [Survival](Survival.md).
+- Every wearable item fits every race and sex. See [Races and Character Creation](Races-and-Character-Creation.md).
 
 ## Inventory screen
 
@@ -104,3 +107,4 @@ Each tier has its own i-frame window and roll recovery. Heavy armor can change y
 ## Source spec
 
 - [Inventory](../../specs/inventory/inventory.md)
+- [Character Creation](../../specs/character-creation/character-creation.md) (racial carry weight and equip load)

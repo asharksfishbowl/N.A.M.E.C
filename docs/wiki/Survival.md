@@ -1,6 +1,6 @@
 # Survival
 
-This page covers hunger, thirst and water types, temperature and comfort ranges, shelter, stamina, fatigue, sleep, and swimming and breath.
+This page covers hunger, thirst and water types, temperature and comfort ranges, shelter, stamina, fatigue, sleep, swimming, climbing and breath, including how races change them.
 
 ← [Home](Home.md)
 
@@ -13,7 +13,7 @@ This page covers hunger, thirst and water types, temperature and comfort ranges,
 | Body temperature | °C | Comfortable band 35.5–37.5 °C |
 | Fatigue | 0–100 | Rises while awake |
 | Stamina | 0–max stamina | Combat resource |
-| Breath | 30 s of air | Only underwater, not saved |
+| Breath | 30 s of air (90 s for Sauren) | Only underwater, not saved |
 
 - Meters update once per second (starting value, tunable).
 - Meters pause while you are Downed.
@@ -62,7 +62,7 @@ Waterskins (Leatherworker) hold 5 drinks and refill at Fresh water.
 Ambient temperature = region base temperature + time-of-day offset + weather offset (including wind) + altitude offset + nearby heat sources.
 
 - **Heat sources:** campfire, forge, torch in hand, lava. Each warms within its own radius. Overlapping sources add together, capped at the highest single source's max contribution.
-- **Wet:** applies while swimming or standing in rain without shelter, and lasts until 60 seconds (starting value, tunable) after you leave the water or the rain. While Wet, ambient temperature counts as 8 °C lower.
+- **Wet:** applies while swimming or standing in rain without shelter, and lasts until 60 seconds (starting value, tunable) after you leave the water or the rain. For a Felari it lasts twice as long. While Wet, ambient temperature counts as 8 °C lower.
 
 ### Shelter
 
@@ -71,11 +71,12 @@ You are sheltered with a roof (terrain or building piece) within 4 m overhead **
 ### Comfort range
 
 - Each region has a comfort range of ambient temperatures (starting value 10–26 °C, tunable).
-- Your personal range starts from the region's range:
-  - equipped **Insulation** lowers the lower bound (cold protection)
-  - equipped **Cooling** raises the upper bound (heat protection)
-  - your **WIS** modifier widens both bounds
-- Insulation and Cooling come from all equipped items, including Insulation and Cooling affixes.
+- Your personal range starts from the region's range, in this order:
+  1. your **race** shifts it: Sauren (Cold-Blooded) raise the lower bound by 6 °C, and Ursan (Heat-Prone) lower the upper bound by 6 °C
+  2. **Insulation** lowers the lower bound (cold protection)
+  3. equipped **Cooling** raises the upper bound (heat protection)
+  4. your **WIS** modifier widens both bounds
+- Insulation and Cooling come from all equipped items, including Insulation and Cooling affixes. An Ursan's Thick Hide adds +10 built-in Insulation on top.
 
 ### Body temperature drift
 
@@ -95,7 +96,7 @@ You are in at most one state at a time.
 
 ## Stamina
 
-- Spent by dodge rolls, attacks, blocking hits, sprinting, climbing and swimming.
+- Spent by dodge rolls, attacks, blocking hits, sprinting, climbing and swimming. Vanari pay 50% less to climb, and Felari pay 50% more to swim.
 - Regenerates after 1 second (starting value, tunable) without spending.
 - Base max stamina comes from CON.
 
@@ -112,6 +113,7 @@ At Fatigue 100 with nothing else active, max stamina is 50%.
 
 - Rises over time awake: 0 → 100 over 40 real-time minutes (starting value, tunable).
 - Rises faster with stamina use: every stamina point spent adds some Fatigue.
+- For a Human (Fleeting Vigor), both sources are 15% faster.
 
 ## Sleep and beds
 
@@ -121,10 +123,23 @@ At Fatigue 100 with nothing else active, max stamina is 50%.
 - **Not everyone in bed:** time does not skip, and each player in bed loses 5 Fatigue per second (starting value, tunable).
 - If any player is in combat (dealt or took damage from a hostile enemy within the last 10 seconds), the time skip is blocked and sleeping players see "Cannot sleep — a player is in combat".
 
-## Swimming and breath
+## Swimming, climbing and breath
+
+### Movement speeds
+
+Base walk speed is 3.5 m/s and sprint speed is 6.0 m/s. Base swim speed and base climb speed are each 50% of base walk speed (starting values, tunable). Races change them:
+
+| Race | Swim speed | Climb speed |
+|------|-----------|-------------|
+| Felari | −30% | normal |
+| Sauren | +30% | normal |
+| Vanari | normal | +50% |
+| Others | normal | normal |
+
+### Swimming and breath
 
 - Swimming costs stamina. Swimming at 0 stamina loses 2% max health per second (starting value, tunable) until stamina regenerates above 0 or you leave the water.
-- Breath holds 30 seconds of air and drains while your head is underwater.
+- Breath holds 30 seconds of air (starting value, tunable; 90 seconds for Sauren) and drains while your head is underwater.
 - After surfacing, Breath refills from empty to full in 2 seconds.
 - At Breath 0, you lose 5% max health per second until your head surfaces.
 - Breath is full every time you enter a world.
@@ -132,3 +147,4 @@ At Fatigue 100 with nothing else active, max stamina is 50%.
 ## Source spec
 
 - [Survival](../../specs/survival/survival.md)
+- [Character Creation](../../specs/character-creation/character-creation.md) (racial survival traits; see [Races and Character Creation](Races-and-Character-Creation.md))

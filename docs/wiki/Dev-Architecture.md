@@ -21,6 +21,9 @@ This page covers the engine and GAS approach, module layout, the C++ vs Blueprin
 - Derived values recalculate via attribute-change callbacks, never polled per tick.
 - The survival tick is a GAS periodic gameplay effect (1 s, starting value, tunable), not actor Tick.
 - Class abilities are `UGameplayAbility` subclasses. Core combat abilities: `GA_LightAttack`, `GA_HeavyAttack`, `GA_Dodge`, `GA_Block`, `GA_Parry`.
+- Racial active abilities are also `UGameplayAbility` subclasses (`GA_Race_SecondWind`, `GA_Race_Pounce`, `GA_Race_RallyHowl`, `GA_Race_ShedSkin`, `GA_Race_SwingLeap`, `GA_Race_MaulingRoar`), granted by the server on spawn. They are not rows in `DT_Progression_ClassAbilities`: they cost no stamina or mana, have no RequiredStat and award no class XP.
+- Racial passives and downsides are infinite-duration gameplay effects applied by the server on spawn and never removed.
+- Poison, Bleed, Burn and Frostbite buildup and active effects carry the gameplay tag `Status.Negative.Cleansable` (removed by Sauren Shed Skin).
 - Damage, incoming damage, poise damage and healing are implemented in one GAS execution calculation (`NamecDamageExecution`).
 - Gameplay effects named in the specs: `GE_Freezing`, `GE_Cold`, `GE_Hot`, `GE_Overheating`, `GE_Wet`, `GE_Salty`, starvation and dehydration effects, `GE_OverEncumbered`.
 
@@ -39,9 +42,12 @@ This page covers the engine and GAS approach, module layout, the C++ vs Blueprin
 
 `Source/NAMEC/` has these subfolders: `Core/`, `Character/`, `Progression/`, `Crafting/`, `Survival/`, `World/`, `Combat/`, `Loot/`, `Inventory/`, `Multiplayer/`, `UI/`, `Save/`.
 
+Editor-only code (data validators) lives in a separate editor module, `Source/NAMECEditor/`.
+
 ## Platform abstraction
 
-- Platform-specific calls (file paths, user accounts, controller pairing) go through `Source/NAMEC/Core/Platform/INamecPlatform.h`, so a console port swaps one implementation.
+- Platform-specific calls (file paths, user accounts, controller pairing, on-screen text entry keyboard) go through `Source/NAMEC/Core/Platform/INamecPlatform.h`, so a console port swaps one implementation.
+- Gamepad name entry uses an on-screen keyboard rendered inside the owning local player's viewport, through `INamecPlatform`, so consoles can swap in the platform keyboard. The UI font covers at least Latin Extended-A.
 - The game is fully playable with a gamepad only. Every menu can be completed with a gamepad.
 - A console port should need only a new platform session implementation. Console builds themselves are out of scope.
 
@@ -79,6 +85,15 @@ Scalability presets per viewport count come from `DT_MP_SplitScreenScalability`.
 | File | Purpose |
 |------|---------|
 | `NamecCameraComponent.h` | First/third-person toggle |
+| `Creation/NamecCharacterCreationWidget.h` | Creation step screens and navigation |
+| `Creation/NamecCharacterDraft.h` | In-progress creation state struct (`FNamecCharacterDraft`) |
+| `Creation/NamecCharacterFactory.h` | Name and option validation, starting stats, GUID, racial ability placement, save creation |
+| `Creation/NamecCharacterPreview.h` | Preview actor with rotate, zoom and preview outfits |
+| `Appearance/NamecAppearance.h` | `FNamecAppearance` struct (race ID, sex, one value per option) |
+| `Appearance/NamecAppearanceComponent.h` | Builds body and equipment visuals from race, sex and appearance; replicates appearance |
+| `Races/NamecRaceDefinition.h` | `DT_Character_Races` row struct |
+| `Races/NamecNightEyesComponent.h` | Owning-viewport night vision post-process, night and underground activation, Settings toggle |
+| `Races/Abilities/` | `GA_Race_SecondWind`, `GA_Race_Pounce`, `GA_Race_RallyHowl`, `GA_Race_ShedSkin`, `GA_Race_SwingLeap`, `GA_Race_MaulingRoar` |
 
 ### `Source/NAMEC/Progression/`
 
@@ -120,6 +135,7 @@ Scalability presets per viewport count come from `DT_MP_SplitScreenScalability`.
 | `NamecForageNode.h` | Harvestable plants |
 | `Building/NamecBuildPiece.h` | Placeable piece actor with snap points and health |
 | `Building/NamecBuildComponent.h` | Placement preview, snap, deconstruction |
+| `Building/NamecMirrorPiece.h` | Mirror build piece that opens the appearance editor |
 | `Hazards/NamecHazardVolume.h` | Poison Water and Lava contact effects (Poison buildup, Fire damage, Burn buildup) |
 | `Hazards/NamecPoisonPlant.h` | Poison Plant hazard actor applying Poison buildup on contact |
 
@@ -131,7 +147,7 @@ Scalability presets per viewport count come from `DT_MP_SplitScreenScalability`.
 | `NamecDamageExecution.h` | GAS execution calculation: outgoing damage, incoming enemy damage and poise damage, healing |
 | `Abilities/` | `GA_LightAttack`, `GA_HeavyAttack`, `GA_Dodge`, `GA_Block`, `GA_Parry` |
 | `NamecDownedComponent.h` | Downed state, bleed-out, revive interaction |
-| `AI/NamecEnemyBase.h` | Enemy base character with threat table |
+| `AI/NamecEnemyBase.h` | Enemy base character with threat table, taunt forced-target handling, and perception detection |
 | `AI/NamecEnemyAttributeSet.h` | Enemy GAS attributes (Health, MaxHealth, Poise, MaxPoise, resistances) |
 | `AI/NamecBossBase.h` | Boss base with phases, arena barrier, summon |
 
@@ -158,7 +174,7 @@ Scalability presets per viewport count come from `DT_MP_SplitScreenScalability`.
 |------|---------|
 | `NamecSessionSubsystem.h` | Host/find/join LAN sessions, password, version check |
 | `NamecLocalPlayerManager.h` | Controller join prompt, local player add/remove, controller disconnect handling |
-| `NamecCharacterPayload.h` | Serializable character state struct for join and save sync |
+| `NamecCharacterPayload.h` | Serializable character state struct for join and save sync, including race, sex and `FNamecAppearance` |
 | `NamecSplitScreenLayout.h` | Viewport layout rules for 1–4 players |
 
 ### `Source/NAMEC/Save/`
@@ -178,6 +194,13 @@ Scalability presets per viewport count come from `DT_MP_SplitScreenScalability`.
 | `Inventory/` | Inventory list, detail panel, transfer view, Favorites quick menu |
 | `Lobby/` | Join LAN Game list, character select per local player |
 | `Settings/InputRemapScreen/` | Per-local-player binding remap screen |
+| `OnScreenKeyboard/NamecOnScreenKeyboardWidget.h` | Per-viewport gamepad on-screen keyboard for name entry, used through `INamecPlatform` |
+
+### `Source/NAMECEditor/` (editor-only module)
+
+| File | Purpose |
+|------|---------|
+| `NamecWearableVariantValidator.h` | Data validator: fails the content build when a wearable item is missing any of the 12 race × sex body variants, a required ear/frill/crest/mane or tail visibility setting, or (hand armor) any of the 12 first-person variants |
 
 ### Content
 
@@ -189,6 +212,7 @@ Scalability presets per viewport count come from `DT_MP_SplitScreenScalability`.
 | `Content/Input/Actions/` | One `UInputAction` asset per input action |
 | `Content/Survival/Effects/` | `GE_Freezing`, `GE_Cold`, `GE_Hot`, `GE_Overheating`, `GE_Wet`, `GE_Salty`, starvation and dehydration effects |
 | `Content/Inventory/Effects/GE_OverEncumbered.uasset` | Over-Encumbered gameplay effect |
+| `Content/Character/Races/Effects/` | Passive and downside gameplay effects for all six races |
 
 ## Source specs
 

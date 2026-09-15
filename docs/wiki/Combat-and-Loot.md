@@ -1,6 +1,6 @@
 # Combat and Loot
 
-This page covers Souls-style combat, damage types and status effects, downed/revive/death, enemies and scaling, bosses and summoning, per-player loot, rarity and affixes, chests, and durability.
+This page covers Souls-style combat, damage types and status effects, fall damage, downed/revive/death, enemies, perception and taunts, scaling, bosses and summoning, per-player loot, rarity and affixes, chests, and durability.
 
 ← [Home](Home.md)
 
@@ -40,6 +40,11 @@ An Over-Encumbered character (carrying too much weight) also cannot dodge roll.
 - Players and enemies have Poise. Hits deal poise damage. At 0 Poise the target staggers.
 - Poise regenerates after 3 seconds (starting value, tunable) without taking hits.
 - A player's max Poise = a base value + the Poise of every equipped armor piece.
+- Poise damage comes from:
+  - the weapon (or the unarmed profile) for weapon hits
+  - each class ability's own poise damage
+  - racial abilities: Felari Pounce 60, Ursan Mauling Roar 100 (a Boss takes 25% of Mauling Roar's)
+  - each enemy attack's poise damage
 - Stagger comes only from Poise reaching 0, a guard break, or a parry.
 
 ## Damage
@@ -58,7 +63,9 @@ Damage = (WeaponBase + StatScaling + AffixFlat)
 - **RequirementPenalty:** ×0.5 for each that applies: below the weapon's stat requirements, weapon category allowed by no held class, below a class ability's required stat. They multiply.
 - **WeakenedPenalty:** 0.2 while Weakened, otherwise 0.
 - **CritMultiplier:** applies only to riposte critical hits.
-- **Unarmed:** with an empty Right Hand, or a tool or torch in it, the unarmed profile is used (STR scaling, One-Handed skill).
+- **Unarmed:** with an empty Right Hand, or a tool or torch in it, the unarmed profile is used (Blunt damage, STR scaling, One-Handed skill).
+- **Non-spell class abilities** deal a percentage of this damage (for example 150%) using the Right Hand weapon, or the unarmed profile.
+- **Felari Pounce** always uses the unarmed profile at 100%, with every penalty above applied. See [Races and Character Creation](Races-and-Character-Creation.md).
 
 Incoming enemy damage:
 
@@ -88,7 +95,18 @@ IncomingDamage = EnemyDamage × PlayerScaling × (1 − TargetResistance) × (1 
 | Burn | Fire damage over time |
 | Frostbite | Reduces stamina regen |
 
-Effects build up and last for set durations. WIS gives status-effect resistance.
+- Effects build up and last for set durations.
+- Every buildup you receive is multiplied by (1 − your status-effect resistance). WIS raises status-effect resistance.
+- A Sauren also takes 25% less Poison buildup, and has +25% Poison resistance.
+- The Sauren's Shed Skin clears all four of these effects, both the buildup and the active effect. It does not clear Weakened, Wet, Salty or survival states.
+
+### Fall damage
+
+- Landing after a fall at or above a minimum height deals fall damage: (fall distance − minimum height) × damage per meter, as a percentage of max health.
+- Fall distance is measured from the highest point of the fall.
+- Armor, resistances and blocking do not reduce it. The minimum height and damage per meter are starting values, tunable.
+- It applies to players and enemies.
+- A Felari takes no fall damage from falls under 8 m. Falls of 8 m or more deal normal damage for the full distance.
 
 ### Friendly fire
 
@@ -129,7 +147,20 @@ A world setting, off by default. When off, player attacks, spells and area effec
 - Each enemy has a level, health, poise, resistances, damage, attacks, perception radius, loot table, optional hunting yield, region and XP rewards.
 - Enemies spawn from their region's list, filtered by time of day. Spawn density and the maximum live enemies per streamed chunk are set per region.
 - Enemies never spawn within 25 m of a placed building piece or within 40 m of a player (starting values, tunable).
+
+### Perception and aggro
+
+- A Hostile enemy notices and attacks a player who is inside its perception radius **and** in its line of sight.
+- Each enemy has its own perception radius. How the radius is worked out:
+  1. Crouching halves it.
+  2. Stealth skill shrinks it further (see [Skills](Skills.md)).
+  3. A Hundari's Loud trait then makes the final radius 25% larger.
+
+### Threat and taunts
+
 - Enemies target the player with the highest threat, built from damage dealt, healing done and taunt abilities.
+- A **taunt** forces the enemy to target the taunting player for its duration. When it ends, the enemy goes back to normal threat targeting.
+- Ursan Mauling Roar taunts Hostile enemies for 6 seconds and Bosses for 3 seconds (starting values, tunable).
 
 ### Player-count scaling
 
@@ -205,3 +236,4 @@ Any boss can be re-summoned for more loot with a new offering.
 ## Source spec
 
 - [Combat and Loot](../../specs/combat-loot/combat-loot.md)
+- [Character Creation](../../specs/character-creation/character-creation.md) (racial combat traits)

@@ -19,10 +19,10 @@ Inventory is Skyrim-style: no slots or grid, just a categorized list limited by 
 ### Weight & Encumbrance
 1. Every item definition has a `Weight` (float, may be 0). An item row's total weight = `Weight × Quantity`.
 2. Carried weight = the total weight of every item the character holds, including equipped items.
-3. `MaxCarryWeight` = base 150 + 10 × STR modifier + equipped bag bonus (Requirement 12) + perk and affix bonuses (tuning values in `DT_Progression_DerivedStats`). `MaxCarryWeight` is a GAS attribute on `UNamecAttributeSet`.
+3. `MaxCarryWeight` = base 150 + 10 × STR modifier + equipped bag bonus (Requirement 12) + perk and affix bonuses + racial carry weight bonus (`specs/character-creation/character-creation.md` Requirement 12; Ursan Thick Hide +50, otherwise 0) (tuning values in `DT_Progression_DerivedStats`; the racial bonus lives in `DT_Character_Races`). `MaxCarryWeight` is a GAS attribute on `UNamecAttributeSet`.
 4. There is no hard cap. A player can always pick up, loot, or receive an item.
 5. When carried weight > `MaxCarryWeight`, the character is **Over-Encumbered**: cannot sprint or dodge roll, walk speed is 50%, and stamina regen is 50% (tuning values). A HUD icon shows while Over-Encumbered.
-6. **Equip load** is separate from carried weight and drives combat movement: equip load = the total weight of every item in an equipment slot (Requirement 12) ÷ `MaxEquipLoad`. `MaxEquipLoad` = base 40 + 3 × STR modifier + 2 × CON modifier (tuning values in `DT_Progression_DerivedStats`) and is a GAS attribute on `UNamecAttributeSet`. Dodge-roll tiers in `specs/combat-loot/combat-loot.md` Requirement 3 use equip load.
+6. **Equip load** is separate from carried weight and drives combat movement: equip load = the total weight of every item in an equipment slot (Requirement 12) ÷ `MaxEquipLoad`. `MaxEquipLoad` = (base 40 + 3 × STR modifier + 2 × CON modifier) × racial equip load multiplier (`specs/character-creation/character-creation.md` Requirement 12; Vanari Light Frame 0.85, otherwise 1) (tuning values in `DT_Progression_DerivedStats`; the racial multiplier lives in `DT_Character_Races`) and is a GAS attribute on `UNamecAttributeSet`. Dodge-roll tiers in `specs/combat-loot/combat-loot.md` Requirement 3 use equip load.
 
 ### Inventory Screen
 7. The inventory screen is a vertical list with category tabs: All, Favorites, Weapons, Armor, Clothing, Tools, Runes, Potions, Food, Ingredients, Materials, Building, Misc.
@@ -33,7 +33,7 @@ Inventory is Skyrim-style: no slots or grid, just a categorized list limited by 
 
 ### Equipment Slots
 12. Equipment slots: Head, Chest, Hands, Legs, Feet, Cloak, Back, Neck, Ring ×2, Right Hand, Left Hand, Ammo. Two-handed weapons occupy both hand slots. Hand slots hold only weapons, shields, tools, and torches. Spells are class abilities, not items, and are used from the ability bar (Requirement 17). Tailor bags equip in the Back slot and add `MaxCarryWeight` by the bonus value on the bag's item definition. Arrows equip in the Ammo slot.
-13. Clothing (Tailor) and armor share the Head/Chest/Hands/Legs/Feet slots. Clothing has the Cloth armor category (`specs/character-progression/character-progression.md` Requirement 27). Insulation and Cooling come from every equipped item in any equipment slot, including Insulation and Cooling affixes.
+13. Clothing (Tailor) and armor share the Head/Chest/Hands/Legs/Feet slots. Clothing has the Cloth armor category (`specs/character-progression/character-progression.md` Requirement 27). Insulation and Cooling come from every equipped item in any equipment slot, including Insulation and Cooling affixes. Racial built-in Insulation (`specs/character-creation/character-creation.md` Requirement 12) adds to this total (`specs/survival/survival.md` Requirement 11).
 
 ### Favorites & Hotkeys
 14. Any weapon, shield, tool, torch, or consumable can be marked Favorite.
@@ -64,7 +64,7 @@ Inventory is Skyrim-style: no slots or grid, just a categorized list limited by 
 7. When a storage container is destroyed or deconstructed, its contents drop at the container's location as shared world pickups.
 
 ## Acceptance Criteria
-- [ ] A character with STR 10 has `MaxCarryWeight` 150.
+- [ ] A non-Ursan character with STR 10 and no bag, perk, or affix bonuses has `MaxCarryWeight` 150.
 - [ ] Picking up items past `MaxCarryWeight` succeeds and disables sprint and dodge roll.
 - [ ] Dropping items back under `MaxCarryWeight` removes Over-Encumbered.
 - [ ] Dodge-roll tier changes when heavy armor is equipped even if carried weight is unchanged.

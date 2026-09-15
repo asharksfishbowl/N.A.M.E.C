@@ -8,6 +8,10 @@ This page covers the pitch, core loop, design pillars, camera and player count o
 
 N.A.M.E.C is a first/third-person 3D fantasy survival RPG for up to 4 players in local split-screen and LAN co-op. Players explore a seeded, smooth-voxel world of distinct climate regions, dig and build freely, level skills by using them, craft through independent Jobs, and fight Souls-like enemies and bosses that gate progression.
 
+## Creating a character
+
+Each player creates a character by choosing a race (Human, Felari, Hundari, Sauren, Vanari or Ursan), a sex (cosmetic only), an appearance, a starting class and a name. See [Races and Character Creation](Races-and-Character-Creation.md).
+
 ## Core loop
 
 1. **Gather**: collect loose sticks and stones, forage plants, chop trees, mine stone and ore. See [World and Building](World-and-Building.md).
@@ -23,7 +27,7 @@ The final (Volcanic) boss gates nothing. It drops a guaranteed Legendary item an
 | Pillar | What it means in play |
 |--------|-----------------------|
 | Learn by doing | Every repeated action (swinging an axe, casting a fireball, sprinting) raises its skill and improves that action. Skill use also feeds character XP. |
-| D&D-style character | Six stats (STR, DEX, CON, INT, WIS, CHA) with modifiers, 11 classes, up to four classes combined by level 40. |
+| D&D-style character | Six playable races, each with stat bonuses, a passive, an active ability and a downside. Six stats (STR, DEX, CON, INT, WIS, CHA) with modifiers, 11 classes, up to four classes combined by level 40. |
 | Jobs are separate from combat | Any character can level any of the 9 crafting Jobs. Job XP never feeds character XP. |
 | Climate matters | Each of the 8 regions has its own survival pressure (heat, cold, poison, altitude, lava). |
 | Diggable, buildable world | Smooth (never blocky) voxel terrain that can be dug, filled and reshaped, plus snap-together building. |
@@ -54,3 +58,4 @@ See [Co-op and Controls](Co-op-and-Controls.md).
 ## Source spec
 
 - [Game Foundation](../../specs/game-foundation/game-foundation.md)
+- [Character Creation](../../specs/character-creation/character-creation.md) (races)

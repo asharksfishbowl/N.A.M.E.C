@@ -4,11 +4,17 @@ This page covers the six stats, character level and stat points, class slots, th
 
 ← [Home](Home.md)
 
-Characters grow along three independent tracks: stats (from character level), classes (combat abilities), and use-based skills (see [Skills](Skills.md)). Crafting Jobs are a fourth, separate track (see [Crafting and Jobs](Crafting-and-Jobs.md)). There is no respec or reset, and there are no races or backgrounds.
+Characters grow along three independent tracks: stats (from character level), classes (combat abilities), and use-based skills (see [Skills](Skills.md)). Crafting Jobs are a fourth, separate track (see [Crafting and Jobs](Crafting-and-Jobs.md)). There is no respec or reset, and there are no backgrounds. Races are covered in [Races and Character Creation](Races-and-Character-Creation.md).
 
 ## The six stats
 
-Every stat starts at 10. The starting class adds its stat bonuses at creation (for example, Warrior +2 STR, +1 CON). Stat scores cap at 30 (starting value, tunable).
+Every stat starts at 10. At creation, your race and your starting class each add their stat bonuses, and both are permanent:
+
+```
+Starting stat = 10 + race bonus + starting class bonus
+```
+
+For example, a Human (+1 to all six stats) Warrior (+2 STR, +1 CON) starts with STR 13, CON 12 and every other stat 11. Stat scores cap at 30 (starting value, tunable).
 
 | Stat | Affects |
 |------|---------|
@@ -17,7 +23,7 @@ Every stat starts at 10. The starting class adds its stat bonuses at creation (f
 | CON | Max health, health regen, base max stamina, max equip load, resistance to hunger/thirst drain |
 | INT | Destruction and Arcane spell power, max mana, Destruction and Arcane spell requirements |
 | WIS | Restoration and Nature spell power, mana regen, status-effect resistance, temperature tolerance, Restoration and Nature spell requirements, healing from class abilities |
-| CHA | Strength and radius of party buffs and auras (Bard, Paladin, Cleric abilities) |
+| CHA | Strength and radius of party buffs and auras (Bard, Paladin, Cleric abilities, and the Hundari's Rally Howl) |
 
 ## Modifier formula
 
@@ -109,7 +115,11 @@ Example: a Mage wearing Leather gets 50% of its Armor. A Ranger wearing the same
 
 ## Ability bar
 
-Up to 6 abilities (starting value, tunable), drawn from any held classes.
+Up to 6 abilities (starting value, tunable), drawn from any held classes plus your racial ability.
+
+- Your racial ability always takes one slot and cannot be removed, so you can equip up to 5 class abilities. It starts in the last slot (slot 6).
+- Moving an ability onto an occupied slot swaps the two.
+- Racial abilities cost no stamina or mana, have no stat requirement and give no class XP. See [Races and Character Creation](Races-and-Character-Creation.md).
 
 | Slot | Gamepad | Keyboard |
 |------|---------|----------|
@@ -129,3 +139,4 @@ A level-up of any skill, class or character level shows a toast on the owning pl
 ## Source spec
 
 - [Character Progression](../../specs/character-progression/character-progression.md)
+- [Character Creation](../../specs/character-creation/character-creation.md) (racial stat bonuses and the racial ability slot)

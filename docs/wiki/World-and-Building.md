@@ -77,7 +77,7 @@ See [Combat and Loot](Combat-and-Loot.md) for bosses and [Survival](Survival.md)
 
 - Liquids never flow. Digging next to a lake or lava pool leaves a dry hole.
 - Digging under a building piece or a tree leaves it in place.
-- Digging out ground under another player makes them fall and take fall damage.
+- Digging out ground under another player makes them fall and take fall damage (see [Combat and Loot](Combat-and-Loot.md)).
 - Edits are shared with every player and saved with the world.
 
 ## Trees
@@ -108,7 +108,7 @@ Loose pickups and fiber are how a character with nothing starts crafting. See [C
 
 - Hold a **Hammer** to open the build menu and place pieces: walls, floors, roofs, stairs, doors, windows, beams, fences.
 - Pieces come from Carpenter (wooden) and Mason (stone) recipes.
-- Crafting stations, station upgrade attachments, storage containers, beds, training dummies and other furniture are also building pieces.
+- Crafting stations, station upgrade attachments, storage containers, beds, training dummies, Mirrors and other furniture are also building pieces. A Mirror lets you change your appearance (see [Races and Character Creation](Races-and-Character-Creation.md)).
 - Pieces snap to other pieces' snap points, or place freely on terrain when no snap point is in range.
 - There is **no structural integrity**. A piece never collapses from lack of support.
 - Each piece has health and a material tier (wood, stone, reinforced, etc.).

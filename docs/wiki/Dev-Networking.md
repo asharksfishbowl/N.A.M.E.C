@@ -17,7 +17,7 @@ This page covers listen-server authority, the host/find/join session flow, chara
 1. **Host:** New World or Load World opens the lobby. `UNamecSessionSubsystem::HostSession(WorldSettings)` creates the LAN session and loads the map. The host loads `UNamecWorldSave`, generates terrain from the seed, then applies saved edits.
 2. **Discovery:** LAN session discovery via `OnlineSubsystemNull` with `bIsLANMatch = true` (configured in `Config/DefaultEngine.ini`). LAN hosting is a world setting, on by default.
 3. **Find:** the remote machine opens Join LAN Game. `FindSessions` lists sessions with world name, host name, current/max players and game version.
-4. **Select:** the joining machine lists its local players (1–4), and each picks a character from that machine's saves.
+4. **Select:** the joining machine lists its local players (1–4), and each picks a character from that machine's saves or creates one with "Create New" (character creation runs locally, before connecting).
 5. **Join:** `JoinSession` connects.
 6. **Register:** the client sends `ServerRegisterLocalPlayers(Array<CharacterPayload>)`. The host validates, then spawns pawns and initializes components from the payloads.
 
@@ -45,6 +45,7 @@ Two local players on one machine selecting the same character are blocked locall
 - On clean disconnect or exit, a final `ClientSaveCharacter` is sent before the connection closes.
 - On an unexpected drop, no final send arrives. The client saves its last received payload, which is the last autosave (up to 5 minutes, starting value, tunable, of progress lost).
 - Character inventory is part of the payload and leaves with the player. World containers stay in the world save.
+- The payload carries race, sex and `FNamecAppearance`. On spawn, the server applies the racial passive and downside effects, grants the racial active ability, and replicates race, sex and appearance to all clients.
 
 ## Spawning
 
@@ -60,6 +61,12 @@ Two local players on one machine selecting the same character are blocked locall
 - Terrain edits are applied on the server in receive order and replicated to all clients, which re-mesh affected chunks. Late joiners receive edit deltas for chunks within their streaming radius, then more as chunks stream in.
 - Each local viewport's streaming radius is a separate chunk streaming source.
 - Progression state replicates to the owning client. Survival attributes replicate to the owning client.
+
+### Appearance replication
+
+- Race, sex and appearance replicate to all clients (`NamecAppearanceComponent`). Each client builds the character's visual locally from race, sex, appearance and equipped items, picking the matching race × sex variant of every equipped item.
+- **Mirror:** the client sends `ServerSetAppearance(FNamecAppearance)`. The server checks that the race and sex match the character, every option index is in range, and the player is within the Mirror's interaction range, then applies and replicates. A request with a different race or sex, or out-of-range indexes, is rejected and the appearance is unchanged.
+- **Local-only racial visuals:** Felari Night Eyes (post-process) and Hundari Keen Nose outlines render only in the owning local player's viewport. Keen Nose finds outlined actors with local queries, with no replication.
 
 ### Per-player loot relevance
 
@@ -95,3 +102,4 @@ Pause menu: the world pauses only in a session with one player total.
 - [Multiplayer](../../specs/multiplayer/multiplayer.md)
 - [Combat and Loot](../../specs/combat-loot/combat-loot.md) (Requirement 28, Edge Cases 1 and 4)
 - [Voxel World](../../specs/voxel-world/voxel-world.md) (Requirement 15, Edge Cases 6–7)
+- [Character Creation](../../specs/character-creation/character-creation.md) (Requirements 13 and 24, Data Flow 4–6, Edge Case 3)

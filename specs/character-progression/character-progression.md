@@ -12,13 +12,14 @@ Characters grow along three independent tracks: D&D-style stats raised with poin
 - Crafting Job leveling (see `specs/crafting-jobs/crafting-jobs.md`).
 - Combat damage formulas beyond which stat and skill feed them (see `specs/combat-loot/combat-loot.md`).
 - Respec/reset mechanics.
-- Races or backgrounds.
+- Races, sex, and appearance (see `specs/character-creation/character-creation.md`).
+- Backgrounds.
 
 ## Requirements
 
 ### Stats
-1. Each character has six stats: STR, DEX, CON, INT, WIS, CHA. Each starts at 10.
-2. At creation, the chosen starting class applies its stat bonuses from `DT_Progression_Classes` (e.g., Warrior +2 STR, +1 CON).
+1. Each character has six stats: STR, DEX, CON, INT, WIS, CHA. Each starts at 10 before racial and class bonuses.
+2. At creation, the chosen race applies its stat bonuses (`specs/character-creation/character-creation.md` Requirement 9) and the chosen starting class applies its stat bonuses from `DT_Progression_Classes` (e.g., Warrior +2 STR, +1 CON). Both are permanent and add together.
 3. Stat modifier = `floor((score - 10) / 2)`.
 4. Stat scores are capped at 30 (tuning value).
 5. Stats drive these derived values (coefficients live in `DT_Progression_DerivedStats`):
@@ -27,7 +28,7 @@ Characters grow along three independent tracks: D&D-style stats raised with poin
    - CON — max health, health regen, base MaxStamina, MaxEquipLoad, resistance to hunger/thirst drain.
    - INT — Destruction and Arcane spell power, max mana, Destruction and Arcane spell requirements.
    - WIS — Restoration and Nature spell power, mana regen, status-effect resistance, temperature tolerance, Restoration and Nature spell requirements.
-   - CHA — strength and radius of party buffs and auras (Bard, Paladin, Cleric abilities).
+   - CHA — strength and radius of party buffs and auras (Bard, Paladin, Cleric abilities, and Hundari Rally Howl; `specs/character-creation/character-creation.md` Requirement 27).
 6. Stats are implemented as GAS attributes on `UNamecAttributeSet`, together with Health, MaxHealth, HealthRegen, Mana, MaxMana, ManaRegen, MaxCarryWeight, MaxEquipLoad, Poise, MaxPoise, Armor, StatusResistance, and one resistance attribute per damage type (SlashResistance, PierceResistance, BluntResistance, FireResistance, FrostResistance, LightningResistance, PoisonResistance, HolyResistance, ShadowResistance; see `specs/combat-loot/combat-loot.md` Requirement 9). Stamina, MaxStamina, and StaminaRegen live in `UNamecSurvivalAttributeSet` (see survival spec). Derived values are recalculated via GAS attribute-change callbacks, never polled per tick.
 
 ### Character Level
@@ -44,7 +45,7 @@ Characters grow along three independent tracks: D&D-style stats raised with poin
 15. All held classes are active simultaneously. The player can equip and use any ability, weapon, or armor category allowed by any held class. Any character can also equip a weapon or armor piece of a category no held class allows. Such a weapon deals 50% damage, and such an armor piece gives 50% of its Armor and resistance values (Requirement 28), using the penalty value of `specs/combat-loot/combat-loot.md` Requirement 36. This category penalty multiplies with any stat-requirement penalty on the same item.
 16. Each class defines 8 abilities (starting count). Abilities are GAS `UGameplayAbility` subclasses. Spells are class abilities tagged with one magic school (Destruction, Restoration, Nature, or Arcane). Spells are not items. Each ability row in `DT_Progression_ClassAbilities` has: owning class, unlock class level, base XP, school (optional; set only for spells), mana cost, stamina cost, cooldown, base damage (set only for spells), WeaponDamagePercent (set only for non-spell abilities that deal damage; e.g., 1.5), BaseHealing (set only for abilities that heal), PoiseDamage, RequiredStat, and RequiredValue. Healing uses the formula in `specs/combat-loot/combat-loot.md` Requirement 39, and poise damage follows `specs/combat-loot/combat-loot.md` Requirement 38. A spell's damage uses its base damage, and a non-spell ability's damage is WeaponDamagePercent × the weapon damage of the Right Hand weapon, or of the Unarmed weapon profile when the Right Hand is empty or holds a tool or torch (`specs/combat-loot/combat-loot.md` Requirement 8). When the caster's RequiredStat score is below RequiredValue, the ability deals 50% damage and healing, using the same penalty value as `specs/combat-loot/combat-loot.md` Requirement 36.
 17. Each held class has its own class level (1–20, tuning value). Class XP is awarded each time one of that class's abilities hits a target or completes its effect, with base XP per ability in `DT_Progression_ClassAbilities` and required XP per class level in `DT_Progression_ClassXPCurve`. Class XP feeds character XP at the same 25% share as skill XP. Each ability unlocks at the class level listed in `DT_Progression_ClassAbilities`, and a newly held class starts at class level 1 with its level-1 abilities.
-18. The player equips up to 6 abilities on an ability bar (tuning value), drawn from any held classes. Ability bar inputs:
+18. The player equips up to 6 abilities on an ability bar (tuning value), drawn from any held classes plus the character's racial active ability (`specs/character-creation/character-creation.md` Requirement 11). The racial active ability always occupies one bar slot and cannot be removed, so at most 5 class abilities are equipped at the starting bar size. Moving an ability onto an occupied slot swaps the two abilities. Ability bar inputs:
     - Gamepad: hold LB and press A, B, X, or Y for abilities 1–4, and hold LB and press RB or RT for abilities 5–6. Block is on LT.
     - Keyboard: Z, X, C, V, B, N for abilities 1–6.
     
@@ -69,7 +70,7 @@ Characters grow along three independent tracks: D&D-style stats raised with poin
     - Sprinting — each full second spent sprinting while stamina is draining.
     - Climbing — each meter climbed. Any terrain or building surface steeper than 60° is climbable by holding the jump input (gamepad A, keyboard Space; `specs/game-foundation/game-foundation.md` Requirement 14) against it, draining stamina per second. At 0 stamina the character falls.
     - Swimming — each meter swum.
-    - Stealth — each second spent crouched, undetected (the enemy has not perceived or aggroed the character), and inside the perception radius of a hostile enemy. Enemy perception radius is defined per enemy in `DT_Combat_Enemies`. Crouching halves it, and Stealth skill reduces it further per `DT_Progression_SkillBonuses`.
+    - Stealth — each second spent crouched, undetected (the enemy has not perceived or aggroed the character), and inside the perception radius of a hostile enemy. Enemy perception radius is defined per enemy in `DT_Combat_Enemies`. Crouching halves it, and Stealth skill reduces it further per `DT_Progression_SkillBonuses`. Detection, aggro, and the final radius (including racial multipliers) follow `specs/combat-loot/combat-loot.md` Requirement 41.
     - Magic schools — each cast of a spell (a class ability tagged with that school, Requirement 16) that hits a target or completes its effect.
 22. XP per use scales with target difficulty: `baseXP × difficultyMultiplier`, where the difficulty multiplier comes from the target's tier (ore tier, tree tier, enemy level relative to the player's character level) in `DT_Progression_SkillXPSources`.
 23. Each skill level gives a passive bonus to its action (e.g., Mining level raises dig speed and ore yield chance). Per-level bonuses live in `DT_Progression_SkillBonuses`.
@@ -91,8 +92,8 @@ Characters grow along three independent tracks: D&D-style stats raised with poin
 ## Data Flow
 1. Player performs an action (e.g., a pickaxe removes an ore voxel).
 2. The system handling the action (e.g., `UNamecTerrainEditComponent`) calls `UNamecProgressionComponent::AwardSkillXP(SkillId, SourceId, Difficulty)` on the server.
-3. `UNamecProgressionComponent` looks up base XP in `DT_Progression_SkillXPSources`, applies the difficulty multiplier, adds the XP to the skill, and checks the skill XP curve for level-up.
-4. The same call adds `skillXP × 25%` to character XP and checks the character XP curve.
+3. `UNamecProgressionComponent` looks up base XP in `DT_Progression_SkillXPSources`, applies the difficulty multiplier, applies the skill XP gain multiplier `1 + RacialSkillXPBonus + AffixSkillXPBonus`, where RacialSkillXPBonus is the race's skill XP bonus (`specs/character-creation/character-creation.md` Requirement 12; Human Versatile 0.10, otherwise 0) and AffixSkillXPBonus is the total "+skill XP gain" affix bonus for that skill (`specs/combat-loot/combat-loot.md` Requirement 32), adds the XP to the skill, and checks the skill XP curve for level-up.
+4. The same call adds `skillXP × 25%` (skill XP after the step 3 multipliers) to character XP and checks the character XP curve.
 5. On level-up, the component updates GAS attributes and passive bonuses, grants a stat point if character level changed, unlocks a class slot if a milestone was reached, and broadcasts `OnSkillLevelUp` / `OnCharacterLevelUp`.
 6. Progression state replicates to the owning client. The HUD listens to the broadcasts and shows a toast.
 7. On save, `UNamecProgressionComponent` serializes stats, spent/unspent points, classes, class levels, skill XP, boss first-kill flags, and equipped ability bar into `UNamecCharacterSave`.
@@ -107,7 +108,7 @@ Characters grow along three independent tracks: D&D-style stats raised with poin
 7. When a player unlocks a class slot but has not chosen a class, the slot stays open and the Character screen shows a notification badge until filled.
 
 ## Acceptance Criteria
-- [ ] A new character's stats are 10 across the board plus the starting class's bonuses.
+- [ ] A new character's stats are 10 across the board plus the race's and the starting class's bonuses.
 - [ ] Mining 20 stone voxels raises Mining XP by the amount defined in `DT_Progression_SkillXPSources`, and raises character XP by 25% of that.
 - [ ] Reaching character level 10 opens a second class slot, and choosing a class lets the player equip that class's abilities.
 - [ ] Each character level-up adds exactly 1 unspent stat point, and spending it increases the chosen stat by 1.

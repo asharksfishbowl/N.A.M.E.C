@@ -29,7 +29,8 @@ This page covers split-screen layouts, joining, LAN play, portable characters, d
 ### Joining locally
 
 - **Lobby:** after choosing New World or Load World, local player 1 picks a character. Others press Start on an unassigned controller to join and pick theirs.
-- **Mid-game:** press Start on an unassigned controller, confirm the prompt, pick a character. The new player spawns next to local player 1. If player 1 is inside a sealed boss arena, the new player spawns at their bed in this world, or the world spawn point.
+- **Create New:** every character select (lobby, mid-game join and LAN join) also has a "Create New" option that runs character creation inside that player's viewport. See [Races and Character Creation](Races-and-Character-Creation.md).
+- **Mid-game:** press Start on an unassigned controller, confirm the prompt, pick or create a character. The world keeps running while you create one, and cancelling returns you to character select. The new player spawns next to local player 1. If player 1 is inside a sealed boss arena, the new player spawns at their bed in this world, or the world spawn point.
 - Two local players cannot pick the same character ("Character already in use").
 
 ### Leaving and pausing
@@ -37,13 +38,13 @@ This page covers split-screen layouts, joining, LAN play, portable characters, d
 - Local players 2–4 can leave from the pause menu. Their character saves and the layout re-flows.
 - If local player 1 on a client machine leaves, every local player on that machine disconnects. If local player 1 on the host leaves, the session ends.
 - The pause menu only pauses the world when there is exactly one player in the session.
-- **Controller disconnect** (for example a dead battery): that player's input pauses and "Reconnect controller" shows in their viewport only. Their character stays in the world. The world pauses only if every player is on the host machine.
+- **Controller disconnect** (for example a dead battery): that player's input pauses and "Reconnect controller" shows in their viewport only. Their character stays in the world. The world pauses only if every player is on the host machine. A character being created at the time is kept until the controller reconnects.
 
 ## LAN
 
 - The host turns on LAN hosting in world settings (on by default). No port forwarding, accounts or internet needed.
 - **Join LAN Game** lists sessions with world name, host name, current/max players and game version.
-- The joining machine lists its local players (1–4), and each picks a character before connecting.
+- The joining machine lists its local players (1–4), and each picks a character (or creates one with "Create New") before connecting.
 - An optional world password must be entered to join.
 - A join is refused with a clear message when:
   - the session is full ("Session full")
@@ -89,7 +90,7 @@ All bindings are defaults and can be remapped per local player in Settings. Chor
 | Block | LT | Right mouse button |
 | Parry | LB + LT | Left Alt + right mouse button |
 | Abilities 1–4 | LB + A / B / X / Y | Z / X / C / V |
-| Abilities 5–6 | LB + RB / LB + RT | B / N |
+| Abilities 5–6 (one bar slot always holds your racial ability) | LB + RB / LB + RT | B / N |
 | Lock-on toggle | R3 | Tab |
 | Cycle lock-on target (while locked on) | Flick right stick | Flick mouse |
 | Crouch | L3 | Left Ctrl |
@@ -109,3 +110,4 @@ Some controls are not decided yet (tools, shovel mode, build menu, bow, fishing 
 
 - [Multiplayer](../../specs/multiplayer/multiplayer.md)
 - [Game Foundation](../../specs/game-foundation/game-foundation.md) (controls)
+- [Character Creation](../../specs/character-creation/character-creation.md) ("Create New")

@@ -9,6 +9,7 @@ This page indexes the system specs, explains how the wiki relates to them, and s
 | Spec | Covers | Wiki pages |
 |------|--------|------------|
 | [game-foundation](../../specs/game-foundation/game-foundation.md) | Project setup, glossary, save layout, data-driven tuning, platform rules, default input bindings | [Game Overview](Game-Overview.md), [Co-op and Controls](Co-op-and-Controls.md), [Architecture](Dev-Architecture.md), [Save System](Dev-Save-System.md) |
+| [character-creation](../../specs/character-creation/character-creation.md) | Character creation, six races with traits, sex, appearance customization, Mirror | [Races and Character Creation](Races-and-Character-Creation.md), [Save System](Dev-Save-System.md), [Networking](Dev-Networking.md) |
 | [character-progression](../../specs/character-progression/character-progression.md) | D&D stats, character level, classes, use-based skills | [Stats and Classes](Stats-and-Classes.md), [Skills](Skills.md) |
 | [crafting-jobs](../../specs/crafting-jobs/crafting-jobs.md) | Jobs, crafting stations, recipes, crafted item quality | [Crafting and Jobs](Crafting-and-Jobs.md) |
 | [survival](../../specs/survival/survival.md) | Hunger, thirst, temperature, stamina, fatigue | [Survival](Survival.md) |

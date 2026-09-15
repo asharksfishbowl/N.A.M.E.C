@@ -13,6 +13,7 @@ The wiki is a readable summary. The specs in `specs/` are authoritative (see [Sp
 ## Game Guide
 
 - [Game Overview](Game-Overview.md): pitch, core loop, pillars, camera, player count
+- [Races and Character Creation](Races-and-Character-Creation.md): creation steps, six races and their traits, male/female, appearance, names, the Mirror
 - [Stats and Classes](Stats-and-Classes.md): six stats, character level, 11 classes, armor categories, ability bar
 - [Skills](Skills.md): use-based skills, XP sources, perks, anti-farming rules
 - [Crafting and Jobs](Crafting-and-Jobs.md): 9 Jobs, stations, hand-crafting, tiers, quality, runes, repair
