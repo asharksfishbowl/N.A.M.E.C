@@ -137,10 +137,15 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 
 | File | Purpose |
 |------|---------|
-| `NamecWorldGenerator.h` | Seeded region layout, heightfield, caves, placement |
+| `Map/NamecVoxelMapAsset.h` | The baked map asset: map id, revision, per-chunk base hashes, extent, bedrock depth, authoring seed, compressed base voxel data |
+| `NamecVoxelWriteKernel.h` | The one sphere-edit writer, shared by runtime dig/fill and the bake's stroke replay |
+| `NamecMapFunctionLibrary.h` | Per-chunk PCG seed and authored exclusion volumes for PCG graphs |
+| `Structures/` | Authored structure actors: town, camp, ruin, boss arena, spawn point, chest point, water volume, expansion region, and the structure id component |
+| `Save/NamecWorldLoader.h` | Map id, revision and hash load rule; fills pending terrain markers |
+| `NAMECEditor/Map/` | Bake commandlet and stateless bake passes, sculpt brush editor mode, map validator |
 | `NamecVoxelWorld.h` | Voxel chunk storage, streaming, and the custom C++ mesher producing non-Nanite chunk meshes with tight bounds |
 | `NamecTerrainEditComponent.h` | Dig/fill/mine requests and validation, shovel Dig/Fill mode and selected fill material (Dig and Soil defaults, saved per character, "No <material>" and "Not enough <material>") |
-| `NamecDigDepthQuery.h` | Per-column lookup of the nearest generated air voxel, used for the dig depth limit |
+| `NamecDigDepthQuery.h` | Per-column lookup of the nearest base air voxel in the baked map, used for the dig depth limit |
 | `NamecClimateSubsystem.h` | Region lookup, day/night, weather |
 | `NamecTreeActor.h` | Tree health, felling (swap to a simulating actor with the same Nanite mesh), the stump actor and its shovel removal (Wood and Woodcutting XP, not a terrain edit), regrowth at the stump's origin |
 | `NamecForageNode.h` | Harvestable plants |
@@ -278,7 +283,10 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 | `Content/AI/Enemies/` | StateTree assets for enemies, bosses, Bandits, Beastmen and raiders |
 | `Content/AI/TownNPCs/` | StateTree and Smart Object assets for town and escort NPCs |
 | `Content/AI/SmartObjects/` | Smart Object definition for lootable pickups |
-| `Content/World/PCG/` | Runtime seeded PCG graphs for placement |
+| `Content/World/PCG/` | Runtime PCG graphs for placement, seeded per chunk from the map's authoring seed |
+| `Content/Map/Source/` | Versioned map inputs: heightfield tiles, masks, stroke log, bake settings |
+| `Content/Map/Baked/` | Gitignored bake output (the map assets) |
+| `Content/Placeholder/` | Gitignored third-party placeholder art |
 | `Content/Maps/Benchmark/L_Benchmark_SplitScreen.umap` | Benchmark milestone scene |
 
 ## Source specs

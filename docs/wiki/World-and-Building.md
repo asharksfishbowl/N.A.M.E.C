@@ -1,30 +1,41 @@
 # World and Building
 
-This page covers world sizes and seeds, the 8 regions and their boss gates, day/night and weather, digging, filling and mining, dig depth, towns and camps, trees, forage and loose pickups, hazards, and building.
+This page covers the one authored map and how it is patched, the 8 regions and their boss gates, day/night and weather, digging, filling and mining, dig depth, towns and camps, trees, forage and loose pickups, hazards, and building.
 
 ← [Home](Home.md)
 
 ## The world
 
-- A large, finite, seeded map of smooth (never blocky) voxel terrain. Terrain can be dug, filled and reshaped anywhere outside town protected areas, down to the dig depth limit.
+- One large, finite, hand-authored map of smooth (never blocky) voxel terrain. Every world is a play-through of the same map. Terrain can be dug, filled and reshaped anywhere outside town protected areas, down to the dig depth limit.
 - Surrounded by an impassable ocean edge. There is no sailing.
-- A bedrock layer at a fixed depth (per world size) cannot be dug through.
-- Caves generate underground in every region and hold that region's higher-tier ore. Caves are procedural only. There are no handcrafted dungeons. Every cave connects to the surface, so you can walk in without digging too deep.
-- Generation also places ruins (surface structures), kingdom capitals and towns, Bandit and Beastmen camps, and loot chests in caves, ruins and camps.
+- A bedrock layer at a fixed depth cannot be dug through.
+- Caves exist underground in every region and hold that region's higher-tier ore. They are carved when the map is baked, from the map's authoring seed and per-region cave settings, and the author can add or reshape them by hand. There are no handcrafted dungeon levels. Every cave connects to the surface, so you can walk in without digging too deep.
+- Ruins, kingdom capitals and towns, Bandit and Beastmen camps, boss arenas and loot chests are placed by hand in the editor. A validator refuses to save the map if a rule is broken (one capital and two towns per kingdom in its home region, no towns in Snowy Mountains or Volcanic, no overlapping protected areas, one boss arena per region).
+- Trees, forage, loose pickups and rocks are scattered at runtime from the map's authoring seed, so every machine sees them in the same places, and never inside towns, camps, arenas or reserved regions.
+
+## How the map is made
+
+The authored inputs are a heightfield, region and material masks, and a text log of sculpt strokes, all versioned in git. A bake tool on a developer PC turns them into the map asset the game ships. Baking the same inputs twice gives a byte-identical asset. See `specs/authored-map/authored-map.md`.
 
 ## Creating a world
 
 | Setting | Options |
 |---------|---------|
 | World name | Free text |
-| Seed | Integer, random by default |
-| Size | Small 4×4 km, Medium 8×8 km (default), Large 12×12 km |
 | Friendly fire | Off (default) or on |
 | LAN hosting | On (default) or off |
 | Password | Optional |
 | Raids | On (default) or off. See [Raids](Raids.md). |
 
-The same seed, size and voxel resolution always generate identical terrain, regions, resources, ruins, towns, camps, loot chest positions and boss arenas on every machine. Voxel resolution is 25 cm (starting value, tunable) and is fixed per world at creation.
+There is no seed and no size choice. Voxel resolution is 25 cm (starting value, tunable) and is fixed per world at creation.
+
+## Map updates and your world
+
+- A world save remembers which map and map revision it was created on. When a patch changes the map, your world still loads and every dig, fill and building you made is kept.
+- Where the ground under one of your edits changed in the patch, a "terrain here was updated" marker appears. Interact with it to dismiss it. Markers survive save and load until dismissed.
+- A save from a different map, or from a newer map revision than your build, is refused with a message and left untouched.
+- Reserved regions for future content are fenced off: you cannot walk in, dig in, or build in them, and nothing spawns there. A patch opens them.
+- In LAN play, everyone must be on the same map build. A client with a different map is refused with "Host is running a different map build".
 
 ## Regions
 
@@ -82,12 +93,12 @@ See [Combat and Loot](Combat-and-Loot.md) for bosses and [Survival](Survival.md)
 
 ### Dig depth
 
-- You can dig or mine a spot only if it is at most **6 m** (starting value, tunable) below the nearest open air directly above it, as the world was originally generated.
+- You can dig or mine a spot only if it is at most **6 m** (starting value, tunable) below the nearest open air directly above it, as the map was originally baked (your own edits are ignored).
 - In practice: you can dig 6 m below the surface, and 6 m below a cave floor inside a cave.
 - Only the voxels past the limit are blocked. The rest of the dig still happens, and "Too deep" shows in your viewport.
 - Filling a hole and digging again doesn't change the limit, because it's measured on the original terrain.
 - Anything you fill above the original ground can always be dug out.
-- Every generated ore voxel is within the limit, so all ore can be reached.
+- Every ore voxel in the baked map is within the limit, so all ore can be reached. The bake tool refuses a map where one is not.
 - The bedrock layer still can't be dug through.
 
 ### Terrain rules
@@ -101,7 +112,7 @@ See [Combat and Loot](Combat-and-Loot.md) for bosses and [Survival](Survival.md)
 ## Towns and camps
 
 - **Towns:** each race kingdom has a capital and 2 towns in its home region. Inside a town's protected radius (tunable, covering every depth) you can't dig, fill, mine or build, and enemies don't spawn. Town buildings can't be damaged or deconstructed.
-- **Camps:** Bandit and Beastmen camps generate in every region. Terrain around camps can be dug normally, but building is blocked inside a camp's radius.
+- **Camps:** Bandit and Beastmen camps are placed by hand across the regions. Terrain around camps can be dug normally, but building is blocked inside a camp's radius.
 
 See [Factions and Kingdoms](Factions-and-Kingdoms.md).
 

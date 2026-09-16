@@ -2,9 +2,10 @@
 
 Created by the Researcher on 2026-09-15. This is the umbrella roadmap for all 12 system specs. `specs/engine-tech/engine-tech.md` sends several records here (benchmark results, Evaluate results, and Researcher implementation decisions), so this file holds them as well.
 
-- Feasibility review, spec issues and evidence: `research/specs-feasibility-review.md`
+- Feasibility review, spec issues and evidence: `research/specs-feasibility-review.md` (being re-derived, issue 0916-1)
 - System Spec Index: `specs/game-foundation/game-foundation.md`
-- Engine evidence: `research/unreal-5.6-5.8-features.md`
+- Engine evidence: `research/unreal-5.6-5.8-features.md` (being re-derived, issue 0916-2)
+- Authored map, bake tool, save and load rules, repository and handover shape: `specs/authored-map/authored-map.md` (round table 2026-09-16)
 
 Status legend: **Pending**, **In progress**, **Done**, **Blocked**.
 
@@ -24,9 +25,11 @@ Status legend: **Pending**, **In progress**, **Done**, **Blocked**.
 
 ## Phase 1 — Benchmark milestone (tech slice)
 
-**Status:** Blocked on the build environment and placeholder asset decisions (Inbox questions 1789450473110dizhxm and 1789450473117j76wcv). Build tasks are filed.
+**Status:** Pending. The build environment and placeholder asset decisions were made in the 2026-09-16 round table (see "Build environment split" and "Placeholder art and Git LFS" under Researcher Implementation Decisions). Build tasks are re-filed by issue 0916-4 (DRAFT until the user promotes it).
 
 **Goal:** `L_Benchmark_SplitScreen` runs on the reference PC at 1–4 viewports and passes, or the Requirement 13 fallback steps are applied until it passes or the milestone fails back to the user.
+
+**Verification is entirely off-pipeline.** The container compiles, runs and measures nothing. Every task is authored as C++ and text, ends in "awaiting verification" with a handover note (`specs/authored-map/authored-map.md` Requirement 34), and merges into the parent branch only after the user pastes the result of the note's proving command. Budget about fifteen user sittings for Phase 1. Tasks 7–11 ship as C++ plus a written editor authoring recipe, because their uassets can only be authored on the reference PC.
 
 | Spec | Requirements delivered |
 |------|------------------------|
@@ -36,25 +39,28 @@ Status legend: **Pending**, **In progress**, **Done**, **Blocked**.
 | multiplayer | 5, 9, 10 |
 | enemy-ai | 2, 11; 1 and 3 (core: StateTree host, Idle/Patrol and Loot only); 21, 23, 26, 27, 31 (core: Smart Object pickup, empty-slot equip, Mutable gear) |
 | character-creation | 14 (core: shared animation set retargeted to 2 placeholder bodies); 18 (authoring decision recorded, validated in Phase 11) |
+| authored-map | 1, 2 (benchmark asset only), 3, 4, 5 (Noise source), 6, 7, 8, 8a, 9, 10, 11, 13, 21 (core: seed and exclusion bridge), 29, 32, 33, 34, 35; Data Flows 2 and 8; Edge Cases 1–4 |
 
-**Tasks (in `build-queue.groovy`):**
+**Tasks (in `build-queue.groovy`, re-filed by 0916-4):**
 
 | # | Task | Depends on |
 |---|------|-----------|
-| 1 | Project skeleton and engine configuration | — |
+| 1 | Project skeleton, engine configuration, repository guards, handover template, header-only stubs for every Key Files class | — |
 | 2 | Split-screen scalability tier subsystem | 1 |
-| 3 | Voxel chunk data, benchmark generator and chunk streaming | 1 |
-| 4 | Voxel mesher and chunk render component ⏸ lighting checkpoint | 3 |
+| 3 | Voxel chunk data, map asset, write kernel, stroke-log bake commandlet (Noise source, cave and ore passes) and chunk streaming from the asset | 1 |
+| 4 | Voxel mesher and chunk render component ⏸ lighting checkpoint in two sittings: (a) one chunk exported to a `UStaticMesh` and lit in a side-by-side test level, (b) the custom proxy beside it, with a three-question decision tree and a console-variable kill switch per stage | 3 |
 | 5 | Terrain LOD with transition cells | 4, 2 |
 | 6 | Terrain collision, dig/fill edit RPC and re-mesh | 4 |
 | 7 | Nanite building pieces with fracture and damage-state fallback | 1 |
-| 8 | Runtime seeded PCG trees and rocks, and tree felling | 4, 2 |
+| 8 | Runtime PCG trees and rocks seeded from the map asset's `AuthoringSeed` per chunk, with authored exclusion volumes, and tree felling | 4, 2 |
 | 9 | Benchmark characters: Mutable body, Motion Matching, cameras, First Person Rendering | 1 |
 | 10 | Benchmark AI enemies: StateTree, AI LOD, dynamic navmesh | 6 |
 | 11 | Humanoid enemy pickup and Mutable equip with rebuild budget | 9, 10 |
-| 12 | Benchmark director, measurements, lighting check and results ⏸ benchmark run checkpoint | 2, 5, 6, 7, 8, 11 |
+| 12 | Benchmark director, measurements, lighting check, content manifest and results ⏸ benchmark run checkpoint | 2, 5, 6, 7, 8, 11 |
 
-**Exit:** a passing run is recorded below, `DT_MP_SplitScreenScalability` is tuned (Requirement 12), and the Evaluate row decisions for Nanite Geometry Collections and First Person Rendering are recorded.
+**Exit:** a passing run is recorded below with its manifest hash, `DT_MP_SplitScreenScalability` is tuned (Requirement 12), and the Evaluate row decisions for Nanite Geometry Collections and First Person Rendering are recorded.
+
+**Untested assumptions carried into Phase 1** (user-sitting results, not room decisions): that the black-terrain Lumen failure, if it occurs, is a missing surface cache on the custom proxy; whether Lumen Lite lights a custom proxy at all (`specs/engine-tech/engine-tech.md` Requirement 9); and the stroke-log replay cost at 8×8 km (the 1×1 km benchmark bake gives the first number).
 
 ---
 
@@ -68,7 +74,9 @@ Status legend: **Pending**, **In progress**, **Done**, **Blocked**.
 | engine-tech | 4 (plugin exclusion check), 7 (user settings ceiling from `UNamecSettingsSave`), 8 (`NamecNaniteAuthoringValidator`), 10; Edge Cases 4, 5, 9 |
 | multiplayer | 2, 3, 6, 7, 23 |
 
-Open input: default machine-wide graphics settings (Director open item; see the feasibility review for the recommended default).
+**Closed 2026-09-16:** default machine-wide graphics settings equal the High tier row of `DT_MP_SplitScreenScalability`. Requirement 7 already treats user settings as a ceiling and the benchmark tunes that row, so the default is the measured reference configuration. No hardware auto-detect.
+
+Phase 2 also lands the `UNamecWorldSave` fields of `specs/authored-map/authored-map.md` Requirement 24 and the load rule of Requirement 25, with the `UNamecWorldLoader`.
 
 ---
 
@@ -87,6 +95,8 @@ Open input: default machine-wide graphics settings (Director open item; see the 
 
 Risk: Online Subsystem Null LAN sessions are unverified for 5.8 in the research file. Verify them at the start of the phase.
 
+The checkpoint needs a second machine or a VM beside the reference PC for the LAN half. It also loads one save with real terrain edits once, so the per-chunk delta application on stream (`specs/authored-map/authored-map.md` Requirements 25 and 29) is timed on a save the benchmark never exercises. The LAN join refusal on map mismatch (`specs/authored-map/authored-map.md` Edge Cases 10–11) lands here with multiplayer Requirements 11–22.
+
 ---
 
 ## Phase 4 — Progression XP and world
@@ -95,7 +105,11 @@ Risk: Online Subsystem Null LAN sessions are unverified for 5.8 in the research 
 |------|------------------------|
 | character-progression | 7–11, 14–26, 28, 30; Data Flows 1–7; Edge Cases 1–4, 6, 7 |
 | voxel-world | 5–16, 17–23, 30–36; Data Flows 1, 3, 5, 7 (world fields so far); Edge Cases 2–4, 6–12 |
+| authored-map | 2 (`VMA_Namec`), 5 (Tiles source), 12 (sculpt brush), 14–20 (validator and authored structure classes, with placeholder town volumes on a greybox map), 22, 23, 26–28, 30–31; Data Flows 1, 3–7; Edge Cases 5–9, 12–13 |
 | survival | 9 (ambient temperature inputs from climate) (core) |
+| engine-tech | Evaluate: **World Partition** (Requirement 5) at this phase's bake checkpoint, against the authored `ANamecTown` positions with placeholder town volumes on the greybox map (moved from Phase 10 on 2026-09-16) |
+
+**⏸ Test checkpoint at the end of the phase:** the first real bake of `VMA_Namec` from the committed heightfield tiles on the reference PC, the validator run on `L_Namec.umap`, and the World Partition evaluation. This is the first phase with editor tooling the pipeline can write but never open (sculpt brush, validator), and the user's heightfield authoring is art time.
 
 ---
 
@@ -134,7 +148,7 @@ Risk: Online Subsystem Null LAN sessions are unverified for 5.8 in the research 
 | crafting-jobs | 1–25; Data Flows 1–9; Edge Cases 1–13 |
 | engine-tech | Acceptance criterion for dye colours via Substrate on every body variant (with placeholder wearables) |
 
-Open input: refund and repair maths for recipes with more than one output (Director open item).
+**Closed 2026-09-16:** for a recipe with more than one output, the refund per input material is `floor(input quantity × deconstructed quantity ÷ recipe output quantity)`. Repair cost uses the same fraction against the repair rule's existing input share. Integer and deterministic; a fraction that rounds to zero refunds nothing, which the existing "refunds nothing" acceptance criterion already permits.
 
 ---
 
@@ -153,9 +167,11 @@ Open input: refund and repair maths for recipes with more than one output (Direc
 | factions-kingdoms | 1–66; Data Flows 1–12; Edge Cases 1–17 |
 | combat-loot | 42, 43 |
 | inventory | 22, 24; Edge Cases 9, 10 |
-| engine-tech | Evaluate: **Chaos Destruction replication**, **Mass**, **World Partition**, **MegaLights** (night town and raid scene) |
+| engine-tech | Evaluate: **Chaos Destruction replication**, **Mass**, **MegaLights** (night town and raid scene). World Partition moved to Phase 4 on 2026-09-16. |
 
-Open input: raider behaviour when only terrain blocks its path (Director open item).
+**Closed 2026-09-16:** when only terrain blocks a raider's path, the raider mirrors the closed-door rule: it digs through player-placed voxels on its path using the server edit kernel at a per-row dig rate in `DT_Factions_Factions`, and never digs natural terrain. Implementation is a navmesh area class that marks player-placed terrain passable at a cost, the same shape as the closed-door area. If no path exists even so, the raider holds at the nearest reachable point to the base centre until the raid ends. The dynamic navmesh rebuild cost per edit at raid scale is measured in this phase's Mass evaluate scene, not separately.
+
+This is the cost peak on both sides: towns, economy, quests and raids in C++, town content and the raid scene as user authoring, and three Evaluate rows in one checkpoint. Budget it as two phases of sittings.
 
 ---
 
@@ -166,9 +182,36 @@ Open input: raider behaviour when only terrain blocks its path (Director open it
 | character-creation | 11, 13, 15, 18–25, 27; Edge Cases 5–9, 14, 15 |
 | engine-tech | Evaluate: **Game Features** (one race's content as a Game Feature plugin) |
 
+MetaHuman stays not-used and is not evaluated (round table 2026-09-16). Human bodies are two of the 12 `Body` values in `CO_NamecBody`, so a later source is just another skeletal mesh on the shared skeleton; reopening is the user's call at this phase. Constraint recorded for character-creation Requirement 18: appearance for every race, humans included, is expressed as Mutable parameters, never a second face system.
+
+**Reference PC checkpoints across the roadmap:** Phases 1, 3, 4, 6, 8, 10 and 11. Phases 2, 5, 7 and 9 verify by compile and automation tests alone.
+
 ---
 
 ## Researcher Implementation Decisions
+
+### Authored map (`specs/authored-map/authored-map.md`, round table 2026-09-16)
+
+User direction: one hand-authored map replaces seeded world generation. The spec owns the shape; the decisions that shaped it:
+- Terrain stays fully diggable smooth voxel. The map is authored as heightfield tiles plus region and material masks plus an append-only text stroke log, baked on the reference PC by a tiled, stateless commandlet into a gitignored `UNamecVoxelMapAsset` with per-chunk base hashes. Caves and ore are stateless bake passes driven by `AuthoringSeed`; strokes override them.
+- `UNamecWorldGenerator` is gone. Its runtime job is split: base voxel data comes from the asset at chunk stream; capitals, towns, camps, ruins, arenas and chests are author-placed actors validated by `UNamecMapValidator`; trees, rocks and forage stay runtime PCG seeded from `AuthoringSeed` plus chunk coordinates with authored exclusion volumes.
+- New World takes name and settings only. The Small/Medium/Large size enum is removed; map size is an authored constant and the real size is the user's later call. A hand-authored 8×8 km map is a large art cost (Builder flag).
+- Saves hold `MapId`, `MapRevision`, `MapHash` and per-edited-chunk base hashes. Same id loads with deltas applied per chunk on stream; a mismatched chunk gets a persisted "terrain here was updated" marker. Different id refuses. No load rule discards a delta.
+- Expansion placeholders are gated `ANamecExpansionRegion` volumes on the one map, unlocked as a map revision.
+- World Partition stays Evaluate (engine-tech Requirement 2 forbids adopting before the criterion is recorded); its criterion is reworded to authored town positions and scheduled at the Phase 4 bake checkpoint.
+- The benchmark scene is a 1×1 km `VMA_Benchmark` baked from a Noise heightfield source and a hand-written stroke log, so Phase 1 task 3 stays pipeline-authorable.
+
+### Build environment split (round table 2026-09-16)
+
+Nothing in any phase is compiled, run or measured in the pipeline container. The pipeline authors C++, ini, JSON, CSV-fed data tables and text inputs; the user compiles, runs automation tests and commandlets, opens PIE and runs the benchmark on the reference PC. Task 1 compiles before any sub-branch cuts and declares header-only stubs for every Key Files class so include paths and module dependencies are validated in one round trip. Each handover note lists the engine classes and functions the task assumed against Unreal 5.8 documentation, so a compile error maps to a stated assumption. Results flow back as pasted output; `Saved/Benchmark/<timestamp>/results.json` and `content-manifest.json` are transcribed into the Benchmark Results table by the Researcher.
+
+### Placeholder art and Git LFS (round table 2026-09-16)
+
+Third-party placeholder art (Epic Mannequins, engine starter content, Fab) is not committed; it lives under `Content/Placeholder/`, ignored as a folder. Project-authored uassets are kilobytes to low megabytes and commit to plain git, authored and committed by the user on the task's sub-branch; pipeline branches never touch a uasset. `.gitattributes` carries no LFS filter until real art arrives, because the container has no git-lfs and a `filter=lfs` line would silently commit raw bytes. Two guards: a 20 MB pre-commit rejection and `*.uasset`/`*.umap` marked binary. Git LFS is decided in the first phase that ships real art.
+
+### Lumen HWRT de-risking before task 4 (round table 2026-09-16)
+
+Nothing can be lit in the pipeline, so task 4's checkpoint is two sittings. Sitting one exports one meshed chunk to a `UStaticMesh` through a commandlet (reusing the bake commandlet's plumbing) and lights it in a side-by-side test level next to a static mesh cube; if it lights, geometry and Lumen settings are sound and every later failure is proxy-side. Sitting two adds the custom proxy beside it. The handover note carries a decision tree over three visualisations (is the chunk in the ray tracing scene; does the Lumen surface cache cover it; does hit lighting light it when the cache does not), each stage behind a console-variable kill switch. The coded fallback order is Requirement 13's: Lumen Lite, then Lumen at Medium scalability, then Low with a skylight. Software Lumen is not a fallback because it cannot see terrain without distance fields. Stated assumption for the note: black terrain is most likely a surface cache the custom proxy must supply itself; hit lighting is the diagnostic, not the fix, because of its cost at four viewports.
 
 ### Terrain mesh backend (`specs/voxel-world/voxel-world.md` Requirement 2)
 
@@ -180,7 +223,7 @@ Why this and not the two backends Requirement 2 names:
 - **A custom scene proxy** uses only core renderer paths, so no Beta or Experimental feature is involved. It gives direct control over three things the terrain path depends on: tight per-chunk bounds (VSM invalidation), ray tracing geometry per chunk version (Lumen HWRT), and static draw commands, so an unchanged chunk costs no rebuild.
 - **Transvoxel** is chosen over surface nets and dual contouring because it is the documented way to seal seams between LOD levels. Terrain LOD is needed for view distance at 25 cm voxels. Sharp features are not a goal ("natural fantasy landscape").
 
-Director check: Requirement 2 lists "Geometry Script / Dynamic Mesh, or a procedural mesh component". This decision reads a custom procedural primitive component as falling under "a procedural mesh component". See the feasibility review, issue S3.
+Wording resolved 2026-09-16 (feasibility issue S3 closed): the sentence lives in voxel-world Requirement 2, not engine-tech Requirement 2, and it was reworded to "Any backend built on core renderer paths qualifies, including a custom `UPrimitiveComponent` with its own scene proxy", because "procedural mesh component" reads as `UProceduralMeshComponent` to anyone who knows Unreal and this decision rejected that class. The "no reliance on distance fields" clause stays as a rule.
 
 Verification: the Task 4 checkpoint (chunks lit under Lumen HWRT and Lumen Lite in PIE on the reference PC), then the benchmark lighting check.
 
@@ -216,14 +259,14 @@ Verification: the Task 4 checkpoint (chunks lit under Lumen HWRT and Lumen Lite 
 
 Recorded by the Researcher from `Saved/Benchmark/` result files after the user runs the benchmark on the reference PC.
 
-| Viewports | Tier | GI method | VSM | Foliage | View distance | Avg fps | 1% low fps | stat gpu (ms) | NaniteStats | VSM page invalidation | Draw calls | Lighting check | Pass |
-|-----------|------|-----------|-----|---------|---------------|---------|------------|---------------|-------------|-----------------------|------------|----------------|------|
-| 1 | High | — | — | — | — | — | — | — | — | — | — | — | Pending |
-| 2 | High | — | — | — | — | — | — | — | — | — | — | — | Pending |
-| 3 | Split | — | — | — | — | — | — | — | — | — | — | — | Pending |
-| 4 | Split | — | — | — | — | — | — | — | — | — | — | — | Pending |
+| Viewports | Tier | GI method | VSM | Foliage | View distance | Avg fps | 1% low fps | stat gpu (ms) | NaniteStats | VSM page invalidation | Draw calls | Lighting check | Manifest hash | Pass |
+|-----------|------|-----------|-----|---------|---------------|---------|------------|---------------|-------------|-----------------------|------------|----------------|---------------|------|
+| 1 | High | — | — | — | — | — | — | — | — | — | — | — | — | Pending |
+| 2 | High | — | — | — | — | — | — | — | — | — | — | — | — | Pending |
+| 3 | Split | — | — | — | — | — | — | — | — | — | — | — | — | Pending |
+| 4 | Split | — | — | — | — | — | — | — | — | — | — | — | — | Pending |
 
-Engine version: — · Run date: — · Result file: —
+Engine version: — · Run date: — · Result file: — · Content manifest: — (`specs/authored-map/authored-map.md` Requirement 35) · Benchmark map `MapHash`: —
 
 ### Fallback steps applied (Requirement 13)
 
@@ -249,5 +292,5 @@ Pending a passing run.
 | Chaos Destruction replication | Phase 10 | Pending |
 | Contextual Animation | Phase 6 | Pending |
 | Mass | Phase 10 | Pending |
-| World Partition | Phase 10 | Pending |
+| World Partition | Phase 4 bake checkpoint (moved from Phase 10 on 2026-09-16; criterion reworded to authored `ANamecTown` positions) | Pending |
 | Game Features | Phase 11 | Pending |

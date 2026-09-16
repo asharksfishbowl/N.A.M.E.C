@@ -13,3 +13,4 @@ transcripts/
 design-references/*
 !design-references/.gitkeep
 !design-references/README.md
+.claude/

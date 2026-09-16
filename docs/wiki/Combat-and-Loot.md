@@ -321,7 +321,7 @@ Each additional player adds +60% enemy health and +10% enemy damage (starting va
 
 ## Bosses
 
-- Each region has one boss with a fixed arena, placed by world generation.
+- Each region has one boss with a fixed arena, placed by hand on the authored map.
 - **Summoning:** place that region's offering item at the arena altar. Offerings drop from the region's Hostile enemies. Each eligible player rolls for one separately.
 - Bosses have named, multi-phase fights with telegraphed attacks.
 - When the fight starts, a barrier seals the arena. Players inside stay locked in until the boss dies or all of them are dead. Nobody outside can enter, including players who join mid-fight.
@@ -352,7 +352,7 @@ Any boss can be re-summoned for more loot with a new offering.
 
 ### Loot chests
 
-- Placed by world generation in caves, ruins and Bandit and Beastmen camps. They are not crafted storage containers.
+- Placed by hand on the authored map in caves, ruins and Bandit and Beastmen camps. They are not crafted storage containers.
 - Each player can open each chest once, with their own roll. Only the opener gets that roll.
 - Chests never refill. Who has opened each chest is saved with the world.
 

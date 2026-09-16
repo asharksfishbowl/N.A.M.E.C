@@ -58,10 +58,10 @@ Two-handing state is not saved: every character loads holding its Right Hand wea
 
 | Area | Contents |
 |------|----------|
-| Identity and generation | World name, seed, size, voxel resolution |
+| Identity and map | World name, map id, map revision, map hash, per-edited-chunk base hashes, pending terrain markers, voxel resolution |
 | World settings | Friendly fire, LAN hosting, password, Raids |
 | Time and weather | Current in-game time of day, the world's total elapsed in-game time, each region's current weather |
-| Terrain | Per-chunk edit deltas over the generated base, including each changed voxel's player-placed flag |
+| Terrain | Per-chunk edit deltas over the baked base, including each changed voxel's player-placed flag |
 | Building | Placed building pieces, including each piece's recipe row ID (decides its deconstruct refund and destroyed drop), crafting stations with bound attachments and tier, storage containers with their contents, and doors with their open or closed state |
 | Pickups | Shared world pickups, including dropped gold, per-player loot that has converted into shared pickups (with each one's remaining despawn time), and the picked-up items and gold of every live non-Veteran enemy, written as pickups where it stands. Unconverted per-player loot actors are not saved. |
 | Veterans | One record per living Veteran: Veteran GUID, enemy row ID, faction, current level, XP, current health (saved without player-count scaling), equipped and carried items, gold, home position, name, title, kill counts, and camp and spawn point for a camp Veteran |
@@ -76,7 +76,8 @@ Not saved: character positions (every world entry spawns at the bed or world spa
 
 ### Notes
 
-- Voxel resolution is written at world creation. Generation and edit-delta replay read it from the save, never from the tuning table.
+- Voxel resolution is written at world creation, copied from the map asset. Edit-delta application reads it from the save, never from the tuning table.
+- Loading a world on a newer map revision keeps every edit: deltas apply per chunk on stream, and chunks whose base changed get a pending terrain marker. A save from a different map id, or a newer revision than the build, is refused and left untouched (`specs/authored-map/authored-map.md` Requirement 25).
 - When a chunk's edit delta list exceeds a size threshold, the server re-bakes it into a compressed full-chunk snapshot in the save.
 - Defeating a boss triggers a world save.
 - A killed Veteran is removed at once and never written again. A Veteran record whose enemy row no longer exists is skipped on load with a log entry and dropped from the next save, and a Veteran item whose definition no longer exists is skipped with a log entry.

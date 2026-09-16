@@ -36,7 +36,7 @@ Up to 4 players share a world through any mix of local split-screen and LAN, for
 11. The host enables LAN hosting in world settings (on by default). The session advertises on the local network via Unreal's LAN session discovery (`OnlineSubsystemNull` with `bIsLANMatch = true`), per `specs/engine-tech/engine-tech.md` Requirement 3.
 12. The Join LAN Game screen lists discovered sessions with: world name, host name, current/max players, and game version.
 13. A joining machine lists its local players (1–4) and each picks a character from that machine's saves, or creates one with "Create New" (`specs/character-creation/character-creation.md` Requirement 1), before connecting.
-14. Joining is refused with a clear message when: the session is full, the game version differs, or the joining machine has more local players than the remaining capacity.
+14. Joining is refused with a clear message when: the session is full, the game version differs, the joining machine has more local players than the remaining capacity, or the joining build's map asset `MapId`, `MapRevision` or `MapHash` differs from the host's ("Host is running a different map build", `specs/authored-map/authored-map.md` Edge Cases 10–11).
 15. An optional world password is set in world settings. When set, joining requires entering it.
 
 ### Portable Characters

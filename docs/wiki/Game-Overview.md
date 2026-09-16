@@ -6,7 +6,7 @@ This page covers the pitch, core loop, design pillars, camera and player count o
 
 ## Pitch
 
-N.A.M.E.C is a first/third-person 3D fantasy survival RPG for up to 4 players in local split-screen and LAN co-op. Players explore a seeded, smooth-voxel world of distinct climate regions, dig and build freely, level skills by using them, craft through independent Jobs, trade and take quests in the towns of six race kingdoms, defend their bases against raids, and fight Souls-like enemies and bosses that gate progression.
+N.A.M.E.C is a first/third-person 3D fantasy survival RPG for up to 4 players in local split-screen and LAN co-op. Players explore one hand-authored, smooth-voxel map of distinct climate regions, dig and build freely, level skills by using them, craft through independent Jobs, trade and take quests in the towns of six race kingdoms, defend their bases against raids, and fight Souls-like enemies and bosses that gate progression.
 
 ## Creating a character
 

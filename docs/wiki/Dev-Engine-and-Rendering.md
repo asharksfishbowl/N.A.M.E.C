@@ -32,7 +32,7 @@ Rows marked *(Evaluate)* are provisional. The benchmark decides whether they kee
 | Lumen Lite | Beta | GI at 3–4 viewports and the handheld console tier | Lumen Medium (only if it lights terrain), then Lumen off with a skylight |
 | Virtual Shadow Maps | Production-Ready | All shadows | Lower VSM quality |
 | Substrate | Production-Ready, on by default | All materials. Dye zone colors are material parameters set at runtime on Mutable-built character meshes and held weapons and shields, not Mutable inputs. | Blendable GBuffer path |
-| PCG Framework (runtime, seeded) | Production-Ready | Placing trees, forage, loose pickups, rocks, props and vegetation from the world seed | Seeded placement in C++ |
+| PCG Framework (runtime, seeded) | Production-Ready | Placing trees, forage, loose pickups, rocks, props and vegetation, seeded per chunk from the map's authoring seed, outside authored exclusion volumes | Seeded placement in C++ |
 | Mutable | Production-Ready | Appearance presets, armor fit across the 12 race × sex bodies, and visible gear on humanoid enemies (which use those same bodies). Generated materials keep dye zones as runtime parameters. | Per-variant armor meshes with skeletal mesh merging |
 | IK Retargeter | Production-Ready | One shared player animation set retargeted to all 12 race × sex bodies (sex picks only body mesh and voice), and retargeting each humanoid enemy family's animation set to its player body | Authored animation sets per body |
 | Motion Matching (core only) | Production-Ready | Player and NPC locomotion | State-machine locomotion |
@@ -72,8 +72,8 @@ Each one is tested on the reference PC, and the result goes in the engine-tech r
 | Chaos Destruction replication | A 2-machine LAN raid destroying 50+ pieces never crashes and shows the same destroyed pieces everywhere | Local cosmetic fracture with replicated health |
 | Contextual Animation (executions) | A primary source confirms a non-Experimental status, and executions stay in sync on host and LAN client for every skeleton family | Montages + Motion Warping + server attacker/victim sync |
 | Mass (ambient crowds) | No Experimental Mass module is needed, and a capital holds the frame rate at 4 viewports. Crowds would be cosmetic only. | No ambient crowd |
-| World Partition (authored towns) | Authored town content streams correctly at seeded town positions with 4 viewports | Towns as generated structure placements |
-| Game Features | Moving a region's or race's content into a Game Feature keeps generation and saves unchanged | Content stays in the main project |
+| World Partition (authored towns) | Authored town content streams correctly at the authored town positions with 4 viewports (evaluated at the Phase 4 bake checkpoint) | Towns stream as children of their town actor on the persistent level |
+| Game Features | Moving a region's or race's content into a Game Feature keeps the map asset, bake output and saves unchanged | Content stays in the main project |
 
 ## The Nanite plan
 

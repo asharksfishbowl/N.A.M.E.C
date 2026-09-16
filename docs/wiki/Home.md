@@ -6,7 +6,7 @@ This page is the entry point to the N.A.M.E.C wiki: what the game is and where t
 
 ## What N.A.M.E.C is
 
-N.A.M.E.C is a first/third-person 3D fantasy survival RPG for up to 4 players in local split-screen and LAN co-op, built in Unreal Engine 5.8. Players explore a seeded, smooth-voxel world of distinct climate regions, dig and build freely, level skills by using them, craft through independent Jobs, trade and take quests in the towns of six race kingdoms, defend their bases against raids, and fight Souls-like enemies and bosses that gate progression.
+N.A.M.E.C is a first/third-person 3D fantasy survival RPG for up to 4 players in local split-screen and LAN co-op, built in Unreal Engine 5.8. Players explore one hand-authored, smooth-voxel map of distinct climate regions, dig and build freely, level skills by using them, craft through independent Jobs, trade and take quests in the towns of six race kingdoms, defend their bases against raids, and fight Souls-like enemies and bosses that gate progression.
 
 The wiki is a readable summary. The specs in `specs/` are authoritative (see [Specs and Pipeline](Dev-Specs-and-Pipeline.md)).
 
@@ -18,7 +18,7 @@ The wiki is a readable summary. The specs in `specs/` are authoritative (see [Sp
 - [Skills](Skills.md): use-based skills, XP sources, perks, anti-farming rules
 - [Crafting and Jobs](Crafting-and-Jobs.md): 9 Jobs, stations, hand-crafting, tiers, quality, runes, repair, dyes
 - [Survival](Survival.md): hunger, thirst, temperature, stamina, fatigue, sleep, breath
-- [World and Building](World-and-Building.md): world generation, 8 regions, terrain editing and dig depth, towns and camps, gathering, hazards, building
+- [World and Building](World-and-Building.md): the authored map, 8 regions, terrain editing and dig depth, towns and camps, gathering, hazards, building
 - [Combat and Loot](Combat-and-Loot.md): Souls-style combat, executions, downed and death, enemies, bosses, loot
 - [Enemies and AI](Enemies-and-AI.md): enemy behaviour, who fights whom, enemies looting and wearing gear, enemy levels, Veterans
 - [Inventory](Inventory.md): weight, equip load, slots, gold, dyes, favorites, hotkeys, containers

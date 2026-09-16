@@ -16,7 +16,7 @@ This page covers listen-server authority, the host/find/join session flow, chara
 
 ## Session flow
 
-1. **Host:** New World or Load World opens the lobby. `UNamecSessionSubsystem::HostSession(WorldSettings)` creates the LAN session and loads the map. The host loads `UNamecWorldSave`, generates terrain from the seed, then applies saved edits.
+1. **Host:** New World or Load World opens the lobby. `UNamecSessionSubsystem::HostSession(WorldSettings)` creates the LAN session and loads the map. The host loads `UNamecWorldSave`, runs the map id and revision load rule, and streams terrain from the map asset, applying saved edits per chunk. A joining client whose map build differs from the host's is refused with "Host is running a different map build".
 2. **Discovery:** LAN session discovery via `OnlineSubsystemNull` with `bIsLANMatch = true` (configured in `Config/DefaultEngine.ini`). LAN hosting is a world setting, on by default.
 3. **Find:** the remote machine opens Join LAN Game. `FindSessions` lists sessions with world name, host name, current/max players and game version.
 4. **Select:** the joining machine lists its local players (1–4), and each picks a character from that machine's saves or creates one with "Create New" (character creation runs locally, before connecting).

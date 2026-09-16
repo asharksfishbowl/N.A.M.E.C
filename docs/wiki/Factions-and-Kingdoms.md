@@ -62,10 +62,10 @@ The Quests tab shows every faction's reputation value and tier.
 
 ## Kingdoms and towns
 
-- Each kingdom has **one capital and 2 towns**, placed by world generation in its home region. The same seed always places them in the same spots.
+- Each kingdom has **one capital and 2 towns**, placed by hand in its home region on the authored map. The map validator enforces the count and the region.
 - Snowy Mountains and Volcanic have no kingdom and no towns.
 - Every town has exactly one Quest Board and at least one Vendor. Every capital has exactly one Quest Giver, who offers the kingdom's questline, and exactly one Guard Captain. Every other town has at least one Quest Giver.
-- Town buildings are part of the generated town. They can't be damaged or deconstructed.
+- Town buildings are part of the authored town. They can't be damaged or deconstructed.
 
 ### Protected area
 
@@ -95,7 +95,7 @@ Each town has a protected radius (tunable), measured flat from the town center, 
 
 ## Camps
 
-- Bandit camps and Beastmen camps generate in every region (density set per region per faction).
+- Bandit camps and Beastmen camps are placed by hand across the regions. How many each region holds is the author's choice.
 - Each camp has a camp radius (tunable). You can't build inside it, but you can still dig, fill and mine there.
 - Each camp has enemy spawn points and loot chests. Camp chests follow the normal chest rules: each player opens each chest once, and it never refills.
 - Camp enemies patrol, loot and fight around their camp, including against the other outlaw faction and region monsters.

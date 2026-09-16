@@ -69,7 +69,8 @@ This page lists every `DT_*` DataTable named in the specs, grouped by system, wi
 | Table | Purpose | Columns / values mentioned |
 |-------|---------|----------------------------|
 | `DT_World_Climates` | 8 region rows | Base temperature, comfort range (10–26 °C), weather types, vegetation, ore types, item-level band |
-| `DT_World_Structures` | Generated structures | Definitions and placement rules for ruins, capitals and towns (Quest Board positions, NPC posts) and Bandit and Beastmen camps (enemy spawn points, loot chest positions) |
+| `DT_World_Structures` | Structure types | Per-type data only: town protected radius and the default component set for each authored structure actor type. Positions, posts and chests live on the actors |
+| `DT_World_OreVeins` | Map bake | Region, ore material, vein density, vein radius, cave-only flag for the bake's ore pass |
 | `DT_World_VoxelMaterials` | Voxel materials | Hardness, required tier, soft-material (shovel-diggable) flag, item yields per fill unit; includes Deep Snow |
 | `DT_World_Trees` | Trees | Tree types, health, yields (including the Wood from removing a stump with a shovel), falling-log damage |
 | `DT_World_Forage` | Forage and loose pickups | Forage types, regrow timers, per-region Loose Stick and Loose Stone density, loose pickup respawn timers |
