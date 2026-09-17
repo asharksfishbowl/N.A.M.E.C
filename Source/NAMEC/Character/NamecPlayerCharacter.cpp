@@ -26,8 +26,6 @@ ANamecPlayerCharacter::ANamecPlayerCharacter()
     ArmMesh->SetOnlyOwnerSee(true);
     ArmMesh->SetVisibility(false);
 
-    GetMesh()->SetOwnerNoSee(false);
-
     MutableBody = CreateDefaultSubobject<UCustomizableSkeletalComponent>(TEXT("MutableBody"));
 }
 
