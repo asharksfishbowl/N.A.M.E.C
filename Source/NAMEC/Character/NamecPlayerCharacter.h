@@ -2,12 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "Character/NamecCharacterBase.h"
+#include "MuCO/CustomizableObjectInstanceComponent.h"
 #include "NamecPlayerCharacter.generated.h"
 
 class USpringArmComponent;
 class UCameraComponent;
 class USkeletalMeshComponent;
-class UCustomizableObjectInstanceComponent;
 class UInputAction;
 
 UCLASS()

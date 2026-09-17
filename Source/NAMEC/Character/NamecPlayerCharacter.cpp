@@ -3,7 +3,6 @@
 #include "Camera/CameraComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "EnhancedInputComponent.h"
-#include "MuCO/CustomizableObjectInstanceComponent.h"
 
 ANamecPlayerCharacter::ANamecPlayerCharacter()
 {
