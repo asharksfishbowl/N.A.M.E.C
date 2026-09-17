@@ -4,6 +4,15 @@
 #include "Engine/DataAsset.h"
 #include "NamecVoxelMapAsset.generated.h"
 
+// UHT does not support TArray<uint8> as a TMap value — wrap it.
+USTRUCT()
+struct FNamecChunkData
+{
+    GENERATED_BODY()
+    UPROPERTY()
+    TArray<uint8> Bytes;
+};
+
 UCLASS(BlueprintType)
 class NAMEC_API UNamecVoxelMapAsset : public UPrimaryDataAsset
 {
@@ -37,5 +46,5 @@ public:
 
     // Compressed per-chunk base voxel data
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TMap<FIntPoint, TArray<uint8>> BakedChunks;
+    TMap<FIntPoint, FNamecChunkData> BakedChunks;
 };
