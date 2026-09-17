@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "HAL/IConsoleManager.h"
 #include "NamecScalabilitySubsystem.generated.h"
 
 USTRUCT(BlueprintType)
@@ -54,5 +55,5 @@ private:
     void LogActiveTier() const;
 
     // FAutoConsoleCommand registered in Initialize — UFUNCTION(Exec) cannot reach UGameInstanceSubsystem.
-    TUniquePtr<class IConsoleObject> LogActiveTierCmd;
+    TOptional<FAutoConsoleCommand> LogActiveTierCmd;
 };

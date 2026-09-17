@@ -5,8 +5,7 @@
 LIMIT_BYTES=20971520  # 20 MB
 
 # Single subprocess reads all staged objects — avoids one fork per file.
-failed=$(
-    git diff --cached --name-only \
+git diff --cached --name-only \
     | awk '{print ":" $0}' \
     | git cat-file --batch-check='%(objectsize) %(rest)' \
     | awk -v lim="$LIMIT_BYTES" '
@@ -17,6 +16,4 @@ failed=$(
         }
         END { exit (rc+0) }
     '
-)
-
 exit $?

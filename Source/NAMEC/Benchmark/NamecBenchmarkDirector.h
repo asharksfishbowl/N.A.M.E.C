@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "HAL/IConsoleManager.h"
 #include "NamecBenchmarkDirector.generated.h"
 
 // UFUNCTION(Exec) does not reach plain AActor. NamecBenchmark.Run is registered via
@@ -20,5 +21,5 @@ public:
 private:
     void RunBenchmark();
 
-    TUniquePtr<class IConsoleObject> RunCmd;
+    TOptional<FAutoConsoleCommand> RunCmd;
 };
