@@ -377,11 +377,9 @@ int32 UNamecMapBakeCommandlet::Main(const FString& Params)
     FSavePackageArgs SaveArgs;
     SaveArgs.TopLevelFlags = RF_Public | RF_Standalone;
     SaveArgs.SaveFlags     = SAVE_NoError;
-    ESavePackageResult SaveResult = UPackage::SavePackage(Package, Asset, *FilePath, SaveArgs);
-    if (SaveResult != ESavePackageResult::Success)
+    if (!UPackage::SavePackage(Package, Asset, *FilePath, SaveArgs))
     {
-        UE_LOG(LogTemp, Error, TEXT("NamecMapBake: failed to save %s (result %d)"),
-            *FilePath, (int32)SaveResult);
+        UE_LOG(LogTemp, Error, TEXT("NamecMapBake: failed to save %s"), *FilePath);
         return 1;
     }
 
