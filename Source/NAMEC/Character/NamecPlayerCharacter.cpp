@@ -28,7 +28,7 @@ ANamecPlayerCharacter::ANamecPlayerCharacter()
 
     GetMesh()->SetOwnerNoSee(false);
 
-    MutableBody = CreateDefaultSubobject<UCustomizableObjectInstanceComponent>(TEXT("MutableBody"));
+    MutableBody = CreateDefaultSubobject<UCustomizableSkeletalComponent>(TEXT("MutableBody"));
 }
 
 void ANamecPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

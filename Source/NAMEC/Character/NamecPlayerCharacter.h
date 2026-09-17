@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/NamecCharacterBase.h"
-#include "MuCO/CustomizableObjectInstanceComponent.h"
+#include "MuCO/CustomizableSkeletalComponent.h"
 #include "NamecPlayerCharacter.generated.h"
 
 class USpringArmComponent;
@@ -32,7 +32,7 @@ private:
     UPROPERTY(VisibleAnywhere) TObjectPtr<USkeletalMeshComponent> ArmMesh;
 
     // Mutable body customization instance. Blueprint assigns CO_NamecBody via CustomizableObject.
-    UPROPERTY(VisibleAnywhere) TObjectPtr<UCustomizableObjectInstanceComponent> MutableBody;
+    UPROPERTY(VisibleAnywhere) TObjectPtr<UCustomizableSkeletalComponent> MutableBody;
 
     bool bFirstPerson = false;
     void ToggleCamera();
