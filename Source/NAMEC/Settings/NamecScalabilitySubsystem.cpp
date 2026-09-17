@@ -44,16 +44,15 @@ void UNamecScalabilitySubsystem::OnLocalPlayerCountChanged(ULocalPlayer* LocalPl
 
 void UNamecScalabilitySubsystem::ApplyTierForViewportCount(int32 ViewportCount)
 {
-    if (!ScalabilityTable)
-    {
-        return;
-    }
+    if (!ScalabilityTable) return;
+
+    TArray<FNamecScalabilityTierRow*> Rows;
+    ScalabilityTable->GetAllRows<FNamecScalabilityTierRow>(TEXT("ApplyTierForViewportCount"), Rows);
 
     const FNamecScalabilityTierRow* MatchedRow = nullptr;
-    for (const TPair<FName, uint8*>& RowPair : ScalabilityTable->GetRowMap())
+    for (const FNamecScalabilityTierRow* Row : Rows)
     {
-        const FNamecScalabilityTierRow* Row = reinterpret_cast<const FNamecScalabilityTierRow*>(RowPair.Value);
-        if (Row && ViewportCount >= Row->MinViewports && ViewportCount <= Row->MaxViewports)
+        if (ViewportCount >= Row->MinViewports && ViewportCount <= Row->MaxViewports)
         {
             MatchedRow = Row;
             ActiveTierName = Row->TierName;
@@ -61,17 +60,12 @@ void UNamecScalabilitySubsystem::ApplyTierForViewportCount(int32 ViewportCount)
         }
     }
 
-    if (!MatchedRow)
-    {
-        return;
-    }
+    if (!MatchedRow) return;
 
     auto SetCVar = [](const TCHAR* Name, int32 Value)
     {
         if (IConsoleVariable* CVar = IConsoleManager::Get().FindConsoleVariable(Name))
-        {
-            CVar->Set(Value, ECVF_SetByCode);
-        }
+            CVar->Set(Value, ECVF_SetByScalability);
     };
 
     SetCVar(TEXT("r.Lumen.HardwareRayTracing.MaxViews"), MatchedRow->LumenMaxViews);
