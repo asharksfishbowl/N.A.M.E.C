@@ -14,3 +14,13 @@ design-references/*
 !design-references/.gitkeep
 !design-references/README.md
 .claude/
+
+# Unreal Engine build artifacts
+Content/Map/Baked/
+Content/Placeholder/
+Saved/
+Intermediate/
+DerivedDataCache/
+.vs/
+*.opensdf
+*.sdf

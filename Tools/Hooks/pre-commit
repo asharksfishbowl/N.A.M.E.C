@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+# Rejects any staged file exceeding 20 MB.
+# Install: git config core.hooksPath Tools/Hooks
+
+LIMIT_BYTES=20971520  # 20 MB
+
+# Single subprocess reads all staged objects — avoids one fork per file.
+failed=$(
+    git diff --cached --name-only \
+    | awk '{print ":" $0}' \
+    | git cat-file --batch-check='%(objectsize) %(rest)' \
+    | awk -v lim="$LIMIT_BYTES" '
+        $1 > lim {
+            mb = int($1 / 1048576)
+            print "ERROR: " $2 " is " mb " MB — exceeds the 20 MB per-file limit." > "/dev/stderr"
+            rc = 1
+        }
+        END { exit (rc+0) }
+    '
+)
+
+exit $?

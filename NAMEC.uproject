@@ -1,0 +1,57 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "5.8",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "NAMEC",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "NAMECEditor",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "Mutable",
+			"Enabled": true
+		},
+		{
+			"Name": "PCGFramework",
+			"Enabled": true
+		},
+		{
+			"Name": "IKRig",
+			"Enabled": true
+		},
+		{
+			"Name": "MotionMatchingAnimGraphNodes",
+			"Enabled": true
+		},
+		{
+			"Name": "StateTree",
+			"Enabled": true
+		},
+		{
+			"Name": "SmartObjectsModule",
+			"Enabled": true
+		},
+		{
+			"Name": "MetaSounds",
+			"Enabled": true
+		},
+		{
+			"Name": "Substrate",
+			"Enabled": true
+		},
+		{
+			"Name": "Iris",
+			"Enabled": true,
+			"Optional": true
+		}
+	]
+}
