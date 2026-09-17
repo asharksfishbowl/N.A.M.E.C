@@ -21,7 +21,7 @@
 			"Enabled": true
 		},
 		{
-			"Name": "PCGFramework",
+			"Name": "PCG",
 			"Enabled": true
 		},
 		{
@@ -29,7 +29,7 @@
 			"Enabled": true
 		},
 		{
-			"Name": "MotionMatchingAnimGraphNodes",
+			"Name": "PoseSearch",
 			"Enabled": true
 		},
 		{
@@ -37,11 +37,11 @@
 			"Enabled": true
 		},
 		{
-			"Name": "SmartObjectsModule",
+			"Name": "SmartObjects",
 			"Enabled": true
 		},
 		{
-			"Name": "MetaSounds",
+			"Name": "Metasound",
 			"Enabled": true
 		},
 		{

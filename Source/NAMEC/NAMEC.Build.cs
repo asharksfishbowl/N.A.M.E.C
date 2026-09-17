@@ -24,11 +24,13 @@ public class NAMEC : ModuleRules
         {
             "StateTreeModule",
             "SmartObjectsModule",
-            "PCGFramework",
+            "PCG",
             "MutableRuntime",
             "IKRig",
-            "MotionMatchingAnimGraphNodes",
+            "PoseSearch",
             "MetasoundEngine",
+            "OnlineSubsystem",
+            "OnlineSubsystemNull",
         });
     }
 }

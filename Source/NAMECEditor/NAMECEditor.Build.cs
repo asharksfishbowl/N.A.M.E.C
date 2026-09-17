@@ -14,7 +14,7 @@ public class NAMECEditor : ModuleRules
             "NAMEC",
             "UnrealEd",
             "LevelEditor",
-            "DataValidationModule",
+            "DataValidation",
         });
     }
 }
