@@ -127,9 +127,15 @@ FDataValidationContext is forward-declared in EditorValidatorBase.h — no extra
 Staged-delete test (2026-09-17): hook exits 0 for a deletion. PASS.
 hooksPath set: `git config core.hooksPath Tools/Hooks`
 
+## COMPILE RESULTS (2026-09-17)
+
+NAMECEditor Win64 Development — exit 0 (SHA c889819)
+NAMEC Win64 Development — exit 0 (SHA c889819)
+Only warnings: C4996 deprecated APawn::GetMovementBase in engine header (engine-internal, not our code).
+
 ## OSS NULL SESSION TEST
 
-Pending — blocked by Smart App Control gate (cannot compile to test).
+Pending — compile now passes; OSS Null session test deferred to Task 2 (OPEN PIE step 3).
 
 ## OPEN PIE
 
