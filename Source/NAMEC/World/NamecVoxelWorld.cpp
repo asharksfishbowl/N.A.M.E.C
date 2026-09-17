@@ -5,27 +5,31 @@
 #include "Misc/Compression.h"
 
 static FNamecVoxelData DecompressChunk(const FNamecChunkData& ChunkData, FIntPoint ChunkKey,
-    float VoxelSizeMetres, int32 ChunkH)
+    float VoxelSizeMetres)
 {
+    // Wire format: [RawSize:4][Zlib-compressed [SizeX:4][SizeY:4][SizeZ:4][voxels]]
+    constexpr int32 KRawSzBytes  = sizeof(int32); // leading raw-size prefix
+    constexpr int32 KHeaderBytes = 12;            // SizeX(4)+SizeY(4)+SizeZ(4)
+
     FNamecVoxelData Out;
-    if (ChunkData.Bytes.Num() < 4 + 12) return Out;
+    if (ChunkData.Bytes.Num() < KRawSzBytes + KHeaderBytes) return Out;
 
     int32 RawSize = 0;
-    FMemory::Memcpy(&RawSize, ChunkData.Bytes.GetData(), sizeof(int32));
+    FMemory::Memcpy(&RawSize, ChunkData.Bytes.GetData(), KRawSzBytes);
     TArray<uint8> Raw;
     Raw.SetNumUninitialized(RawSize);
     FCompression::UncompressMemory(NAME_Zlib,
         Raw.GetData(), RawSize,
-        ChunkData.Bytes.GetData() + sizeof(int32),
-        ChunkData.Bytes.Num() - sizeof(int32));
+        ChunkData.Bytes.GetData() + KRawSzBytes,
+        ChunkData.Bytes.Num() - KRawSzBytes);
 
-    if (Raw.Num() < 12) return Out;
+    if (Raw.Num() < KHeaderBytes) return Out;
     FMemory::Memcpy(&Out.SizeX, Raw.GetData(),     4);
     FMemory::Memcpy(&Out.SizeY, Raw.GetData() + 4, 4);
     FMemory::Memcpy(&Out.SizeZ, Raw.GetData() + 8, 4);
 
-    Out.MaterialIndex = TArray<uint8>(Raw.GetData() + 12, Raw.Num() - 12);
-    Out.WorldOriginMetres = FVector(ChunkKey.X * ChunkH, ChunkKey.Y * ChunkH, 0) * VoxelSizeMetres;
+    Out.MaterialIndex = TArray<uint8>(Raw.GetData() + KHeaderBytes, Raw.Num() - KHeaderBytes);
+    Out.WorldOriginMetres = FVector(ChunkKey.X * NamecChunkH, ChunkKey.Y * NamecChunkH, 0) * VoxelSizeMetres;
     Out.VoxelSizeMetres = VoxelSizeMetres;
     return Out;
 }
@@ -38,9 +42,8 @@ void UNamecVoxelWorld::AddOrUpdateChunk(FIntPoint ChunkCoord)
     if (!Packed) return;
 
     const float VoxSize = MapAssetOverride->VoxelResolutionCm / 100.f;
-    constexpr int32 ChunkH = 32;
 
-    FNamecVoxelData BaseData = DecompressChunk(*Packed, ChunkCoord, VoxSize, ChunkH);
+    FNamecVoxelData BaseData = DecompressChunk(*Packed, ChunkCoord, VoxSize);
     // TODO (Task 6): apply stored edit deltas on top of BaseData before meshing.
     // For Phase 1 no runtime edits persist; base data is the authoritative state.
 

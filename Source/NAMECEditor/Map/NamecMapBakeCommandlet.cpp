@@ -72,7 +72,7 @@ static float CaveHash(int32 Seed, int32 X, int32 Y, int32 Z)
 // Chunk helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
-static constexpr int32 CHUNK_H = 32; // voxels per horizontal chunk side
+// NamecChunkH (= 32) is declared in NamecVoxelTypes.h, available via NamecVoxelWriteKernel.h.
 
 // Returns compressed chunk bytes prefixed with 4-byte raw size.
 static TArray<uint8> PackChunk(const FNamecVoxelData& D)
@@ -85,18 +85,24 @@ static TArray<uint8> PackChunk(const FNamecVoxelData& D)
     Raw.Append(reinterpret_cast<const uint8*>(&D.SizeZ), 4);
     Raw.Append(D.MaterialIndex);
 
-    int32 RawSize = Raw.Num();
-    int32 BoundSize = FCompression::CompressMemoryBound(NAME_Zlib, RawSize);
-    TArray<uint8> Compressed;
-    Compressed.SetNumUninitialized(BoundSize);
-    bool bOk = FCompression::CompressMemory(NAME_Zlib,
-        Compressed.GetData(), BoundSize, Raw.GetData(), RawSize);
-    if (!bOk) { Compressed = Raw; BoundSize = RawSize; }
-    Compressed.SetNum(BoundSize);
+    const int32 RawSize   = Raw.Num();
+    const int32 BoundSize = FCompression::CompressMemoryBound(NAME_Zlib, RawSize);
 
+    // Compress directly into Out after the 4-byte raw-size prefix to avoid a third allocation.
     TArray<uint8> Out;
-    Out.Append(reinterpret_cast<const uint8*>(&RawSize), sizeof(int32));
-    Out.Append(Compressed);
+    Out.SetNumUninitialized(sizeof(int32) + BoundSize);
+    FMemory::Memcpy(Out.GetData(), &RawSize, sizeof(int32));
+
+    int32 ActualSize = BoundSize;
+    if (!FCompression::CompressMemory(NAME_Zlib, Out.GetData() + sizeof(int32), ActualSize,
+            Raw.GetData(), RawSize))
+    {
+        // Compression failed — store raw (uncompressed) with the same prefix.
+        Out.SetNumUninitialized(sizeof(int32) + RawSize);
+        FMemory::Memcpy(Out.GetData() + sizeof(int32), Raw.GetData(), RawSize);
+        ActualSize = RawSize;
+    }
+    Out.SetNum(sizeof(int32) + ActualSize);
     return Out;
 }
 
@@ -106,10 +112,7 @@ static FString MD5Hex(const TArray<uint8>& Data)
     Md5.Update(Data.GetData(), Data.Num());
     uint8 Digest[16];
     Md5.Final(Digest);
-    FString Out;
-    for (uint8 B : Digest)
-        Out += FString::Printf(TEXT("%02x"), B);
-    return Out;
+    return BytesToHex(Digest, 16).ToLower();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -206,7 +209,7 @@ int32 UNamecMapBakeCommandlet::Main(const FString& Params)
     const float WorldTopM = S.NoiseSeaLevelMetres + S.NoiseAmplitude + 10.f; // +10 headroom
     const int32 TotalZ = FMath::CeilToInt((S.BedrockDepthMetres + WorldTopM) / VoxM);
     const int32 BedrockVoxZ = FMath::CeilToInt(S.BedrockDepthMetres / VoxM); // voxels below sea level baseline
-    const int32 ChunksPerSide = FMath::DivideAndRoundUp(TotalH, CHUNK_H);
+    const int32 ChunksPerSide = FMath::DivideAndRoundUp(TotalH, NamecChunkH);
 
     UE_LOG(LogTemp, Log, TEXT("NamecMapBake: world %d x %d x %d voxels, %d x %d chunks"),
         TotalH, TotalH, TotalZ, ChunksPerSide, ChunksPerSide);
@@ -232,26 +235,25 @@ int32 UNamecMapBakeCommandlet::Main(const FString& Params)
     // ── 6. Bake chunks (tiled: one chunk at a time) ───────────────────────────
     const double BakeStart = FPlatformTime::Seconds();
 
-    // Surface material index (matches MaterialNameToIndex in WriteKernel)
-    const FName SurfMat(*S.SurfaceMaterialRow);
+    // Outer loop is CX so chunk visit order is X-major — matches the (X,Y) sort
+    // order used for MapHash, letting us accumulate the digest inline without a
+    // separate TMap and sort pass.
+    FMD5 MapMd5;
 
-    TMap<FIntPoint, FString> ChunkHashes;
-
-    for (int32 CY = 0; CY < ChunksPerSide; ++CY)
+    for (int32 CX = 0; CX < ChunksPerSide; ++CX)
     {
-        for (int32 CX = 0; CX < ChunksPerSide; ++CX)
+        for (int32 CY = 0; CY < ChunksPerSide; ++CY)
         {
             const FIntPoint ChunkKey(CX, CY);
-            const int32 OriginVoxX = CX * CHUNK_H;
-            const int32 OriginVoxY = CY * CHUNK_H;
+            const int32 OriginVoxX = CX * NamecChunkH;
+            const int32 OriginVoxY = CY * NamecChunkH;
 
             FNamecVoxelData D;
             D.WorldOriginMetres = FVector(OriginVoxX, OriginVoxY, 0) * VoxM;
             D.VoxelSizeMetres   = VoxM;
-            D.SizeX = FMath::Min(CHUNK_H, TotalH - OriginVoxX);
-            D.SizeY = FMath::Min(CHUNK_H, TotalH - OriginVoxY);
-            D.SizeZ = TotalZ;
-            D.MaterialIndex.SetNumZeroed(D.SizeX * D.SizeY * D.SizeZ);
+            D.Init(FMath::Min(NamecChunkH, TotalH - OriginVoxX),
+                   FMath::Min(NamecChunkH, TotalH - OriginVoxY),
+                   TotalZ);
 
             // ── Heightfield pass ─────────────────────────────────────────────
             for (int32 X = 0; X < D.SizeX; ++X)
@@ -289,33 +291,32 @@ int32 UNamecMapBakeCommandlet::Main(const FString& Params)
             // ── Cave pass ────────────────────────────────────────────────────
             if (S.bCavePassEnabled)
             {
-                // Simple blob caves using hash noise; always connected (blobs near surface)
-                constexpr float CaveThreshold  = 0.08f; // 8% density
-                constexpr int32 CaveMinVoxZ    = 4;     // not at bedrock
-                constexpr int32 CaveDepthBand  = 80;    // voxels above bedrock
+                // Blob caves using hash noise, carved only above the bedrock layer.
+                constexpr float CaveThreshold = 0.08f; // 8% density
+                constexpr int32 CaveDepthBand = 80;    // voxels above bedrock
 
                 for (int32 X = 0; X < D.SizeX; ++X)
                 for (int32 Y = 0; Y < D.SizeY; ++Y)
-                for (int32 Z = CaveMinVoxZ; Z < FMath::Min(BedrockVoxZ + CaveDepthBand, TotalZ); ++Z)
+                for (int32 Z = BedrockVoxZ; Z < FMath::Min(BedrockVoxZ + CaveDepthBand, TotalZ); ++Z)
                 {
-                    const int32 WVX = OriginVoxX + X;
-                    const int32 WVY = OriginVoxY + Y;
-                    if (D.MaterialIndex[D.LinearIdx(X, Y, Z)] != 0 && // not already air
-                        CaveHash(S.AuthoringSeed, WVX, WVY, Z) < CaveThreshold)
+                    const int32 LIdx = D.LinearIdx(X, Y, Z);
+                    if (D.MaterialIndex[LIdx] != 0 &&
+                        CaveHash(S.AuthoringSeed, OriginVoxX + X, OriginVoxY + Y, Z) < CaveThreshold)
                     {
-                        D.MaterialIndex[D.LinearIdx(X, Y, Z)] = 0;
+                        D.MaterialIndex[LIdx] = 0;
                     }
                 }
             }
 
             // ── Stroke replay (for each stroke that overlaps this chunk) ─────
+            // Chunk AABB is constant across strokes — compute once.
+            const float ChunkMinX = OriginVoxX * VoxM;
+            const float ChunkMaxX = (OriginVoxX + D.SizeX) * VoxM;
+            const float ChunkMinY = OriginVoxY * VoxM;
+            const float ChunkMaxY = (OriginVoxY + D.SizeY) * VoxM;
+
             for (const FBakeStroke& Stroke : Strokes)
             {
-                // Quick AABB test: does stroke sphere overlap this chunk?
-                const float ChunkMinX = OriginVoxX * VoxM;
-                const float ChunkMaxX = (OriginVoxX + D.SizeX) * VoxM;
-                const float ChunkMinY = OriginVoxY * VoxM;
-                const float ChunkMaxY = (OriginVoxY + D.SizeY) * VoxM;
                 if (Stroke.CentreMetres.X + Stroke.RadiusMetres < ChunkMinX) continue;
                 if (Stroke.CentreMetres.X - Stroke.RadiusMetres > ChunkMaxX) continue;
                 if (Stroke.CentreMetres.Y + Stroke.RadiusMetres < ChunkMinY) continue;
@@ -324,10 +325,10 @@ int32 UNamecMapBakeCommandlet::Main(const FString& Params)
                     Stroke.Mode, Stroke.MaterialRow, Stroke.ToolTier);
             }
 
-            // ── Hash and pack ────────────────────────────────────────────────
+            // ── Hash, pack, and accumulate MapMd5 ───────────────────────────
             const FString ChunkHash = MD5Hex(D.MaterialIndex);
-            ChunkHashes.Add(ChunkKey, ChunkHash);
             Asset->BaseChunkHashes.Add(ChunkKey, ChunkHash);
+            MapMd5.Update(reinterpret_cast<const uint8*>(*ChunkHash), ChunkHash.Len() * sizeof(TCHAR));
 
             FNamecChunkData Packed;
             Packed.Bytes = PackChunk(D);
@@ -335,24 +336,11 @@ int32 UNamecMapBakeCommandlet::Main(const FString& Params)
         }
     }
 
-    // ── 7. MapHash (hash of all chunk hashes in coord order) ─────────────────
-    TArray<FIntPoint> SortedKeys;
-    ChunkHashes.GetKeys(SortedKeys);
-    SortedKeys.Sort([](const FIntPoint& A, const FIntPoint& B) {
-        return A.X != B.X ? A.X < B.X : A.Y < B.Y;
-    });
-
-    FMD5 MapMd5;
-    for (const FIntPoint& Key : SortedKeys)
-    {
-        const FString& H = ChunkHashes[Key];
-        MapMd5.Update(reinterpret_cast<const uint8*>(GetData(H)), H.Len() * sizeof(TCHAR));
-    }
+    // ── 7. MapHash (hash of all chunk hashes in CX-major, CY-minor order) ────
+    // MapMd5 was accumulated inline during the CX-outer bake loop — no sort needed.
     uint8 MapDigest[16];
     MapMd5.Final(MapDigest);
-    Asset->MapHash.Empty();
-    for (uint8 B : MapDigest)
-        Asset->MapHash += FString::Printf(TEXT("%02x"), B);
+    Asset->MapHash = BytesToHex(MapDigest, 16).ToLower();
 
     // ── 8. Post-bake check A: every ore voxel within dig depth ────────────────
     // No ore in Phase 1 — trivially passes.
@@ -386,7 +374,7 @@ int32 UNamecMapBakeCommandlet::Main(const FString& Params)
     const double ElapsedSec = FPlatformTime::Seconds() - BakeStart;
     UE_LOG(LogTemp, Log,
         TEXT("NamecMapBake: done. Chunks=%d MapHash=%s ElapsedSec=%.1f"),
-        SortedKeys.Num(), *Asset->MapHash, ElapsedSec);
+        ChunksPerSide * ChunksPerSide, *Asset->MapHash, ElapsedSec);
 
     return 0;
 }

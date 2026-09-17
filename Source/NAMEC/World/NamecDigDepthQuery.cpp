@@ -1,4 +1,5 @@
 #include "World/NamecDigDepthQuery.h"
+#include "World/NamecVoxelTypes.h"
 #include "World/Map/NamecVoxelMapAsset.h"
 #include "Misc/Compression.h"
 
@@ -7,14 +8,13 @@ bool UNamecDigDepthQuery::IsWithinDigDepth(FVector PositionMetres) const
     if (!MapAsset) return false;
 
     const float VoxSize = MapAsset->VoxelResolutionCm / 100.f;
-    constexpr int32 ChunkH = 32;
 
     const int32 VoxX = FMath::FloorToInt(PositionMetres.X / VoxSize);
     const int32 VoxY = FMath::FloorToInt(PositionMetres.Y / VoxSize);
     const int32 VoxZ = FMath::FloorToInt(PositionMetres.Z / VoxSize);
 
-    const FIntPoint ChunkKey(FMath::DivideAndRoundDown(VoxX, ChunkH),
-                             FMath::DivideAndRoundDown(VoxY, ChunkH));
+    const FIntPoint ChunkKey(FMath::DivideAndRoundDown(VoxX, NamecChunkH),
+                             FMath::DivideAndRoundDown(VoxY, NamecChunkH));
 
     const FNamecChunkData* ChunkData = MapAsset->BakedChunks.Find(ChunkKey);
     if (!ChunkData || ChunkData->Bytes.IsEmpty()) return false;
@@ -36,8 +36,8 @@ bool UNamecDigDepthQuery::IsWithinDigDepth(FVector PositionMetres) const
     FMemory::Memcpy(&SzY, Raw.GetData() + 4, 4);
     FMemory::Memcpy(&SzZ, Raw.GetData() + 8, 4);
 
-    const int32 LocalX = VoxX - ChunkKey.X * ChunkH;
-    const int32 LocalY = VoxY - ChunkKey.Y * ChunkH;
+    const int32 LocalX = VoxX - ChunkKey.X * NamecChunkH;
+    const int32 LocalY = VoxY - ChunkKey.Y * NamecChunkH;
     if (LocalX < 0 || LocalX >= SzX || LocalY < 0 || LocalY >= SzY || VoxZ < 0 || VoxZ >= SzZ)
         return false;
 
