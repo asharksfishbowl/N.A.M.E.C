@@ -51,6 +51,25 @@ Describe the expected output that constitutes a pass.
 
 List every .uasset the task references but does not create. Leave blank if none.
 
+## OPEN PIE
+
+Steps to open the map and verify this task's behavior end-to-end:
+
+1. Open the project in the editor.
+2. Open map: [specify path, e.g. Content/Maps/VMA_Benchmark.umap]
+3. Set Play settings: Number of Players = [N], Net Mode = [Standalone | Listen Server | Client]
+4. Run these console commands in PIE: [list commands]
+5. Expected result: [observable outcome that constitutes a pass]
+
+## PASTE BACK
+
+What to copy from Windows back to the container after each proving run (for the handover
+record and for the Researcher/Director to read):
+- UBT log: last 20 lines of Saved/Logs/UBT-<sha>.log and the exit code
+- Automation report: pass/fail line from Saved/Automation/<sha>/index.json (or equivalent)
+- Commandlet log: last 20 lines of Saved/Logs/Commandlet-<sha>.log and exit code
+- PIE console: paste or screenshot of the console output for each proving command run
+
 ---
 *Fill this template before submitting the branch for review.*
 *Post-clone instruction: `git config core.hooksPath Tools/Hooks`*

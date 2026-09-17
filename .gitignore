@@ -21,6 +21,13 @@ Content/Placeholder/
 Saved/
 Intermediate/
 DerivedDataCache/
+/Binaries/
+/Build/
+*.sln
+.vsconfig
+Plugins/*/Binaries/
+Plugins/*/Intermediate/
 .vs/
 *.opensdf
 *.sdf
+.worktrees/

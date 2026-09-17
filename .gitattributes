@@ -1,2 +1,5 @@
+* text=auto eol=lf
 *.uasset binary
 *.umap binary
+*.bat text eol=crlf
+*.ps1 text eol=crlf
