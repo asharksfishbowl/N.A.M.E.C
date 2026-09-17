@@ -7,6 +7,7 @@ public class NAMECEditorTarget : TargetRules
         Type = TargetType.Editor;
         DefaultBuildSettings = BuildSettingsVersion.V5;
         IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
+        BuildEnvironment = TargetBuildEnvironment.Unique;
         ExtraModuleNames.AddRange(new string[] { "NAMEC", "NAMECEditor" });
     }
 }
