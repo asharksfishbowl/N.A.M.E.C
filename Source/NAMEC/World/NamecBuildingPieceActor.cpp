@@ -20,8 +20,6 @@ ANamecBuildingPieceActor::ANamecBuildingPieceActor()
 void ANamecBuildingPieceActor::BeginPlay()
 {
     Super::BeginPlay();
-    DestroyedMesh->SetVisibility(false);
-    DestroyedMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     if (HasAuthority())
         Health = MaxHealth;
 }
@@ -52,6 +50,8 @@ void ANamecBuildingPieceActor::OnRep_Health()
 
 void ANamecBuildingPieceActor::ApplyDestroyedState()
 {
+    if (bDestroyed) return;
+    bDestroyed = true;
     GeoCollection->SetVisibility(false);
     GeoCollection->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     DestroyedMesh->SetVisibility(true);

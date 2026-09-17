@@ -55,4 +55,6 @@ private:
     void OnRep_Health();
 
     void ApplyDestroyedState();
+
+    bool bDestroyed = false;
 };
