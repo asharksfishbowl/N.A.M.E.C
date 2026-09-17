@@ -19,6 +19,7 @@ public class NAMEC : ModuleRules
             "GameplayTags",
             "EnhancedInput",
             "AIModule",
+            "GeometryCollectionEngine",
         });
 
         PrivateDependencyModuleNames.AddRange(new string[]
