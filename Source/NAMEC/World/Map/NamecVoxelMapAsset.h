@@ -44,7 +44,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     int32 AuthoringSeed = 0;
 
-    // Compressed per-chunk base voxel data
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    // Compressed per-chunk base voxel data — not Blueprint-accessible (FIntPoint key unsupported)
+    UPROPERTY(EditAnywhere)
     TMap<FIntPoint, FNamecChunkData> BakedChunks;
 };
