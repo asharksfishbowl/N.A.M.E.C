@@ -9,7 +9,6 @@
 #include "Misc/Compression.h"
 #include "HAL/PlatformFileManager.h"
 #include "UObject/SavePackage.h"
-#include "PackageHelperFunctions.h"
 #include "Math/UnrealMathUtility.h"
 
 UNamecMapBakeCommandlet::UNamecMapBakeCommandlet()
@@ -378,12 +377,11 @@ int32 UNamecMapBakeCommandlet::Main(const FString& Params)
     FSavePackageArgs SaveArgs;
     SaveArgs.TopLevelFlags = RF_Public | RF_Standalone;
     SaveArgs.SaveFlags     = SAVE_NoError;
-    const bool bSaved = UPackage::SavePackage(Package, Asset, *FilePath, SaveArgs)
-        == ESavePackageResult::Success;
-
-    if (!bSaved)
+    ESavePackageResult SaveResult = UPackage::SavePackage(Package, Asset, *FilePath, SaveArgs);
+    if (SaveResult != ESavePackageResult::Success)
     {
-        UE_LOG(LogTemp, Error, TEXT("NamecMapBake: failed to save %s"), *FilePath);
+        UE_LOG(LogTemp, Error, TEXT("NamecMapBake: failed to save %s (result %d)"),
+            *FilePath, (int32)SaveResult);
         return 1;
     }
 
