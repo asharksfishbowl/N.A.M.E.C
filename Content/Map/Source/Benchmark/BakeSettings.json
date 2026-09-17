@@ -1,0 +1,17 @@
+{
+  "MapId": "A3B4C5D6-E7F8-4A1B-B2C3-D4E5F6A7B8C9",
+  "MapRevision": 1,
+  "AuthoringSeed": 12345,
+  "WorldExtentMetres": 1000,
+  "BedrockDepthMetres": 200,
+  "VoxelResolutionCm": 25,
+  "HeightfieldSource": "Noise",
+  "NoiseOctaves": 6,
+  "NoiseBaseFrequency": 0.002,
+  "NoiseAmplitude": 80,
+  "NoiseSeaLevelMetres": 40,
+  "RegionName": "Temperate Forest & Meadows",
+  "SurfaceMaterialRow": "Grass",
+  "CavePassEnabled": true,
+  "OrePassEnabled": true
+}
