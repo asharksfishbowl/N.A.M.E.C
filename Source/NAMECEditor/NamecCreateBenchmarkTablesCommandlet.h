@@ -16,4 +16,6 @@ private:
     bool CreateAndSaveDataTable(const FString& PackageName, UScriptStruct* RowStruct,
         TFunctionRef<void(UDataTable*)> PopulateRows);
     bool CreateScalabilityTable();
+    bool CreateEnemyAIRulesTable();
+    bool CreateBenchmarkWearablesTable();
 };

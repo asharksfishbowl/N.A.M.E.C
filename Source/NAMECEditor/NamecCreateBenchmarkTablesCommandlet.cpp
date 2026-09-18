@@ -1,5 +1,6 @@
 #include "NamecCreateBenchmarkTablesCommandlet.h"
 #include "Settings/NamecScalabilitySubsystem.h"
+#include "AI/NamecEnemyEquipComponent.h"
 #include "Engine/DataTable.h"
 #include "UObject/SavePackage.h"
 #include "Misc/PackageName.h"
@@ -8,6 +9,8 @@
 int32 UNamecCreateBenchmarkTablesCommandlet::Main(const FString& Params)
 {
     bool bOk = CreateScalabilityTable();
+    bOk &= CreateEnemyAIRulesTable();
+    bOk &= CreateBenchmarkWearablesTable();
     if (!bOk)
     {
         UE_LOG(LogTemp, Error, TEXT("NamecCreateBenchmarkTables: one or more tables failed to save."));
@@ -65,4 +68,37 @@ bool UNamecCreateBenchmarkTablesCommandlet::CreateScalabilityTable()
             Table->AddRow(FName("Split"), Split);
         }
     );
+}
+
+bool UNamecCreateBenchmarkTablesCommandlet::CreateEnemyAIRulesTable()
+{
+    return CreateAndSaveDataTable(
+        TEXT("/Game/Data/DT_EnemyAI_Rules"),
+        FNamecEnemyAIRulesRow::StaticStruct(),
+        [](UDataTable* T)
+        {
+            FNamecEnemyAIRulesRow Row;
+            Row.MaxConcurrentMutableUpdates = 2;
+            Row.MutableDeferDistanceMetres  = 50.f;
+            T->AddRow(FName("Default"), Row);
+        });
+}
+
+bool UNamecCreateBenchmarkTablesCommandlet::CreateBenchmarkWearablesTable()
+{
+    return CreateAndSaveDataTable(
+        TEXT("/Game/Data/DT_EnemyAI_BenchmarkWearables"),
+        FNamecBenchmarkWearableRow::StaticStruct(),
+        [](UDataTable* T)
+        {
+            FNamecBenchmarkWearableRow Male;
+            Male.BodyVariant = 0;
+            Male.MeshVariant = FSoftObjectPath(TEXT("/Game/Placeholder/Armor/SKM_LeatherArmor_Male.SKM_LeatherArmor_Male"));
+            T->AddRow(FName("HumanMale"), Male);
+
+            FNamecBenchmarkWearableRow Female;
+            Female.BodyVariant = 1;
+            Female.MeshVariant = FSoftObjectPath(TEXT("/Game/Placeholder/Armor/SKM_LeatherArmor_Female.SKM_LeatherArmor_Female"));
+            T->AddRow(FName("HumanFemale"), Female);
+        });
 }
