@@ -53,6 +53,12 @@ static UStaticMesh* BuildStaticMesh(const FNamecVoxelMeshData& MeshData,
     FString AssetName = FPackageName::GetLongPackageAssetName(PackageName);
     UStaticMesh* SM = NewObject<UStaticMesh>(Package, *AssetName, RF_Public | RF_Standalone);
 
+    FStaticMeshSourceModel& SrcModel = SM->AddSourceModel();
+    SrcModel.BuildSettings.bRecomputeNormals        = false;
+    SrcModel.BuildSettings.bRecomputeTangents       = true;
+    SrcModel.BuildSettings.bGenerateLightmapUVs     = true;
+    SrcModel.BuildSettings.bBuildReversedIndexBuffer = false;
+
     FMeshDescription* MD = SM->CreateMeshDescription(0);
     if (!MD) return nullptr;
 
@@ -92,11 +98,6 @@ static UStaticMesh* BuildStaticMesh(const FNamecVoxelMeshData& MeshData,
         MD->CreateTriangle(PGId, ViIds, &NewEdges);
     }
 
-    FStaticMeshSourceModel& SrcModel = SM->AddSourceModel();
-    SrcModel.BuildSettings.bRecomputeNormals        = false;
-    SrcModel.BuildSettings.bRecomputeTangents       = true;
-    SrcModel.BuildSettings.bGenerateLightmapUVs     = true;
-    SrcModel.BuildSettings.bBuildReversedIndexBuffer = false;
     SM->CommitMeshDescription(0);
 
     FStaticMaterial Mat;
