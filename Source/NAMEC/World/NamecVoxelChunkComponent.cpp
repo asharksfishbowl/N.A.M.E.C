@@ -5,6 +5,7 @@
 #include "Engine/Engine.h"
 #include "Async/Async.h"
 #include "Engine/GameInstance.h"
+#include "PhysicsEngine/BodySetup.h"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Marching-cubes lookup tables (Paul Bourke / Lorensen-Cline, public domain).
@@ -713,12 +714,19 @@ void UNamecVoxelChunkComponent::PollPendingMesh()
 
     FNamecVoxelMeshData Result = PendingMesh.Get();
     bHasPendingMesh = false;
-    CurrentLOD            = PendingLOD;
+    CurrentLOD             = PendingLOD;
     CurrentTransitionFaces = PendingTransitionFaces;
 
     if (!Result.IsEmpty())
     {
-        MarkRenderStateDirty(); // CreateSceneProxy picks up CurrentLOD/TransitionFaces
+        PhysicsMesh = Result; // keep for GetPhysicsTriMeshData
+        MarkRenderStateDirty();
+
+        // Cook collision on the game thread; chunk meshes are small so this is fast.
+        UBodySetup* BS = GetBodySetup();
+        BS->InvalidatePhysicsData();
+        BS->CreatePhysicsMeshes();
+        RecreatePhysicsState();
     }
 }
 
@@ -801,4 +809,40 @@ void UNamecVoxelChunkComponent::SetMaterial(int32 ElementIndex, UMaterialInterfa
         Material = InMaterial;
         MarkRenderStateDirty();
     }
+}
+
+UBodySetup* UNamecVoxelChunkComponent::GetBodySetup()
+{
+    if (!BodySetup)
+    {
+        BodySetup = NewObject<UBodySetup>(this, TEXT("ChunkBodySetup"),
+                                          RF_Transient | RF_DuplicateTransient);
+        BodySetup->bMeshCollideAll = true;
+        BodySetup->CollisionTraceFlag = CTF_UseComplexAsSimple;
+    }
+    return BodySetup;
+}
+
+bool UNamecVoxelChunkComponent::GetPhysicsTriMeshData(FTriMeshCollisionData* CollisionData, bool)
+{
+    if (!CollisionData || PhysicsMesh.Indices.IsEmpty()) return false;
+
+    CollisionData->Vertices.Reserve(PhysicsMesh.Vertices.Num());
+    for (const FDynamicMeshVertex& V : PhysicsMesh.Vertices)
+        CollisionData->Vertices.Add(V.Position);
+
+    const int32 NumTri = PhysicsMesh.Indices.Num() / 3;
+    CollisionData->Indices.Reserve(NumTri);
+    for (int32 i = 0; i < NumTri; ++i)
+    {
+        FTriIndices Tri;
+        Tri.v0 = PhysicsMesh.Indices[i * 3 + 0];
+        Tri.v1 = PhysicsMesh.Indices[i * 3 + 1];
+        Tri.v2 = PhysicsMesh.Indices[i * 3 + 2];
+        CollisionData->Indices.Add(Tri);
+    }
+    CollisionData->bFlipNormals  = false;
+    CollisionData->bDeformableMesh = true;
+    CollisionData->bFastCook     = true;
+    return true;
 }
