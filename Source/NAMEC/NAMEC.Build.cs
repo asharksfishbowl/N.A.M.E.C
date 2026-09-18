@@ -20,6 +20,8 @@ public class NAMEC : ModuleRules
             "EnhancedInput",
             "AIModule",
             "GeometryCollectionEngine",
+            "RenderCore",
+            "RHI",
         });
 
         PrivateDependencyModuleNames.AddRange(new string[]
