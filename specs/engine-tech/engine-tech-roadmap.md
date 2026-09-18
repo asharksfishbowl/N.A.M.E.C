@@ -62,7 +62,7 @@ Status legend: **Pending**, **In progress**, **Done**, **Blocked**.
 
 **Untested assumptions carried into Phase 1** (user-sitting results, not room decisions):
 
-- **RESOLVED 2026-09-18 (task 4 lighting checkpoint):** the black-terrain Lumen failure, if it occurs, is a missing surface cache on the custom proxy — recorded as **confirmed** from the user's Inbox answer to the task 4 checkpoint card at 2026-09-18T05:11:33Z ("Surface cache lit the proxy — Lumen HWRT works"). Not independently measured by the pipeline; the headless stand-in (chore 0918-5) corroborates load, draw and an active HWRT path only.
+- **RESOLVED 2026-09-18 (task 4 lighting checkpoint):** the black-terrain Lumen failure, if it occurs, is a missing surface cache on the custom proxy — recorded as **confirmed** from the user's Inbox answer to the task 4 checkpoint card at 2026-09-18T05:11:33Z ("Surface cache lit the proxy — Lumen HWRT works"). Not independently measured by the pipeline: the headless stand-in (chore 0918-5) could not run — `UnrealEditor.exe` does not start from the non-interactive SSH session — and its export commandlet exited 1 (fix 0918-8). Corroboration waits on an interactive-session launcher (research 0918-9).
 - **Open:** whether Lumen Lite lights a custom proxy at all (`specs/engine-tech/engine-tech.md` Requirement 9) — not exercised; the primary path worked and the fallback was not needed.
 - **Measured 2026-09-18:** stroke-log replay cost — negligible at Phase 1 stroke counts; the bake itself is single-threaded and linear in chunk count (`research/bake-timing.md`).
 
