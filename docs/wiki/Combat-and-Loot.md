@@ -264,12 +264,12 @@ A world setting, off by default. When off, player attacks, spells and area effec
 
 | Category | Behaviour |
 |----------|-----------|
-| Hostile | Attacks players, and other groups it's hostile to. Drops loot, gold and boss offerings. Includes Bandits, Beastmen, kingdom raiders and Veterans. Picks up loot and gains levels. |
+| Hostile | Attacks players, and other groups it's hostile to. Drops loot and gold. Includes Bandits, Beastmen, kingdom raiders and Veterans. Picks up loot and gains levels. |
 | Wildlife | Never attacks, flees from any player, enemy or NPC it notices or that hurts it. Gives no weapon or magic XP. Can be skinned. |
-| Boss | One per region, summoned at an arena altar. |
+| Boss | One per region, always present in its arena. Enters Combat when a player steps inside. Invulnerable outside Combat. |
 
 - Each enemy has a category, a faction (none, Bandits, Beastmen or a kingdom), a skeleton type, a level, health, poise, resistances, damage, attacks, perception radius, loot table, optional hunting yield, region and XP rewards.
-- Region monsters (Hostile and Wildlife rows with faction none) spawn from their region's list, filtered by time of day. Bosses never spawn this way: they appear only when summoned at their arena altar. Spawn density and the maximum live enemies per streamed chunk are set per region.
+- Region monsters (Hostile and Wildlife rows with faction none) spawn from their region's list, filtered by time of day. Bosses never spawn this way: they are always present in their arena. Spawn density and the maximum live enemies per streamed chunk are set per region.
 - Bandits and Beastmen spawn only at their camps and in raids. Kingdom raiders spawn only in raids. See [Factions and Kingdoms](Factions-and-Kingdoms.md) and [Raids](Raids.md).
 - Newly spawned enemies start at their normal level with nothing picked up. Veterans reappear from the world save instead of spawning.
 - Enemies never spawn within 25 m of a placed building piece, within 40 m of a player (starting values, tunable), or inside a town's protected radius. Raiders ignore the building-piece rule but keep the 40 m rule. Camp spawn points ignore both rules, so camps always refill.
@@ -316,27 +316,34 @@ Each additional player adds +60% enemy health and +10% enemy damage (starting va
 | 4 | ×2.8 | ×1.3 |
 
 - Existing enemies keep their scaling when someone joins. New spawns use the new count.
-- A boss's scaling is locked at summon.
+- A boss's scaling is locked when the barrier seals.
 - Town NPCs, including escort NPCs, never scale with player count.
 
 ## Bosses
 
 - Each region has one boss with a fixed arena, placed by hand on the authored map.
-- **Summoning:** place that region's offering item at the arena altar. Offerings drop from the region's Hostile enemies. Each eligible player rolls for one separately.
-- Bosses have named, multi-phase fights with telegraphed attacks.
-- When the fight starts, a barrier seals the arena. Players inside stay locked in until the boss dies or all of them are dead. Nobody outside can enter, including players who join mid-fight.
-- If everyone inside dies, the boss resets to full health and the barrier drops.
+- **Always present.** The boss lives in its arena in Idle/Patrol, invulnerable outside Combat. No offering or altar is required.
+- **Terrain lock.** Dig, fill, mining, and building are always blocked inside the arena radius.
+- **Combat and barrier.** A player stepping inside the arena radius triggers Combat and raises the barrier. The barrier seals — inbound blocked — on the first damage dealt by or to the boss. Present players and scaling are fixed at seal.
+- Bosses have named, multi-phase fights with telegraphed attacks. Each boss uses up to five terrain behaviour primitives (TerrainEdit, HazardRetreat, CallWeather, Perch, HeatAura) tuned per region.
+- If all players inside die or leave, the boss resets to full health and the barrier drops.
 - If a player disconnects inside, they are removed from the fight.
+
+### Respawn
+
+After the boss dies and the barrier drops, it respawns in its arena after RespawnTime (in-game time). Bosses can be fought as many times as you like; every re-fight counts for first-kill XP if you haven't beaten that boss on your character.
+
+### Terrain revert
+
+Boss terrain edits revert to the map base when the barrier drops. They are never saved.
 
 ### Boss rewards
 
 Every player inside the barrier when the boss dies (and only them) gets:
 
 - **Regions 1–7:** a guaranteed trophy and that boss's distinct tier material, needed for the next tier of station upgrades and gear.
-- **Volcanic (final):** a guaranteed Legendary item and a trophy. It gates nothing.
+- **Volcanic (final):** a guaranteed Legendary item and a trophy. It gates nothing and the boss respawns.
 - **XP:** first-kill XP if this character has never beaten this boss, otherwise normal kill XP.
-
-Any boss can be re-summoned for more loot with a new offering.
 
 ## Loot
 
