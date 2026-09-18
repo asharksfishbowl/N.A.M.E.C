@@ -61,6 +61,10 @@
 			"Name": "Iris",
 			"Enabled": true,
 			"Optional": true
+		},
+		{
+			"Name": "AndroidFileServer",
+			"Enabled": false
 		}
 	]
 }
