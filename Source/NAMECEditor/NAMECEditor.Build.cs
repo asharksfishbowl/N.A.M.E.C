@@ -18,6 +18,10 @@ public class NAMECEditor : ModuleRules
             "DataValidation",
             "Json",
             "JsonUtilities",
+            "MeshDescription",
+            "StaticMeshDescription",
+            "AssetRegistry",
+            "RenderCore",
         });
     }
 }
