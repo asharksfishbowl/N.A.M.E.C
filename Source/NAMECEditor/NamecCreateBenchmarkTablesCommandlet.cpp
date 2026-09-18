@@ -1,5 +1,6 @@
 #include "NamecCreateBenchmarkTablesCommandlet.h"
 #include "Settings/NamecScalabilitySubsystem.h"
+#include "World/NamecBuildingPieceActor.h"
 #include "Engine/DataTable.h"
 #include "UObject/SavePackage.h"
 #include "Misc/PackageName.h"
@@ -8,6 +9,8 @@
 int32 UNamecCreateBenchmarkTablesCommandlet::Main(const FString& Params)
 {
     bool bOk = CreateScalabilityTable();
+    bOk &= CreateCharacterRacesTable();
+    bOk &= CreateBuildingPiecesTable();
     if (!bOk)
     {
         UE_LOG(LogTemp, Error, TEXT("NamecCreateBenchmarkTables: one or more tables failed to save."));
@@ -65,4 +68,41 @@ bool UNamecCreateBenchmarkTablesCommandlet::CreateScalabilityTable()
             Table->AddRow(FName("Split"), Split);
         }
     );
+}
+bool UNamecCreateBenchmarkTablesCommandlet::CreateCharacterRacesTable()
+{
+    return CreateAndSaveDataTable(
+        TEXT("/Game/Data/DT_Character_Races"),
+        FNamecCharacterRaceRow::StaticStruct(),
+        [](UDataTable* T)
+        {
+            FNamecCharacterRaceRow Human;
+            Human.RaceId      = TEXT("Human");
+            Human.DisplayName = FText::FromString(TEXT("Human"));
+            Human.BaseCO      = FSoftObjectPath(TEXT("/Game/Benchmark/Char/CO_NamecBody.CO_NamecBody"));
+            Human.AnimSetRow  = TEXT("Human");
+            T->AddRow(FName("Human"), Human);
+
+            FNamecCharacterRaceRow Elf;
+            Elf.RaceId      = TEXT("Elf");
+            Elf.DisplayName = FText::FromString(TEXT("Elf"));
+            Elf.BaseCO      = FSoftObjectPath(TEXT("/Game/Benchmark/Char/CO_NamecBody.CO_NamecBody"));
+            Elf.AnimSetRow  = TEXT("Elf");
+            T->AddRow(FName("Elf"), Elf);
+        });
+}
+
+bool UNamecCreateBenchmarkTablesCommandlet::CreateBuildingPiecesTable()
+{
+    return CreateAndSaveDataTable(
+        TEXT("/Game/Data/DT_Benchmark_BuildingPieces"),
+        FNamecBuildingPieceRow::StaticStruct(),
+        [](UDataTable* T)
+        {
+            FNamecBuildingPieceRow Wall;
+            Wall.GeometryCollection = FSoftObjectPath(TEXT("/Game/Placeholder/Building/GC_BenchmarkWall.GC_BenchmarkWall"));
+            Wall.DestroyedMesh      = FSoftObjectPath(TEXT("/Game/Placeholder/Building/SM_BenchmarkWall_Destroyed.SM_BenchmarkWall_Destroyed"));
+            Wall.MaxHealth          = 100.f;
+            T->AddRow(FName("WallSegment"), Wall);
+        });
 }
