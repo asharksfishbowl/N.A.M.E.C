@@ -70,6 +70,12 @@ record and for the Researcher/Director to read):
 - Commandlet log: last 20 lines of Saved/Logs/Commandlet-<sha>.log and exit code
 - PIE console: paste or screenshot of the console output for each proving command run
 
+## SSH IDENTITY
+
+Pipeline SSH account: ashar (key ~/.ssh/id_ed25519_refpc, alias refpc).
+⛔ Never launch two reference-PC builds concurrently from the container — the
+cross-account WaitMutex does not queue; a second build fails immediately.
+
 ---
 *Fill this template before submitting the branch for review.*
 *Post-clone instruction: `git config core.hooksPath Tools/Hooks`*

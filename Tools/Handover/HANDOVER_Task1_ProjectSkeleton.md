@@ -149,3 +149,9 @@ Pending — compile now passes; OSS Null session test deferred to Task 2 (OPEN P
 After compile passes on Windows:
 - UBT log: last 20 lines of `Saved/Logs/UBT-<sha>.log` and exit code → paste here
 - Game target: last 20 lines of `Saved/Logs/UBT-<sha>-game.log` and exit code → paste here
+
+## SSH IDENTITY
+
+Pipeline SSH account: ashar (key ~/.ssh/id_ed25519_refpc, alias refpc).
+⛔ Never launch two reference-PC builds concurrently from the container — the
+cross-account WaitMutex does not queue; a second build fails immediately.
