@@ -72,7 +72,9 @@ Status legend: **Pending**, **In progress**, **Done**, **Blocked**.
 |------|------------------------|
 | game-foundation | 4, 5, 6 (the three save types, each with only the fields that exist so far; later phases add theirs), 7, 8, 9, 10, 11, 12, 14 (the base mapping contexts and the context framework; each context's actions are finished in the phase that owns them); Edge Cases 1–4 |
 | engine-tech | 4 (plugin exclusion check), 7 (user settings ceiling from `UNamecSettingsSave`), 8 (`NamecNaniteAuthoringValidator`), 10; Edge Cases 4, 5, 9 |
+| engine-tech | Evaluate: **CommonUI With Enhanced Input** (Requirement 5) — whether the settings and lobby UI built in this phase triggers the 5.8 Experimental dispatcher path (`research/unreal-5.6-5.8-features.md` §5.7); row added 2026-09-18 from the 09-18 research review |
 | multiplayer | 2, 3, 6, 7, 23 |
+| authored-map | 24 (`UNamecWorldSave` fields), 25 (load rule, `UNamecWorldLoader`) — row added 2026-09-18 to close Conflict C1 of `research/authored-map-review.md`; prose below unchanged |
 
 **Closed 2026-09-16:** default machine-wide graphics settings equal the High tier row of `DT_MP_SplitScreenScalability`. Requirement 7 already treats user settings as a ceiling and the benchmark tunes that row, so the default is the measured reference configuration. No hardware auto-detect.
 
@@ -108,6 +110,8 @@ The checkpoint needs a second machine or a VM beside the reference PC for the LA
 | authored-map | 2 (`VMA_Namec`), 5 (Tiles source), 12 (sculpt brush), 14–20 (validator and authored structure classes, with placeholder town volumes on a greybox map), 22, 23, 26–28, 30–31; Data Flows 1, 3–7; Edge Cases 5–9, 12–13 |
 | survival | 9 (ambient temperature inputs from climate) (core) |
 | engine-tech | Evaluate: **World Partition** (Requirement 5) at this phase's bake checkpoint, against the authored `ANamecTown` positions with placeholder town volumes on the greybox map (moved from Phase 10 on 2026-09-16) |
+
+**Bake design for Phase 4 (research 0918-4, 2026-09-18):** the bake commandlet is single-threaded and linear in chunk count (1 km² ≈ 25 min at 25 cm). Phase 4 files three build tasks in this order before the shipped map is authored: `ParallelFor` over the chunk loop with per-chunk results merged serially so `MapHash` order is unchanged; per-pass timing in the commandlet log; incremental bake of stroke-affected chunks (`--IncrementalFrom=<sha>`), valid only while `BakeSettings` are unchanged.
 
 **⏸ Test checkpoint at the end of the phase:** the first real bake of `VMA_Namec` from the committed heightfield tiles on the reference PC, the validator run on `L_Namec.umap`, and the World Partition evaluation. This is the first phase with editor tooling the pipeline can write but never open (sculpt brush, validator), and the user's heightfield authoring is art time.
 
