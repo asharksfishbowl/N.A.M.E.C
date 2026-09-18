@@ -60,7 +60,11 @@ Status legend: **Pending**, **In progress**, **Done**, **Blocked**.
 
 **Exit:** a passing run is recorded below with its manifest hash, `DT_MP_SplitScreenScalability` is tuned (Requirement 12), and the Evaluate row decisions for Nanite Geometry Collections and First Person Rendering are recorded.
 
-**Untested assumptions carried into Phase 1** (user-sitting results, not room decisions): that the black-terrain Lumen failure, if it occurs, is a missing surface cache on the custom proxy; whether Lumen Lite lights a custom proxy at all (`specs/engine-tech/engine-tech.md` Requirement 9); and the stroke-log replay cost at 8×8 km (the 1×1 km benchmark bake gives the first number).
+**Untested assumptions carried into Phase 1** (user-sitting results, not room decisions):
+
+- **RESOLVED 2026-09-18 (task 4 lighting checkpoint):** the black-terrain Lumen failure, if it occurs, is a missing surface cache on the custom proxy — recorded as **confirmed** from the user's Inbox answer to the task 4 checkpoint card at 2026-09-18T05:11:33Z ("Surface cache lit the proxy — Lumen HWRT works"). Not independently measured by the pipeline; the headless stand-in (chore 0918-5) corroborates load, draw and an active HWRT path only.
+- **Open:** whether Lumen Lite lights a custom proxy at all (`specs/engine-tech/engine-tech.md` Requirement 9) — not exercised; the primary path worked and the fallback was not needed.
+- **Measured 2026-09-18:** stroke-log replay cost — negligible at Phase 1 stroke counts; the bake itself is single-threaded and linear in chunk count (`research/bake-timing.md`).
 
 ---
 
