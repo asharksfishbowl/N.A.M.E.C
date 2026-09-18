@@ -8,8 +8,9 @@
 #   2. /Game/Benchmark/TestChunk.uasset created: run NamecMeshExport -Chunk=0,0 first.
 #   3. No other build or editor session in flight on the reference PC.
 #   4. Run from a .worktrees/ checkout of base (e.g. .worktrees/0918-5-lumen-screenshot).
+#   5. interactive-launcher-watcher.ps1 registered and running in ashar's logon session.
 #
-# Usage (from the reference PC, or via SSH from the container):
+# Usage (via SSH from the container):
 #   .\headless-lumen-screenshot.ps1 "C:\Users\ashar\repos\worktrees\0918-5-lumen-screenshot" <sha>
 #
 # Output:
@@ -39,13 +40,16 @@ New-Item -ItemType Directory -Force -Path $ShotDir | Out-Null
 #   4. Quit
 $ExecCmds = "NamecBenchmark.SpawnLumenTest,r.Lumen.Visualize.Overview 1,HighResShot 1920x1080,Quit"
 
-& $Editor $Uproject /Engine/Maps/Entry `
-    -game -d3d12 -RenderOffScreen `
-    -nosplash -unattended `
-    "-ExecCmds=$ExecCmds" `
-    "-log=$Log"
+$r = & "$PSScriptRoot\interactive-launch.ps1" `
+        -Exe $Editor `
+        -Args @($Uproject, "/Engine/Maps/Entry",
+                "-game", "-d3d12", "-RenderOffScreen",
+                "-nosplash", "-unattended",
+                "-ExecCmds=$ExecCmds",
+                "-log=lumen-headless-$Sha") `
+        -ProjectRoot $ProjectRoot
 
-$Exit = $LASTEXITCODE
+$Exit = $r.exitCode
 
 if (Test-Path $Log)
 {
