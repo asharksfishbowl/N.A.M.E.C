@@ -27,6 +27,7 @@ public class NAMEC : ModuleRules
             "StateTreeModule",
             "SmartObjectsModule",
             "PCG",
+            "CustomizableObject",
             "MutableRuntime",
             "IKRig",
             "PoseSearch",
