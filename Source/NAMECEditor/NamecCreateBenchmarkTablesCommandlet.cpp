@@ -34,11 +34,10 @@ bool UNamecCreateBenchmarkTablesCommandlet::CreateAndSaveDataTable(
 
     FSavePackageArgs SaveArgs;
     SaveArgs.TopLevelFlags = RF_Public | RF_Standalone;
-    ESavePackageResult Result = UPackage::SavePackage(Package, Table, *FilePath, SaveArgs);
+    bool bSaved = UPackage::SavePackage(Package, Table, *FilePath, SaveArgs);
     UE_LOG(LogTemp, Display, TEXT("  Saved %s → %s (%s)"),
-        *PackageName, *FilePath,
-        Result == ESavePackageResult::Success ? TEXT("OK") : TEXT("FAIL"));
-    return Result == ESavePackageResult::Success;
+        *PackageName, *FilePath, bSaved ? TEXT("OK") : TEXT("FAIL"));
+    return bSaved;
 }
 
 bool UNamecCreateBenchmarkTablesCommandlet::CreateScalabilityTable()
