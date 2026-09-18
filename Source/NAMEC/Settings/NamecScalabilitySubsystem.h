@@ -5,6 +5,9 @@
 #include "HAL/IConsoleManager.h"
 #include "NamecScalabilitySubsystem.generated.h"
 
+class UDataTable;
+class ULocalPlayer;
+
 USTRUCT(BlueprintType)
 struct NAMEC_API FNamecScalabilityTierRow : public FTableRowBase
 {
@@ -50,10 +53,15 @@ public:
     virtual void Deinitialize() override;
 
 private:
-    void OnLocalPlayerCountChanged();
+    void OnLocalPlayerCountChanged(ULocalPlayer* LocalPlayer);
     void ApplyTierForViewportCount(int32 ViewportCount);
     void LogActiveTier() const;
 
     // FAutoConsoleCommand registered in Initialize — UFUNCTION(Exec) cannot reach UGameInstanceSubsystem.
     TOptional<FAutoConsoleCommand> LogActiveTierCmd;
+
+    UPROPERTY()
+    TObjectPtr<UDataTable> ScalabilityTable;
+
+    FName ActiveTierName;
 };
