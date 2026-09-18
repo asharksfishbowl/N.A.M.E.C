@@ -57,7 +57,6 @@ public:
                                        bool bInUseAllTriData) override;
     virtual bool ContainsPhysicsTriMeshData(bool bInUseAllTriData) const override
         { return !PhysicsMesh.Indices.IsEmpty(); }
-    virtual bool WantsNegXRaytracing() const override { return false; }
 
     // Build a marching-cubes mesh at the given LOD stride with optional transition faces.
     // LODLevel 0 = stride 1 (full res), 1 = stride 2, 2 = stride 4.
