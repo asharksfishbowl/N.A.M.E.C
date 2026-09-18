@@ -16,6 +16,8 @@ public class NAMECEditor : ModuleRules
             "UnrealEd",
             "LevelEditor",
             "DataValidation",
+            "Json",
+            "JsonUtilities",
         });
     }
 }

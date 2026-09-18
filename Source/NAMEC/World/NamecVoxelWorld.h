@@ -6,6 +6,7 @@
 #include "NamecVoxelWorld.generated.h"
 
 class UNamecVoxelMapAsset;
+class UNamecDigDepthQuery;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnTerrainEdited, FIntPoint /*ChunkCoord*/);
 
@@ -38,4 +39,8 @@ public:
 
     UPROPERTY()
     TObjectPtr<UNamecVoxelMapAsset> MapAssetOverride;
+
+private:
+    UPROPERTY()
+    TObjectPtr<UNamecDigDepthQuery> DigDepthQuery;
 };
