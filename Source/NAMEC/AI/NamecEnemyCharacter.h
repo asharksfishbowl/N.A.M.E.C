@@ -2,7 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "Character/NamecCharacterBase.h"
+#include "MuCO/CustomizableSkeletalComponent.h"
 #include "NamecEnemyCharacter.generated.h"
+
+class UStateTreeComponent;
 
 UCLASS()
 class NAMEC_API ANamecEnemyCharacter : public ANamecCharacterBase
@@ -11,6 +14,9 @@ class NAMEC_API ANamecEnemyCharacter : public ANamecCharacterBase
 
 public:
     ANamecEnemyCharacter();
+
+    UPROPERTY(VisibleAnywhere) TObjectPtr<UStateTreeComponent>         StateTree;
+    UPROPERTY(VisibleAnywhere) TObjectPtr<UCustomizableSkeletalComponent> MutableBody;
 
     UPROPERTY(ReplicatedUsing = OnRep_Health)
     float Health = 100.f;
