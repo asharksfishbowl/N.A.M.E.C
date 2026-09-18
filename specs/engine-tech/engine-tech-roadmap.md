@@ -111,6 +111,8 @@ The checkpoint needs a second machine or a VM beside the reference PC for the LA
 | survival | 9 (ambient temperature inputs from climate) (core) |
 | engine-tech | Evaluate: **World Partition** (Requirement 5) at this phase's bake checkpoint, against the authored `ANamecTown` positions with placeholder town volumes on the greybox map (moved from Phase 10 on 2026-09-16) |
 
+**Bake design for Phase 4 (research 0918-4, 2026-09-18):** the bake commandlet is single-threaded and linear in chunk count (1 km² ≈ 25 min at 25 cm). Phase 4 files three build tasks in this order before the shipped map is authored: `ParallelFor` over the chunk loop with per-chunk results merged serially so `MapHash` order is unchanged; per-pass timing in the commandlet log; incremental bake of stroke-affected chunks (`--IncrementalFrom=<sha>`), valid only while `BakeSettings` are unchanged.
+
 **⏸ Test checkpoint at the end of the phase:** the first real bake of `VMA_Namec` from the committed heightfield tiles on the reference PC, the validator run on `L_Namec.umap`, and the World Partition evaluation. This is the first phase with editor tooling the pipeline can write but never open (sculpt brush, validator), and the user's heightfield authoring is art time.
 
 ---

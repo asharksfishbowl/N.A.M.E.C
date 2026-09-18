@@ -20,6 +20,8 @@ Input added 2026-09-18 (midpoint round table): bake cost per revision. The Task 
 Phase 4 bake design (tiled, parallel, incremental or cached) before this decision is taken.
 Map size itself is not reopened.
 
+Measured 2026-09-18 (`research/bake-timing.md`, issue 0918-4): full-revision bake at 25 cm, single-threaded — 1 km² ≈ 25 min · 2 km² ≈ 1.7 h · 4 km² ≈ 6.7 h · 8 km² ≈ 27 h. After the Phase 4 `ParallelFor` change, divide by ~8–10 on the reference PC (10 cores). Incremental bake (only stroke-affected chunks) brings authoring iterations to seconds.
+
 ### Git LFS
 
 Deferred to the first phase that ships real art. Until then `.gitattributes` carries no LFS
@@ -39,7 +41,7 @@ findings as reference only.
 - The black-terrain Lumen HWRT failure, if it occurs on the custom chunk proxy, is most likely a
   missing Lumen surface cache. Task 4's two-sitting checkpoint bisects this.
 - Whether Lumen Lite lights a custom scene proxy at all (engine-tech Requirement 9).
-- Stroke-log replay cost at 8 × 8 km. The 1 km benchmark bake gives the first number.
+- ~~Stroke-log replay cost at 8 × 8 km.~~ Measured 2026-09-18 (`research/bake-timing.md`): the bake is single-threaded and linear in chunk count; stroke replay is negligible at Phase 1 stroke counts. See "Real map size" for the per-size cost table.
 
 ## Closed on 2026-09-16 (round table)
 
