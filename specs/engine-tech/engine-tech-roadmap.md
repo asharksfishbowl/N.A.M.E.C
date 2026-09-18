@@ -72,7 +72,9 @@ Status legend: **Pending**, **In progress**, **Done**, **Blocked**.
 |------|------------------------|
 | game-foundation | 4, 5, 6 (the three save types, each with only the fields that exist so far; later phases add theirs), 7, 8, 9, 10, 11, 12, 14 (the base mapping contexts and the context framework; each context's actions are finished in the phase that owns them); Edge Cases 1–4 |
 | engine-tech | 4 (plugin exclusion check), 7 (user settings ceiling from `UNamecSettingsSave`), 8 (`NamecNaniteAuthoringValidator`), 10; Edge Cases 4, 5, 9 |
+| engine-tech | Evaluate: **CommonUI With Enhanced Input** (Requirement 5) — whether the settings and lobby UI built in this phase triggers the 5.8 Experimental dispatcher path (`research/unreal-5.6-5.8-features.md` §5.7); row added 2026-09-18 from the 09-18 research review |
 | multiplayer | 2, 3, 6, 7, 23 |
+| authored-map | 24 (`UNamecWorldSave` fields), 25 (load rule, `UNamecWorldLoader`) — row added 2026-09-18 to close Conflict C1 of `research/authored-map-review.md`; prose below unchanged |
 
 **Closed 2026-09-16:** default machine-wide graphics settings equal the High tier row of `DT_MP_SplitScreenScalability`. Requirement 7 already treats user settings as a ceiling and the benchmark tunes that row, so the default is the measured reference configuration. No hardware auto-detect.
 

@@ -14,6 +14,12 @@ asset (`specs/authored-map/authored-map.md` Requirement 1). The benchmark map is
 The shipped map's size is the user's call when Phase 4 starts authoring it; a hand-authored
 8 × 8 km map is a large art cost.
 
+Input added 2026-09-18 (midpoint round table): bake cost per revision. The Task 3 bake of
+`VMA_Benchmark` at 1 km², 25 cm took ~25 min for 15,625 chunks; a linear extrapolation gives
+~27 h at 8 × 8 km, untested. Research issue 0918-4 reads per-pass timings and recommends the
+Phase 4 bake design (tiled, parallel, incremental or cached) before this decision is taken.
+Map size itself is not reopened.
+
 ### Git LFS
 
 Deferred to the first phase that ships real art. Until then `.gitattributes` carries no LFS
