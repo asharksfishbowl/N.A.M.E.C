@@ -69,9 +69,6 @@ void ANamecPlayerCharacter::ServerApplyTerrainEdit_Implementation(
 void ANamecPlayerCharacter::Multicast_TerrainDelta_Implementation(
     FIntPoint ChunkCoord, const TArray<FNamecVoxelDelta>& Deltas)
 {
-    // Server already applied the edit via ApplyTerrainEdit; only clients need to catch up.
-    if (HasAuthority()) return;
-
     UWorld* W = GetWorld();
     UNamecVoxelWorld* VoxelWorld = W ? W->GetSubsystem<UNamecVoxelWorld>() : nullptr;
     if (VoxelWorld)

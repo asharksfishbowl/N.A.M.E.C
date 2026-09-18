@@ -19,9 +19,8 @@ public:
     // Decompress chunk from map asset and apply stored edit deltas, then notify listeners.
     void AddOrUpdateChunk(FIntPoint ChunkCoord);
 
-    // Server-side. Validates the edit, applies the write kernel, stores the delta, and
-    // broadcasts OnTerrainEdited for each affected chunk. Fills OutChunkCoords /
-    // OutPerChunkDeltas so the caller (character Server RPC) can replicate the changes.
+    // Validates the edit and computes per-chunk deltas. Pure computation: does NOT write
+    // to EditDeltas or broadcast. Caller applies via ApplyDelta on all machines.
     void ApplyTerrainEdit(FVector CentreMetres, float RadiusMetres,
                           ENamecEditMode Mode, FName MaterialRow, int32 ToolTier,
                           TArray<FIntPoint>& OutChunkCoords,
@@ -56,5 +55,6 @@ private:
     TObjectPtr<UNamecDigDepthQuery> DigDepthQuery;
 
     // Per-chunk accumulated edit deltas applied on top of the baked base data.
-    TMap<FIntPoint, TArray<FNamecVoxelDelta>> EditDeltas;
+    TMap<FIntPoint, TMap<int32, uint8>> EditDeltas;
+    float ChunkSizeMetres() const;
 };

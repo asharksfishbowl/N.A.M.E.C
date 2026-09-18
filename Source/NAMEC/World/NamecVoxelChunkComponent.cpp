@@ -719,7 +719,7 @@ void UNamecVoxelChunkComponent::PollPendingMesh()
 
     if (!Result.IsEmpty())
     {
-        PhysicsMesh = Result; // keep for GetPhysicsTriMeshData
+        PhysicsMesh = MoveTemp(Result);
         MarkRenderStateDirty();
 
         // Cook collision on the game thread; chunk meshes are small so this is fast.
@@ -841,7 +841,6 @@ bool UNamecVoxelChunkComponent::GetPhysicsTriMeshData(FTriMeshCollisionData* Col
         Tri.v2 = PhysicsMesh.Indices[i * 3 + 2];
         CollisionData->Indices.Add(Tri);
     }
-    CollisionData->bFlipNormals  = false;
     CollisionData->bDeformableMesh = true;
     CollisionData->bFastCook     = true;
     return true;

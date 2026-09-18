@@ -33,17 +33,6 @@ static FNamecVoxelData DecompressChunk(const FNamecChunkData& ChunkData, FIntPoi
     return Out;
 }
 
-static void MergeDeltas(TArray<FNamecVoxelDelta>& Stored, const TArray<FNamecVoxelDelta>& Incoming)
-{
-    for (const FNamecVoxelDelta& D : Incoming)
-    {
-        FNamecVoxelDelta* Ex = Stored.FindByPredicate(
-            [&](const FNamecVoxelDelta& S){ return S.LinearIdx == D.LinearIdx; });
-        if (Ex) Ex->Material = D.Material;
-        else    Stored.Add(D);
-    }
-}
-
 void UNamecVoxelWorld::AddOrUpdateChunk(FIntPoint ChunkCoord)
 {
     if (!MapAssetOverride) return;
@@ -61,10 +50,10 @@ FNamecVoxelData UNamecVoxelWorld::GetChunkVoxelData(FIntPoint ChunkCoord) const
     const float VoxSize = MapAssetOverride->VoxelResolutionCm / 100.f;
     FNamecVoxelData Data = DecompressChunk(*Packed, ChunkCoord, VoxSize);
 
-    if (const TArray<FNamecVoxelDelta>* Deltas = EditDeltas.Find(ChunkCoord))
-        for (const FNamecVoxelDelta& D : *Deltas)
-            if (Data.MaterialIndex.IsValidIndex(D.LinearIdx))
-                Data.MaterialIndex[D.LinearIdx] = D.Material;
+    if (const TMap<int32, uint8>* Deltas = EditDeltas.Find(ChunkCoord))
+        for (const auto& KV : *Deltas)
+            if (Data.MaterialIndex.IsValidIndex(KV.Key))
+                Data.MaterialIndex[KV.Key] = KV.Value;
 
     return Data;
 }
@@ -77,8 +66,7 @@ void UNamecVoxelWorld::ApplyTerrainEdit(FVector CentreMetres, float RadiusMetres
     if (!MapAssetOverride) return;
     if (Mode == ENamecEditMode::Dig && !IsWithinDigDepth(CentreMetres)) return;
 
-    const float VoxSize     = MapAssetOverride->VoxelResolutionCm / 100.f;
-    const float ChunkMetres = NamecChunkH * VoxSize;
+    const float ChunkMetres = ChunkSizeMetres();
 
     const int32 MinCX = FMath::FloorToInt((CentreMetres.X - RadiusMetres) / ChunkMetres);
     const int32 MaxCX = FMath::FloorToInt((CentreMetres.X + RadiusMetres) / ChunkMetres);
@@ -102,24 +90,23 @@ void UNamecVoxelWorld::ApplyTerrainEdit(FVector CentreMetres, float RadiusMetres
 
         if (NewDeltas.IsEmpty()) continue;
 
-        MergeDeltas(EditDeltas.FindOrAdd(Coord), NewDeltas);
         OutChunkCoords.Add(Coord);
         OutPerChunkDeltas.Add(MoveTemp(NewDeltas));
-        OnTerrainEdited.Broadcast(Coord);
     }
 }
 
 void UNamecVoxelWorld::ApplyDelta(FIntPoint ChunkCoord, const TArray<FNamecVoxelDelta>& Deltas)
 {
-    MergeDeltas(EditDeltas.FindOrAdd(ChunkCoord), Deltas);
+    TMap<int32, uint8>& Stored = EditDeltas.FindOrAdd(ChunkCoord);
+    for (const FNamecVoxelDelta& D : Deltas)
+        Stored.Add(D.LinearIdx, D.Material);
     OnTerrainEdited.Broadcast(ChunkCoord);
 }
 
 void UNamecVoxelWorld::RevertArenaEdits(FVector ArenaCentreMetres, float ArenaRadiusMetres)
 {
     if (!MapAssetOverride) return;
-    const float VoxSize     = MapAssetOverride->VoxelResolutionCm / 100.f;
-    const float ChunkMetres = NamecChunkH * VoxSize;
+    const float ChunkMetres = ChunkSizeMetres();
     const float R2          = ArenaRadiusMetres * ArenaRadiusMetres;
 
     TArray<FIntPoint> ToRevert;
@@ -140,6 +127,11 @@ void UNamecVoxelWorld::RevertArenaEdits(FVector ArenaCentreMetres, float ArenaRa
         EditDeltas.Remove(Coord);
         OnTerrainEdited.Broadcast(Coord); // re-mesh from baked base only
     }
+}
+
+float UNamecVoxelWorld::ChunkSizeMetres() const
+{
+    return MapAssetOverride ? NamecChunkH * (MapAssetOverride->VoxelResolutionCm / 100.f) : 0.f;
 }
 
 bool UNamecVoxelWorld::IsWithinDigDepth(FVector PositionMetres) const
