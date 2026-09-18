@@ -61,6 +61,7 @@ void UNamecScalabilitySubsystem::ApplyTierForViewportCount(int32 ViewportCount)
     }
 
     if (!MatchedRow) return;
+    ActiveTierRow = *MatchedRow;
 
     auto SetCVar = [](const TCHAR* Name, int32 Value)
     {
@@ -74,6 +75,13 @@ void UNamecScalabilitySubsystem::ApplyTierForViewportCount(int32 ViewportCount)
     SetCVar(TEXT("sg.FoliageQuality"), MatchedRow->FoliageQuality);
     SetCVar(TEXT("sg.PostProcessQuality"), MatchedRow->PostProcessQuality);
     SetCVar(TEXT("r.DynamicRes.OperationMode"), MatchedRow->DynamicResOperationMode);
+}
+
+void UNamecScalabilitySubsystem::GetActiveLODDistances(float& Out0, float& Out1, float& Out2) const
+{
+    Out0 = ActiveTierRow.LODDistance0Metres;
+    Out1 = ActiveTierRow.LODDistance1Metres;
+    Out2 = ActiveTierRow.LODDistance2Metres;
 }
 
 void UNamecScalabilitySubsystem::LogActiveTier() const

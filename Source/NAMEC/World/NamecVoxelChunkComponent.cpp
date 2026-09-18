@@ -1,7 +1,10 @@
 #include "World/NamecVoxelChunkComponent.h"
 #include "World/NamecVoxelSceneProxy.h"
+#include "Settings/NamecScalabilitySubsystem.h"
 #include "Materials/Material.h"
 #include "Engine/Engine.h"
+#include "Async/Async.h"
+#include "Engine/GameInstance.h"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Marching-cubes lookup tables (Paul Bourke / Lorensen-Cline, public domain).
@@ -309,122 +312,320 @@ static FVector3f LerpEdge(FVector3f P0, FVector3f P1) { return (P0 + P1) * 0.5f;
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-FNamecVoxelMeshData UNamecVoxelChunkComponent::BuildMesh(const FNamecVoxelData& Vd)
+// ─────────────────────────────────────────────────────────────────────────────
+// 2D marching-squares table for transition-face seam healing.
+// 4 corners (A=bit0, C=bit1, G=bit2, I=bit3) → two face-edge indices per segment.
+// Edge indices: 0=bottom(A-C), 1=right(C-I), 2=top(G-I), 3=left(A-G). -1=none.
+// ─────────────────────────────────────────────────────────────────────────────
+namespace NamecTF
+{
+// Each case: up to 2 edge segments (4 values). -1 = terminate.
+static const int8 MSTable[16][5] = {
+    {-1,-1,-1,-1,-1}, // 0000 — none inside
+    { 0, 3,-1,-1,-1}, // 0001 — A
+    { 0, 1,-1,-1,-1}, // 0010 — C
+    { 3, 1,-1,-1,-1}, // 0011 — AC
+    { 3, 2,-1,-1,-1}, // 0100 — G
+    { 0, 2,-1,-1,-1}, // 0101 — AG  (saddle: prefer A,G split)
+    { 0, 3, 1, 2,-1}, // 0110 — CG  (two segments)
+    { 1, 2,-1,-1,-1}, // 0111 — ACG
+    { 1, 2,-1,-1,-1}, // 1000 — I
+    { 0, 3, 1, 2,-1}, // 1001 — AI  (two segments)
+    { 0, 2,-1,-1,-1}, // 1010 — CI  (saddle: prefer C,I split)
+    { 3, 2,-1,-1,-1}, // 1011 — ACI
+    { 3, 1,-1,-1,-1}, // 1100 — GI
+    { 0, 1,-1,-1,-1}, // 1101 — AGI
+    { 0, 3,-1,-1,-1}, // 1110 — CGI
+    {-1,-1,-1,-1,-1}, // 1111 — all inside
+};
+} // namespace NamecTF
+// ─────────────────────────────────────────────────────────────────────────────
+
+FNamecVoxelMeshData UNamecVoxelChunkComponent::BuildMesh(const FNamecVoxelData& Vd,
+                                                          int32 LODLevel,
+                                                          uint8 TransitionFaces)
 {
     using namespace NamecMC;
+    using namespace NamecTF;
 
     FNamecVoxelMeshData Out;
     if (Vd.SizeX < 2 || Vd.SizeY < 2 || Vd.SizeZ < 2) return Out;
 
-    const float Vs = Vd.VoxelSizeMetres * 100.f; // convert metres → UU (cm)
-    const FVector3f Origin(Vd.WorldOriginMetres * 100.f); // metres → UU
+    const int32 Stride   = 1 << FMath::Clamp(LODLevel, 0, 4); // voxel step per cell
+    const int32 NumCellX = (Vd.SizeX - 1) / Stride;
+    const int32 NumCellY = (Vd.SizeY - 1) / Stride;
+    const int32 NumCellZ = (Vd.SizeZ - 1) / Stride;
 
-    // Pre-reserve an estimate; actual count can only be known after meshing.
-    Out.Vertices.Reserve((Vd.SizeX - 1) * (Vd.SizeY - 1) * (Vd.SizeZ - 1) * 3);
+    if (NumCellX < 1 || NumCellY < 1 || NumCellZ < 1) return Out;
+
+    const float Vs     = Vd.VoxelSizeMetres * 100.f;          // voxel size in UU (cm)
+    const FVector3f Origin(Vd.WorldOriginMetres * 100.f);
+
+    Out.Vertices.Reserve(NumCellX * NumCellY * NumCellZ * 3);
     Out.Indices.Reserve(Out.Vertices.GetSlack() * 3);
-    TArray<FVector3f> NormalAccum; // parallel to Out.Vertices; kept as float for accumulation
+    TArray<FVector3f> NormalAccum;
 
-    // Edge-to-vertex map for the current and previous z-slice to share vertices.
-    // Key: encoded edge id (corner pair + linear position), Value: vertex index.
+    // Vertex cache: key encodes (CellX, CellY, CellZ, EdgeIdx) in cell-space.
     TMap<uint64, int32> EdgeVertexMap;
-    EdgeVertexMap.Reserve(Vd.SizeX * Vd.SizeY * 4);
+    EdgeVertexMap.Reserve(NumCellX * NumCellY * 4);
+
+    // ── helpers ──────────────────────────────────────────────────────────────
 
     auto GetDensity = [&](int32 X, int32 Y, int32 Z) -> float
     {
         if (X < 0 || Y < 0 || Z < 0 || X >= Vd.SizeX || Y >= Vd.SizeY || Z >= Vd.SizeZ)
-        {
-            return 0.f; // treat out-of-bounds as air
-        }
+            return 0.f;
         return Vd.MaterialIndex[Vd.LinearIdx(X, Y, Z)] > 0 ? 1.f : 0.f;
     };
 
-    auto EncodeEdge = [&](int32 Cx, int32 Cy, int32 Cz, int32 EdgeIdx) -> uint64
+    // CellX/Y/Z are in cell-space; multiply by Stride for voxel-space coords.
+    auto EncodeEdge = [](int32 Cx, int32 Cy, int32 Cz, int32 Edge) -> uint64
     {
-        // Encode cell + edge into a 64-bit key for vertex sharing.
         return ((uint64)(uint16)Cx) | ((uint64)(uint16)Cy << 16) |
-               ((uint64)(uint16)Cz << 32) | ((uint64)(uint8)EdgeIdx << 48);
+               ((uint64)(uint16)Cz << 32) | ((uint64)(uint8)Edge << 48);
+    };
+
+    auto AddVertex = [&](FVector3f Pos) -> int32
+    {
+        FDynamicMeshVertex V;
+        V.Position = Pos;
+        V.TextureCoordinate[0] = FVector2f(Pos.X / (Vs * 4.f), Pos.Y / (Vs * 4.f));
+        V.Color = FColor::White;
+        V.SetTangents(FVector3f(1, 0, 0), FVector3f(0, 1, 0), FVector3f(0, 0, 1));
+        NormalAccum.AddZeroed();
+        return Out.Vertices.Add(V);
     };
 
     auto GetOrCreateVertex = [&](int32 Cx, int32 Cy, int32 Cz, int32 EdgeIdx) -> int32
     {
         uint64 Key = EncodeEdge(Cx, Cy, Cz, EdgeIdx);
-        if (int32* Existing = EdgeVertexMap.Find(Key))
-        {
-            return *Existing;
-        }
+        if (int32* Ex = EdgeVertexMap.Find(Key)) return *Ex;
 
-        int32 C0 = EdgeCorners[EdgeIdx][0];
-        int32 C1 = EdgeCorners[EdgeIdx][1];
-        FIntVector O0 = FIntVector(Cx, Cy, Cz) + CornerOffset[C0];
-        FIntVector O1 = FIntVector(Cx, Cy, Cz) + CornerOffset[C1];
-
-        FVector3f P0 = Origin + FVector3f(O0.X, O0.Y, O0.Z) * Vs;
-        FVector3f P1 = Origin + FVector3f(O1.X, O1.Y, O1.Z) * Vs;
-        FVector3f Pos = LerpEdge(P0, P1);
-
-        FDynamicMeshVertex V;
-        V.Position = Pos;
-        // Normal computed per-face below; UV from world-space XY scaled by voxel size.
-        V.TextureCoordinate[0] = FVector2f(Pos.X / (Vs * 4.f), Pos.Y / (Vs * 4.f));
-        V.Color = FColor::White;
-        V.SetTangents(FVector3f(1, 0, 0), FVector3f(0, 1, 0), FVector3f(0, 0, 1));
-
-        int32 Idx = Out.Vertices.Add(V);
-        NormalAccum.AddZeroed(); // parallel slot for this vertex
+        int32 C0 = EdgeCorners[EdgeIdx][0], C1 = EdgeCorners[EdgeIdx][1];
+        FIntVector O0 = FIntVector(Cx, Cy, Cz) * Stride + CornerOffset[C0] * Stride;
+        FIntVector O1 = FIntVector(Cx, Cy, Cz) * Stride + CornerOffset[C1] * Stride;
+        FVector3f Pos = LerpEdge(Origin + FVector3f(O0.X, O0.Y, O0.Z) * Vs,
+                                  Origin + FVector3f(O1.X, O1.Y, O1.Z) * Vs);
+        int32 Idx = AddVertex(Pos);
         EdgeVertexMap.Add(Key, Idx);
         return Idx;
     };
 
-    for (int32 Z = 0; Z < Vd.SizeZ - 1; ++Z)
+    auto EmitTriangle = [&](int32 I0, int32 I1, int32 I2)
     {
-        for (int32 Y = 0; Y < Vd.SizeY - 1; ++Y)
+        FVector3f P0 = Out.Vertices[I0].Position;
+        FVector3f P1 = Out.Vertices[I1].Position;
+        FVector3f P2 = Out.Vertices[I2].Position;
+        FVector3f N  = ((P1 - P0) ^ (P2 - P0)).GetSafeNormal();
+        NormalAccum[I0] += N; NormalAccum[I1] += N; NormalAccum[I2] += N;
+        Out.Indices.Add(I0); Out.Indices.Add(I1); Out.Indices.Add(I2);
+    };
+
+    // ── regular marching-cubes at LOD stride ─────────────────────────────────
+    // Cells on the last row/col of a transition face are skipped here and handled
+    // by the 2D marching-squares pass below.
+
+    auto IsTransitionCell = [&](int32 Cx, int32 Cy, int32 Cz) -> bool
+    {
+        if ((TransitionFaces & NTF_PosX) && Cx == NumCellX - 1) return true;
+        if ((TransitionFaces & NTF_NegX) && Cx == 0)            return true;
+        if ((TransitionFaces & NTF_PosY) && Cy == NumCellY - 1) return true;
+        if ((TransitionFaces & NTF_NegY) && Cy == 0)            return true;
+        if ((TransitionFaces & NTF_PosZ) && Cz == NumCellZ - 1) return true;
+        if ((TransitionFaces & NTF_NegZ) && Cz == 0)            return true;
+        return false;
+    };
+
+    for (int32 Cz = 0; Cz < NumCellZ; ++Cz)
+    for (int32 Cy = 0; Cy < NumCellY; ++Cy)
+    for (int32 Cx = 0; Cx < NumCellX; ++Cx)
+    {
+        if (IsTransitionCell(Cx, Cy, Cz)) continue;
+
+        uint8 Config = 0;
+        for (int32 c = 0; c < 8; ++c)
         {
-            for (int32 X = 0; X < Vd.SizeX - 1; ++X)
-            {
-                // Build 8-bit cube config from corner densities.
-                uint8 Config = 0;
-                for (int32 c = 0; c < 8; ++c)
-                {
-                    FIntVector Off = FIntVector(X, Y, Z) + CornerOffset[c];
-                    if (GetDensity(Off.X, Off.Y, Off.Z) > 0.5f)
-                    {
-                        Config |= (1 << c);
-                    }
-                }
-                if (Config == 0 || Config == 255) continue; // fully air or fully solid
+            FIntVector Off = FIntVector(Cx, Cy, Cz) * Stride + CornerOffset[c] * Stride;
+            if (GetDensity(Off.X, Off.Y, Off.Z) > 0.5f) Config |= (1 << c);
+        }
+        if (Config == 0 || Config == 255 || EdgeTable[Config] == 0) continue;
 
-                if (EdgeTable[Config] == 0) continue;
+        for (int32 t = 0; TriTable[Config][t] != -1; t += 3)
+            EmitTriangle(GetOrCreateVertex(Cx, Cy, Cz, TriTable[Config][t]),
+                         GetOrCreateVertex(Cx, Cy, Cz, TriTable[Config][t + 1]),
+                         GetOrCreateVertex(Cx, Cy, Cz, TriTable[Config][t + 2]));
+    }
 
-                // Emit triangles from the triangle table.
-                for (int32 t = 0; TriTable[Config][t] != -1; t += 3)
-                {
-                    int32 E0 = TriTable[Config][t];
-                    int32 E1 = TriTable[Config][t + 1];
-                    int32 E2 = TriTable[Config][t + 2];
+    // ── transition-face 2D marching-squares seam cells ────────────────────────
+    // For each enabled transition face, run 2D marching squares using only the 4
+    // low-res corner samples (A,C,G,I). Face-edge crossing vertices (B,D,F,H) are
+    // at positions the coarser neighbor also produces, so no T-junctions arise.
+    // Each 2D face segment is connected to an interior backing vertex (one stride
+    // inward) to form a closed 3D triangle.
+    //
+    // Local 2D coordinate conventions per face axis:
+    //   +X face: face axes are (Y,Z); inner axis is -X
+    //   -X face: face axes are (Y,Z); inner axis is +X
+    //   +Y face: face axes are (X,Z); inner axis is -Y
+    //   -Y face: face axes are (X,Z); inner axis is +Y
+    //   +Z face: face axes are (X,Y); inner axis is -Z
+    //   -Z face: face axes are (X,Y); inner axis is +Z
 
-                    int32 I0 = GetOrCreateVertex(X, Y, Z, E0);
-                    int32 I1 = GetOrCreateVertex(X, Y, Z, E1);
-                    int32 I2 = GetOrCreateVertex(X, Y, Z, E2);
+    // Transition-face segment emission for one strip cell.
+    // Va/Vc/Vg/Vi: world positions of the 4 low-res face corners.
+    // Vbk: interior backing vertex position (one stride into the chunk).
+    // Avoid 'PC'/'PI' — Windows macros conflict with those names.
+    auto EmitTransitionFaceCell = [&](FVector3f Va, FVector3f Vc,
+                                       FVector3f Vg, FVector3f Vi,
+                                       FVector3f Vbk,
+                                       float dA, float dC,
+                                       float dG, float dI)
+    {
+        FVector3f PB = LerpEdge(Va, Vc); // bottom edge midpoint
+        FVector3f PF = LerpEdge(Vc, Vi); // right edge midpoint
+        FVector3f PH = LerpEdge(Vg, Vi); // top edge midpoint
+        FVector3f PD = LerpEdge(Va, Vg); // left edge midpoint
 
-                    // Compute face normal and accumulate into the parallel float array.
-                    FVector3f P0 = Out.Vertices[I0].Position;
-                    FVector3f P1 = Out.Vertices[I1].Position;
-                    FVector3f P2 = Out.Vertices[I2].Position;
-                    FVector3f Normal = ((P1 - P0) ^ (P2 - P0)).GetSafeNormal();
+        uint8 MSCase = ((dA > 0.5f) ? 1 : 0) | ((dC > 0.5f) ? 2 : 0) |
+                       ((dG > 0.5f) ? 4 : 0) | ((dI > 0.5f) ? 8 : 0);
 
-                    NormalAccum[I0] += Normal;
-                    NormalAccum[I1] += Normal;
-                    NormalAccum[I2] += Normal;
+        // Resolve each face-segment pair from MSTable into a triangle with PBack.
+        const int8* Row = MSTable[MSCase];
+        for (int32 s = 0; s < 4 && Row[s] != -1; s += 2)
+        {
+            // Get the two edge crossing positions for this segment.
+            FVector3f FaceEdgeMid[4] = { PB, PF, PH, PD };
+            FVector3f EP0 = FaceEdgeMid[Row[s]];
+            FVector3f EP1 = FaceEdgeMid[Row[s + 1]];
 
-                    Out.Indices.Add(I0);
-                    Out.Indices.Add(I1);
-                    Out.Indices.Add(I2);
-                }
-            }
+            // Add face and backing vertices (no key-based sharing — transition
+            // face vertices don't need to share with regular cells since the
+            // boundary strip was skipped above).
+            int32 VI0  = AddVertex(EP0);
+            int32 VI1  = AddVertex(EP1);
+            int32 VIBk = AddVertex(Vbk);
+            EmitTriangle(VI0, VI1, VIBk);
+        }
+    };
+
+    // +X face
+    if (TransitionFaces & NTF_PosX)
+    {
+        int32 FVx = (NumCellX - 1) * Stride;
+        for (int32 Cz = 0; Cz < NumCellZ; ++Cz)
+        for (int32 Cy = 0; Cy < NumCellY; ++Cy)
+        {
+            int32 Vy0 = Cy * Stride, Vy1 = Vy0 + Stride;
+            int32 Vz0 = Cz * Stride, Vz1 = Vz0 + Stride;
+            EmitTransitionFaceCell(
+                Origin + FVector3f(FVx, Vy0, Vz0) * Vs,
+                Origin + FVector3f(FVx, Vy1, Vz0) * Vs,
+                Origin + FVector3f(FVx, Vy0, Vz1) * Vs,
+                Origin + FVector3f(FVx, Vy1, Vz1) * Vs,
+                Origin + FVector3f(FVx - Stride, (Vy0 + Vy1) / 2, (Vz0 + Vz1) / 2) * Vs,
+                GetDensity(FVx, Vy0, Vz0), GetDensity(FVx, Vy1, Vz0),
+                GetDensity(FVx, Vy0, Vz1), GetDensity(FVx, Vy1, Vz1));
         }
     }
 
-    // Normalise accumulated normals and pack into FDynamicMeshVertex tangent basis.
+    // -X face
+    if (TransitionFaces & NTF_NegX)
+    {
+        for (int32 Cz = 0; Cz < NumCellZ; ++Cz)
+        for (int32 Cy = 0; Cy < NumCellY; ++Cy)
+        {
+            int32 Vy0 = Cy * Stride, Vy1 = Vy0 + Stride;
+            int32 Vz0 = Cz * Stride, Vz1 = Vz0 + Stride;
+            EmitTransitionFaceCell(
+                Origin + FVector3f(0, Vy0, Vz0) * Vs,
+                Origin + FVector3f(0, Vy1, Vz0) * Vs,
+                Origin + FVector3f(0, Vy0, Vz1) * Vs,
+                Origin + FVector3f(0, Vy1, Vz1) * Vs,
+                Origin + FVector3f(Stride, (Vy0 + Vy1) / 2, (Vz0 + Vz1) / 2) * Vs,
+                GetDensity(0, Vy0, Vz0), GetDensity(0, Vy1, Vz0),
+                GetDensity(0, Vy0, Vz1), GetDensity(0, Vy1, Vz1));
+        }
+    }
+
+    // +Y face
+    if (TransitionFaces & NTF_PosY)
+    {
+        int32 FVy = (NumCellY - 1) * Stride;
+        for (int32 Cz = 0; Cz < NumCellZ; ++Cz)
+        for (int32 Cx = 0; Cx < NumCellX; ++Cx)
+        {
+            int32 Vx0 = Cx * Stride, Vx1 = Vx0 + Stride;
+            int32 Vz0 = Cz * Stride, Vz1 = Vz0 + Stride;
+            EmitTransitionFaceCell(
+                Origin + FVector3f(Vx0, FVy, Vz0) * Vs,
+                Origin + FVector3f(Vx1, FVy, Vz0) * Vs,
+                Origin + FVector3f(Vx0, FVy, Vz1) * Vs,
+                Origin + FVector3f(Vx1, FVy, Vz1) * Vs,
+                Origin + FVector3f((Vx0 + Vx1) / 2, FVy - Stride, (Vz0 + Vz1) / 2) * Vs,
+                GetDensity(Vx0, FVy, Vz0), GetDensity(Vx1, FVy, Vz0),
+                GetDensity(Vx0, FVy, Vz1), GetDensity(Vx1, FVy, Vz1));
+        }
+    }
+
+    // -Y face
+    if (TransitionFaces & NTF_NegY)
+    {
+        for (int32 Cz = 0; Cz < NumCellZ; ++Cz)
+        for (int32 Cx = 0; Cx < NumCellX; ++Cx)
+        {
+            int32 Vx0 = Cx * Stride, Vx1 = Vx0 + Stride;
+            int32 Vz0 = Cz * Stride, Vz1 = Vz0 + Stride;
+            EmitTransitionFaceCell(
+                Origin + FVector3f(Vx0, 0, Vz0) * Vs,
+                Origin + FVector3f(Vx1, 0, Vz0) * Vs,
+                Origin + FVector3f(Vx0, 0, Vz1) * Vs,
+                Origin + FVector3f(Vx1, 0, Vz1) * Vs,
+                Origin + FVector3f((Vx0 + Vx1) / 2, Stride, (Vz0 + Vz1) / 2) * Vs,
+                GetDensity(Vx0, 0, Vz0), GetDensity(Vx1, 0, Vz0),
+                GetDensity(Vx0, 0, Vz1), GetDensity(Vx1, 0, Vz1));
+        }
+    }
+
+    // +Z face
+    if (TransitionFaces & NTF_PosZ)
+    {
+        int32 FVz = (NumCellZ - 1) * Stride;
+        for (int32 Cy = 0; Cy < NumCellY; ++Cy)
+        for (int32 Cx = 0; Cx < NumCellX; ++Cx)
+        {
+            int32 Vx0 = Cx * Stride, Vx1 = Vx0 + Stride;
+            int32 Vy0 = Cy * Stride, Vy1 = Vy0 + Stride;
+            EmitTransitionFaceCell(
+                Origin + FVector3f(Vx0, Vy0, FVz) * Vs,
+                Origin + FVector3f(Vx1, Vy0, FVz) * Vs,
+                Origin + FVector3f(Vx0, Vy1, FVz) * Vs,
+                Origin + FVector3f(Vx1, Vy1, FVz) * Vs,
+                Origin + FVector3f((Vx0 + Vx1) / 2, (Vy0 + Vy1) / 2, FVz - Stride) * Vs,
+                GetDensity(Vx0, Vy0, FVz), GetDensity(Vx1, Vy0, FVz),
+                GetDensity(Vx0, Vy1, FVz), GetDensity(Vx1, Vy1, FVz));
+        }
+    }
+
+    // -Z face
+    if (TransitionFaces & NTF_NegZ)
+    {
+        for (int32 Cy = 0; Cy < NumCellY; ++Cy)
+        for (int32 Cx = 0; Cx < NumCellX; ++Cx)
+        {
+            int32 Vx0 = Cx * Stride, Vx1 = Vx0 + Stride;
+            int32 Vy0 = Cy * Stride, Vy1 = Vy0 + Stride;
+            EmitTransitionFaceCell(
+                Origin + FVector3f(Vx0, Vy0, 0) * Vs,
+                Origin + FVector3f(Vx1, Vy0, 0) * Vs,
+                Origin + FVector3f(Vx0, Vy1, 0) * Vs,
+                Origin + FVector3f(Vx1, Vy1, 0) * Vs,
+                Origin + FVector3f((Vx0 + Vx1) / 2, (Vy0 + Vy1) / 2, Stride) * Vs,
+                GetDensity(Vx0, Vy0, 0), GetDensity(Vx1, Vy0, 0),
+                GetDensity(Vx0, Vy1, 0), GetDensity(Vx1, Vy1, 0));
+        }
+    }
+
+    // ── normalise accumulated normals ─────────────────────────────────────────
     for (int32 i = 0; i < Out.Vertices.Num(); ++i)
     {
         FVector3f N = NormalAccum[i].GetSafeNormal();
@@ -441,7 +642,8 @@ FNamecVoxelMeshData UNamecVoxelChunkComponent::BuildMesh(const FNamecVoxelData& 
 
 UNamecVoxelChunkComponent::UNamecVoxelChunkComponent()
 {
-    PrimaryComponentTick.bCanEverTick = false;
+    PrimaryComponentTick.bCanEverTick = true;
+    PrimaryComponentTick.bStartWithTickEnabled = false; // enabled in InitLOD
     LocalBounds = FBoxSphereBounds(FVector::ZeroVector, FVector(50, 50, 50), 86.6f);
 }
 
@@ -449,7 +651,6 @@ void UNamecVoxelChunkComponent::SetVoxelData(const FNamecVoxelData& InData)
 {
     VoxelData = InData;
 
-    // Compute tight bounds from the voxel extent in UU (cm).
     const float VsUU = InData.VoxelSizeMetres * 100.f;
     const FVector Ext(InData.SizeX * VsUU * 0.5f,
                       InData.SizeY * VsUU * 0.5f,
@@ -460,10 +661,125 @@ void UNamecVoxelChunkComponent::SetVoxelData(const FNamecVoxelData& InData)
     MarkRenderStateDirty();
 }
 
+void UNamecVoxelChunkComponent::InitLOD(FIntPoint InChunkCoord)
+{
+    ChunkCoord    = InChunkCoord;
+    bLODEnabled   = true;
+    SetComponentTickEnabled(true);
+}
+
+void UNamecVoxelChunkComponent::SetTransitionFaces(uint8 InFaces)
+{
+    if (CurrentTransitionFaces == InFaces) return;
+    CurrentTransitionFaces = InFaces;
+    if (!bHasPendingMesh)
+        RequestReMesh(CurrentLOD, CurrentTransitionFaces);
+}
+
+void UNamecVoxelChunkComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+                                               FActorComponentTickFunction* ThisTickFunction)
+{
+    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+    PollPendingMesh();
+
+    if (!bLODEnabled || bHasPendingMesh) return;
+
+    int32 NewLOD = ComputeLODFromCamera();
+    if (NewLOD != CurrentLOD)
+        RequestReMesh(NewLOD, CurrentTransitionFaces);
+}
+
+void UNamecVoxelChunkComponent::RequestReMesh(int32 NewLOD, uint8 NewTransitionFaces)
+{
+    if (VoxelData.SizeX == 0) return;
+
+    bHasPendingMesh       = true;
+    PendingLOD            = NewLOD;
+    PendingTransitionFaces = NewTransitionFaces;
+
+    // Capture a copy for the worker thread; VoxelData may be large but is owned here.
+    FNamecVoxelData SnapData = VoxelData;
+    PendingMesh = Async(EAsyncExecution::ThreadPool,
+        [SnapData, NewLOD, NewTransitionFaces]() mutable
+        {
+            return BuildMesh(SnapData, NewLOD, NewTransitionFaces);
+        });
+}
+
+void UNamecVoxelChunkComponent::PollPendingMesh()
+{
+    if (!bHasPendingMesh || !PendingMesh.IsReady()) return;
+
+    FNamecVoxelMeshData Result = PendingMesh.Get();
+    bHasPendingMesh = false;
+    CurrentLOD            = PendingLOD;
+    CurrentTransitionFaces = PendingTransitionFaces;
+
+    if (!Result.IsEmpty())
+    {
+        MarkRenderStateDirty(); // CreateSceneProxy picks up CurrentLOD/TransitionFaces
+    }
+}
+
+int32 UNamecVoxelChunkComponent::ComputeLODFromCamera() const
+{
+    float D0 = 4000.f, D1 = 10000.f, D2 = 20000.f; // defaults in UU (cm)
+
+    if (UWorld* W = GetWorld())
+    {
+        if (UGameInstance* GI = W->GetGameInstance())
+        {
+            if (UNamecScalabilitySubsystem* SS =
+                    GI->GetSubsystem<UNamecScalabilitySubsystem>())
+            {
+                float M0, M1, M2;
+                SS->GetActiveLODDistances(M0, M1, M2);
+                D0 = M0 * 100.f;
+                D1 = M1 * 100.f;
+                D2 = M2 * 100.f;
+            }
+        }
+    }
+
+    FVector Centre = LocalBounds.Origin;
+    float MinDist  = FLT_MAX;
+    if (UWorld* W = GetWorld())
+    {
+        for (FConstPlayerControllerIterator It = W->GetPlayerControllerIterator(); It; ++It)
+        {
+            if (APlayerController* PC = It->Get())
+            {
+                FVector Loc; FRotator Rot;
+                PC->GetPlayerViewPoint(Loc, Rot);
+                MinDist = FMath::Min(MinDist, FVector::Dist(Loc, Centre));
+            }
+        }
+    }
+
+    if (MinDist <= D0) return 0;
+    if (MinDist <= D1) return 1;
+    if (MinDist <= D2) return 2;
+    return 3;
+}
+
 FPrimitiveSceneProxy* UNamecVoxelChunkComponent::CreateSceneProxy()
 {
     if (VoxelData.SizeX == 0) return nullptr;
-    FNamecVoxelMeshData Mesh = BuildMesh(VoxelData);
+    // If an async mesh just completed, the result is already in CurrentLOD/TransitionFaces.
+    // If no async task is pending, build synchronously so the first frame is never blank.
+    FNamecVoxelMeshData Mesh;
+    if (bHasPendingMesh && PendingMesh.IsReady())
+    {
+        Mesh = PendingMesh.Get();
+        bHasPendingMesh = false;
+        CurrentLOD = PendingLOD;
+        CurrentTransitionFaces = PendingTransitionFaces;
+    }
+    else
+    {
+        Mesh = BuildMesh(VoxelData, CurrentLOD, CurrentTransitionFaces);
+    }
     if (Mesh.IsEmpty()) return nullptr;
     return new FNamecVoxelSceneProxy(this, MoveTemp(Mesh));
 }
