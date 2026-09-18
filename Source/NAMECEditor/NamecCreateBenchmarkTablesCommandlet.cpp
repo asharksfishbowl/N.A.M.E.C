@@ -22,6 +22,7 @@ bool UNamecCreateBenchmarkTablesCommandlet::CreateAndSaveDataTable(
     TFunctionRef<void(UDataTable*)> PopulateRows)
 {
     UPackage* Package = CreatePackage(*PackageName);
+    Package->FullyLoad();
     FString AssetName = FPackageName::GetLongPackageAssetName(PackageName);
     UDataTable* Table = NewObject<UDataTable>(Package, *AssetName, RF_Public | RF_Standalone);
     Table->RowStruct = RowStruct;
