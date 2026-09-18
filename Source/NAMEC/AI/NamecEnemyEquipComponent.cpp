@@ -76,16 +76,16 @@ void UNamecEnemyEquipComponent::DrainQueue()
     {
         MutableComp = Owner->FindComponentByClass<UCustomizableSkeletalComponent>();
     }
-    if (!MutableComp || !MutableComp->CustomizableObjectInstance) { --ActiveUpdates; return; }
+    UCustomizableObjectInstance* Instance = MutableComp->GetCustomizableObjectInstance();
+    if (!Instance) { --ActiveUpdates; return; }
 
-    // Set wearable parameter on the instance (CO must expose a string param "WearableRow")
-    MutableComp->CustomizableObjectInstance->SetIntParameterSelectedOption(
-        TEXT("WearableRow"), WearableRow.ToString());
+    // Set wearable parameter on the instance (CO must expose an int param "WearableRow")
+    Instance->SetIntParameterSelectedOption(TEXT("WearableRow"), WearableRow.ToString());
 
     // Kick async rebuild with native callback
     FInstanceUpdateNativeDelegate Delegate;
     Delegate.AddUObject(this, &UNamecEnemyEquipComponent::OnMutableUpdateComplete, WearableRow);
-    MutableComp->CustomizableObjectInstance->UpdateSkeletalMeshAsyncResult(Delegate);
+    Instance->UpdateSkeletalMeshAsyncResult(Delegate);
 }
 
 void UNamecEnemyEquipComponent::OnMutableUpdateComplete(const FUpdateContext& Result, FName WearableRow)
