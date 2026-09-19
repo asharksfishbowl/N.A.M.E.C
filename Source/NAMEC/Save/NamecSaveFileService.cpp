@@ -35,6 +35,17 @@ namespace
     }
 }
 
+const TCHAR* LexToString(ENamecSaveWriteResult Result)
+{
+    switch (Result)
+    {
+    case ENamecSaveWriteResult::Ok: return TEXT("Ok");
+    case ENamecSaveWriteResult::DiskFull: return TEXT("DiskFull");
+    case ENamecSaveWriteResult::WriteFailed: return TEXT("WriteFailed");
+    }
+    return TEXT("Unknown");
+}
+
 FString UNamecSaveFileService::GetSaveFilePath(const FString& FileName)
 {
     return FNamecPlatform::Get().GetSaveDirectory() / FileName;
@@ -43,6 +54,17 @@ FString UNamecSaveFileService::GetSaveFilePath(const FString& FileName)
 FString UNamecSaveFileService::GetTempFilePath(const FString& FileName)
 {
     return GetSaveFilePath(FileName) + TEXT(".tmp");
+}
+
+FString UNamecSaveFileService::GetBakFilePath(const FString& FileName)
+{
+    return GetSaveFilePath(FileName) + TEXT(".bak");
+}
+
+bool UNamecSaveFileService::MoveToBak(const FString& FileName) const
+{
+    return ValidateSaveFileName(FileName)
+        && IFileManager::Get().Move(*GetBakFilePath(FileName), *GetSaveFilePath(FileName), true, true);
 }
 
 ENamecSaveWriteResult UNamecSaveFileService::Write(UNamecVersionedSave& Save, const FString& FileName) const

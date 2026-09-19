@@ -1,45 +1,27 @@
 #include "Save/NamecSaveFileService.h"
 #include "Save/NamecCharacterSave.h"
-#include "Save/NamecSaveEnvelope.h"
 #include "Save/NamecWorldSave.h"
+#include "Save/Tests/NamecSaveTestHelpers.h"
 #include "Save/Tests/NamecSaveTestTypes.h"
 #include "Core/Platform/Tests/NamecTestPlatform.h"
 #include "Core/Tests/NamecTestFlags.h"
-#include "Engine/Engine.h"
-#include "Engine/GameInstance.h"
 #include "HAL/FileManager.h"
-#include "Kismet/GameplayStatics.h"
 #include "Misc/FileHelper.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
 
+using namespace NamecSaveTestHelpers;
+
 namespace
 {
-    UNamecSaveFileService* NewSaveFileService()
+    TArray<uint8> ReadSaveBytes(const FString& FileName)
     {
-        return NewObject<UNamecSaveFileService>(NewObject<UGameInstance>(GEngine));
+        return ReadFileBytes(UNamecSaveFileService::GetSaveFilePath(FileName));
     }
 
-    TArray<uint8> ReadFileBytes(const FString& FileName)
-    {
-        TArray<uint8> Bytes;
-        FFileHelper::LoadFileToArray(Bytes, *UNamecSaveFileService::GetSaveFilePath(FileName));
-        return Bytes;
-    }
-
-    void WriteFileBytes(const TArray<uint8>& Bytes, const FString& FileName)
+    void WriteSaveBytes(const TArray<uint8>& Bytes, const FString& FileName)
     {
         FFileHelper::SaveArrayToFile(Bytes, *UNamecSaveFileService::GetSaveFilePath(FileName));
-    }
-
-    // Writes a file the service itself never would: a well-formed save at a version the test chooses.
-    void WriteSaveFileAtVersion(UNamecVersionedSave& Save, int32 SaveVersion, const FString& FileName)
-    {
-        Save.SaveVersion = SaveVersion;
-        TArray<uint8> Payload;
-        UGameplayStatics::SaveGameToMemory(&Save, Payload);
-        const TUniquePtr<FArchive> Writer(IFileManager::Get().CreateFileWriter(*UNamecSaveFileService::GetSaveFilePath(FileName)));
-        NamecSaveEnvelope::WriteFramed(*Writer, Payload);
     }
 }
 
@@ -131,18 +113,18 @@ bool FNamecSaveCorruptTest::RunTest(const FString& Parameters)
     {
         Garbage.Add(static_cast<uint8>((Index * 37 + 11) & 0xFF));
     }
-    WriteFileBytes(Garbage, TEXT("Garbage.sav"));
+    WriteSaveBytes(Garbage, TEXT("Garbage.sav"));
     TestEqual(TEXT("Garbage bytes"), Service->Load(TEXT("Garbage.sav"), UNamecCharacterSave::StaticClass()).Result, ENamecSaveLoadResult::Corrupt);
-    TestTrue(TEXT("Garbage file bytes are identical afterwards"), ReadFileBytes(TEXT("Garbage.sav")) == Garbage);
+    TestTrue(TEXT("Garbage file bytes are identical afterwards"), ReadSaveBytes(TEXT("Garbage.sav")) == Garbage);
 
     UNamecCharacterSave* Save = NewObject<UNamecCharacterSave>();
     Save->CharacterName = TEXT("Aldric");
     Service->Write(*Save, TEXT("Truncated.sav"));
-    TArray<uint8> Truncated = ReadFileBytes(TEXT("Truncated.sav"));
+    TArray<uint8> Truncated = ReadSaveBytes(TEXT("Truncated.sav"));
     Truncated.SetNum(Truncated.Num() - 9);
-    WriteFileBytes(Truncated, TEXT("Truncated.sav"));
+    WriteSaveBytes(Truncated, TEXT("Truncated.sav"));
     TestEqual(TEXT("A truncated save"), Service->Load(TEXT("Truncated.sav"), UNamecCharacterSave::StaticClass()).Result, ENamecSaveLoadResult::Corrupt);
-    TestTrue(TEXT("Truncated file bytes are identical afterwards"), ReadFileBytes(TEXT("Truncated.sav")) == Truncated);
+    TestTrue(TEXT("Truncated file bytes are identical afterwards"), ReadSaveBytes(TEXT("Truncated.sav")) == Truncated);
 
     WriteSaveFileAtVersion(*Save, 0, TEXT("VersionZero.sav"));
     TestEqual(TEXT("A save claiming version 0"), Service->Load(TEXT("VersionZero.sav"), UNamecCharacterSave::StaticClass()).Result, ENamecSaveLoadResult::Corrupt);
@@ -162,12 +144,12 @@ bool FNamecSaveNewerVersionTest::RunTest(const FString& Parameters)
 
     UNamecCharacterSave* Save = NewObject<UNamecCharacterSave>();
     WriteSaveFileAtVersion(*Save, Save->GetCurrentSaveVersion() + 1, TEXT("Newer.sav"));
-    const TArray<uint8> Before = ReadFileBytes(TEXT("Newer.sav"));
+    const TArray<uint8> Before = ReadSaveBytes(TEXT("Newer.sav"));
 
     const FNamecSaveLoadOutcome Outcome = Service->Load(TEXT("Newer.sav"), UNamecCharacterSave::StaticClass());
     TestEqual(TEXT("Load result"), Outcome.Result, ENamecSaveLoadResult::NewerVersion);
     TestNull(TEXT("No object is handed out"), Outcome.Save);
-    TestTrue(TEXT("File bytes are identical afterwards"), ReadFileBytes(TEXT("Newer.sav")) == Before);
+    TestTrue(TEXT("File bytes are identical afterwards"), ReadSaveBytes(TEXT("Newer.sav")) == Before);
     return true;
 }
 
@@ -246,19 +228,19 @@ bool FNamecSaveFailedWriteTest::RunTest(const FString& Parameters)
     UNamecCharacterSave* Save = NewObject<UNamecCharacterSave>();
     Save->CharacterName = TEXT("Previous");
     Service->Write(*Save, TEXT("Character.sav"));
-    const TArray<uint8> Before = ReadFileBytes(TEXT("Character.sav"));
+    const TArray<uint8> Before = ReadSaveBytes(TEXT("Character.sav"));
 
     Save->CharacterName = TEXT("NeverWritten");
     Platform->FreeDiskSpaceBytes = 0;
     TestEqual(TEXT("No free space"), Service->Write(*Save, TEXT("Character.sav")), ENamecSaveWriteResult::DiskFull);
-    TestTrue(TEXT("File bytes are identical after DiskFull"), ReadFileBytes(TEXT("Character.sav")) == Before);
+    TestTrue(TEXT("File bytes are identical after DiskFull"), ReadSaveBytes(TEXT("Character.sav")) == Before);
 
     // A directory squatting on the temp path makes the temp write itself fail.
     Platform->FreeDiskSpaceBytes.Reset();
     const FString TempPath = UNamecSaveFileService::GetTempFilePath(TEXT("Character.sav"));
     IFileManager::Get().MakeDirectory(*TempPath, true);
     TestEqual(TEXT("Temp file cannot be written"), Service->Write(*Save, TEXT("Character.sav")), ENamecSaveWriteResult::WriteFailed);
-    TestTrue(TEXT("File bytes are identical after WriteFailed"), ReadFileBytes(TEXT("Character.sav")) == Before);
+    TestTrue(TEXT("File bytes are identical after WriteFailed"), ReadSaveBytes(TEXT("Character.sav")) == Before);
 
     const UNamecCharacterSave* Loaded = Cast<UNamecCharacterSave>(Service->Load(TEXT("Character.sav"), UNamecCharacterSave::StaticClass()).Save);
     if (TestNotNull(TEXT("The previous file still loads"), Loaded))

@@ -5,6 +5,20 @@
 
 static const TCHAR* GTablePath = TEXT("/Game/Data/DT_MP_SplitScreenScalability.DT_MP_SplitScreenScalability");
 
+const FName UNamecScalabilitySubsystem::HighTierRowName(TEXT("High"));
+
+UDataTable* UNamecScalabilitySubsystem::LoadTierTable()
+{
+    return LoadObject<UDataTable>(nullptr, GTablePath);
+}
+
+TOptional<FNamecScalabilityTierRow> UNamecScalabilitySubsystem::FindTierRow(FName RowName)
+{
+    const UDataTable* Table = LoadTierTable();
+    const FNamecScalabilityTierRow* Row = Table ? Table->FindRow<FNamecScalabilityTierRow>(RowName, TEXT("FindTierRow"), false) : nullptr;
+    return Row ? TOptional<FNamecScalabilityTierRow>(*Row) : TOptional<FNamecScalabilityTierRow>();
+}
+
 void UNamecScalabilitySubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
@@ -13,7 +27,7 @@ void UNamecScalabilitySubsystem::Initialize(FSubsystemCollectionBase& Collection
         TEXT("Log the currently active scalability tier"),
         FConsoleCommandDelegate::CreateUObject(this, &UNamecScalabilitySubsystem::LogActiveTier));
 
-    ScalabilityTable = LoadObject<UDataTable>(nullptr, GTablePath);
+    ScalabilityTable = LoadTierTable();
 
     if (UGameInstance* GI = GetGameInstance())
     {
