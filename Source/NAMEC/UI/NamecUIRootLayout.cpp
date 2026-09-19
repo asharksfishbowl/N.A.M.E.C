@@ -3,6 +3,7 @@
 #include "UI/NamecMessageModal.h"
 #include "UI/NamecCppWidgetTree.h"
 #include "Components/Overlay.h"
+#include "Components/TextBlock.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Widgets/CommonActivatableWidgetContainer.h"
 
@@ -12,6 +13,8 @@ bool UNamecUIRootLayout::Initialize()
     {
         UOverlay* Root = Tree->ConstructWidget<UOverlay>(UOverlay::StaticClass(), TEXT("Root"));
         HudLayer = Tree->ConstructWidget<UOverlay>(UOverlay::StaticClass(), TEXT("HudLayer"));
+        HudNotice = Tree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("HudNotice"));
+        HudLayer->AddChildToOverlay(HudNotice);
         MenuStack = Tree->ConstructWidget<UCommonActivatableWidgetStack>(UCommonActivatableWidgetStack::StaticClass(), TEXT("MenuStack"));
         // No transition: a screen is active the moment it is pushed, not some frames later.
         MenuStack->SetTransitionDuration(0.f);
@@ -25,6 +28,16 @@ bool UNamecUIRootLayout::Initialize()
 void UNamecUIRootLayout::UseSaveFiles(UNamecSaveFileService& InSaveFiles)
 {
     SaveFiles = &InSaveFiles;
+}
+
+void UNamecUIRootLayout::ShowHudNotice(const FText& Notice)
+{
+    HudNotice->SetText(Notice);
+}
+
+FText UNamecUIRootLayout::GetHudNotice() const
+{
+    return HudNotice->GetText();
 }
 
 UNamecMainMenuScreen* UNamecUIRootLayout::ShowMainMenu()
