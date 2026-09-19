@@ -31,3 +31,9 @@ Plugins/*/Intermediate/
 *.opensdf
 *.sdf
 .worktrees/
+
+# Per-user editor folders and IDE caches
+Content/Developers/
+*.VC.db
+*.VC.opendb
+.idea/
