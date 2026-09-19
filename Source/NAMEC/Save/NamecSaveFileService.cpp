@@ -45,6 +45,17 @@ FString UNamecSaveFileService::GetTempFilePath(const FString& FileName)
     return GetSaveFilePath(FileName) + TEXT(".tmp");
 }
 
+FString UNamecSaveFileService::GetBakFilePath(const FString& FileName)
+{
+    return GetSaveFilePath(FileName) + TEXT(".bak");
+}
+
+bool UNamecSaveFileService::MoveToBak(const FString& FileName) const
+{
+    return ValidateSaveFileName(FileName)
+        && IFileManager::Get().Move(*GetBakFilePath(FileName), *GetSaveFilePath(FileName), true, true);
+}
+
 ENamecSaveWriteResult UNamecSaveFileService::Write(UNamecVersionedSave& Save, const FString& FileName) const
 {
     if (!ValidateSaveFileName(FileName))

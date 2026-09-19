@@ -46,4 +46,9 @@ public:
     static FString GetSaveFilePath(const FString& FileName);
 
     static FString GetTempFilePath(const FString& FileName);
+
+    static FString GetBakFilePath(const FString& FileName);
+
+    // Sets a file aside as `<file>.bak`, replacing an older one. Load never does this itself.
+    bool MoveToBak(const FString& FileName) const;
 };

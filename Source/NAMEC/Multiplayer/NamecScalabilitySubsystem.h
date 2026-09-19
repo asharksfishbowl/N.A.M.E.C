@@ -62,11 +62,18 @@ public:
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
     virtual void Deinitialize() override;
 
+    static const FName HighTierRowName;
+
+    // By value: nothing keeps the table loaded for a caller that holds a pointer into it.
+    static TOptional<FNamecScalabilityTierRow> FindTierRow(FName RowName);
+
     // Returns the LOD distances (in metres) for the active tier.
     // Falls back to struct defaults when no tier is matched.
     void GetActiveLODDistances(float& Out0, float& Out1, float& Out2) const;
 
 private:
+    static UDataTable* LoadTierTable();
+
     void OnLocalPlayerCountChanged(ULocalPlayer* LocalPlayer);
     void ApplyTierForViewportCount(int32 ViewportCount);
     void LogActiveTier() const;
