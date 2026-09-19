@@ -13,6 +13,7 @@ enum class ENamecWorldLoadOutcome : uint8
     Load,
     LoadWithRevisionUpdate,
     LoadWithMapHashMismatch,
+    RefuseNoMapIdentity,
     RefuseDifferentMap,
     RefuseNewerMapRevision,
 };
@@ -40,8 +41,11 @@ class NAMEC_API UNamecWorldLoader : public UObject
 public:
     static FNamecWorldLoadDecision EvaluateLoadRule(const UNamecWorldSave& Save, const UNamecVoxelMapAsset& MapAsset);
 
-    // Revision update: one log line per mismatched chunk, the chunk joins PendingTerrainMarkers and
-    // its recorded base hash becomes the asset's. The identity fields are rewritten by the next save.
+    // A refusal changes nothing in the save, so its next write cannot stamp the wrong identity on
+    // it. An accepted save is bound to the asset here and nowhere earlier. A revision update also
+    // logs each mismatched chunk, marks it pending and brings its recorded hash up to the asset's.
+    // Evaluates the save exactly as loaded: a save bound to the asset first would carry the asset's
+    // identity and pass every comparison.
     static void ApplyDecision(const FNamecWorldLoadDecision& Decision, UNamecWorldSave& Save, const UNamecVoxelMapAsset& MapAsset);
 
     // Server only. One marker at each pending chunk's centre, on every load while the entry remains.
