@@ -4,15 +4,17 @@
 
 LIMIT_BYTES=20971520  # 20 MB
 
-# Single subprocess reads all staged objects — avoids one fork per file.
-# Deletions are filtered out: they have no staged blob, so cat-file answers "missing", not a size.
-git diff --cached --name-only --diff-filter=d \
-    | awk '{print ":" $0}' \
+# One cat-file subprocess reads every staged blob. Deletions are filtered out: they have none.
+# cat-file gets `<blob id> <path>`, not `:<path>`: it splits its input at the first space, so a
+# spaced path was looked up as `:has` and no path ever reached %(rest) for the error to name.
+git diff --cached --raw --no-abbrev --diff-filter=d \
+    | awk -F'\t' '{split($1, meta, " "); print meta[4] " " $NF}' \
     | git cat-file --batch-check='%(objectsize) %(rest)' \
     | awk -v lim="$LIMIT_BYTES" '
         $1 > lim {
             mb = int($1 / 1048576)
-            print "ERROR: " $2 " is " mb " MB — exceeds the 20 MB per-file limit." > "/dev/stderr"
+            sub(/^[0-9]+ /, "")
+            print "ERROR: " $0 " is " mb " MB — exceeds the 20 MB per-file limit." > "/dev/stderr"
             rc = 1
         }
         END { exit (rc+0) }
