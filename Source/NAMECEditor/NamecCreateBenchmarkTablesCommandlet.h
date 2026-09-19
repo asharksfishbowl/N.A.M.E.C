@@ -30,4 +30,6 @@ private:
     bool CreateScalabilityTable();
     bool CreateCharacterRacesTable();
     bool CreateBuildingPiecesTable();
+    bool CreateEnemyAIRulesTable();
+    bool CreateBenchmarkWearablesTable();
 };
