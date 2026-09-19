@@ -24,7 +24,7 @@ Write-Host "Starting host instance..."
 $HostProc = Start-Process -FilePath $Editor -PassThru -ArgumentList @(
     "`"$Uproject`"",
     "-game", "-nullrhi",
-    "-log=`"$HostLog`"",
+    "-log=oss-loopback-host-$Sha",
     "-ExecCmds=`"online test sessions NumConnections=2, quit`"",
     "-nosteam", "-nosplash", "-unattended"
 )
@@ -35,7 +35,7 @@ Write-Host "Starting client instance..."
 $ClientProc = Start-Process -FilePath $Editor -PassThru -ArgumentList @(
     "`"$Uproject`"",
     "-game", "-nullrhi",
-    "-log=`"$ClientLog`"",
+    "-log=oss-loopback-client-$Sha",
     "-ExecCmds=`"online test sessions NumConnections=2 ServerName=LoopbackTest, quit`"",
     "-nosteam", "-nosplash", "-unattended"
 )
