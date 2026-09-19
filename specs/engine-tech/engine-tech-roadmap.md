@@ -115,6 +115,8 @@ The checkpoint needs a second machine or a VM beside the reference PC for the LA
 | survival | 9 (ambient temperature inputs from climate) (core) |
 | engine-tech | Evaluate: **World Partition** (Requirement 5) at this phase's bake checkpoint, against the authored `ANamecTown` positions with placeholder town volumes on the greybox map (moved from Phase 10 on 2026-09-16) |
 
+**Nanite rules for level-placed meshes (Phase 2 validator report, 2026-09-19):** `NamecNaniteAuthoringValidator` checks static meshes and Blueprint component templates; a static mesh component placed directly in a level is not reachable from an asset validator. The authored-map validator of this phase (`UNamecMapValidator`, Requirement 14) validates the map level, so it carries the same Nanite rules for level-placed components.
+
 **Before any real world save ships (research `0919-2-unset-map-identity.md`, Hazard 1, 2026-09-19):** save migrations cannot report failure today — `FNamecSaveMigration` returns void and `MigrateToCurrent` bumps `SaveVersion` regardless — so a failed step would persist a newer-versioned save with unfilled fields. Unreachable while no flow writes a world save; Phase 4's New World makes it reachable. File then: migrations return `bool`, `MigrateToCurrent` stops at the first failure without bumping the version, and the file service already maps that to Corrupt (Edge Case 1 handling).
 
 **Bake design for Phase 4 (research 0918-4, 2026-09-18):** the bake commandlet is single-threaded and linear in chunk count (1 km² ≈ 25 min at 25 cm). Phase 4 files three build tasks in this order before the shipped map is authored: `ParallelFor` over the chunk loop with per-chunk results merged serially so `MapHash` order is unchanged; per-pass timing in the commandlet log; incremental bake of stroke-affected chunks (`--IncrementalFrom=<sha>`), valid only while `BakeSettings` are unchanged.
@@ -124,6 +126,8 @@ The checkpoint needs a second machine or a VM beside the reference PC for the LA
 ---
 
 ## Phase 5 — Building, containers and inventory UI
+
+**Before the first valuable interactable ships (Phase 2 marker-interaction report, 2026-09-19):** `ANamecPlayerCharacter::ServerInteract` is the single interact RPC and accepts any `INamecInteractable` target with no reach validation, because no spec yet gives an interaction distance. Harmless for terrain-updated markers; an exploit once containers and pickups use it. This phase sets the interaction range in its spec and adds the server-side distance check on that RPC before any container or pickup is interactable.
 
 | Spec | Requirements delivered |
 |------|------------------------|
