@@ -5,7 +5,8 @@
 LIMIT_BYTES=20971520  # 20 MB
 
 # Single subprocess reads all staged objects — avoids one fork per file.
-git diff --cached --name-only \
+# Deletions are filtered out: they have no staged blob, so cat-file answers "missing", not a size.
+git diff --cached --name-only --diff-filter=d \
     | awk '{print ":" $0}' \
     | git cat-file --batch-check='%(objectsize) %(rest)' \
     | awk -v lim="$LIMIT_BYTES" '
