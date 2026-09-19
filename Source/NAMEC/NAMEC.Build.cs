@@ -13,6 +13,7 @@ public class NAMEC : ModuleRules
             "CoreUObject",
             "Engine",
             "ApplicationCore",
+            "DeveloperSettings",
             "InputCore",
             "NetCore",
             "GameplayAbilities",

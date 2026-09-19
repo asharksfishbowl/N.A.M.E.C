@@ -7,6 +7,7 @@
 
 class UNamecVoxelMapAsset;
 class UNamecDigDepthQuery;
+class UNamecWorldSave;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnTerrainEdited, FIntPoint /*ChunkCoord*/);
 
@@ -49,6 +50,11 @@ public:
 
     UPROPERTY()
     TObjectPtr<UNamecVoxelMapAsset> MapAssetOverride;
+
+    // The loaded world's save. A chunk's first delta records that chunk's base hash in it
+    // (authored-map Requirement 24). Null while no world save is loaded.
+    UPROPERTY()
+    TObjectPtr<UNamecWorldSave> WorldSave;
 
 private:
     UPROPERTY()

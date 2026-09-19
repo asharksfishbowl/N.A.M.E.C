@@ -74,6 +74,7 @@ ENamecSaveWriteResult UNamecSaveFileService::Write(UNamecVersionedSave& Save, co
         return ENamecSaveWriteResult::WriteFailed;
     }
 
+    Save.OnBeforeWrite();
     Save.SaveVersion = Save.GetCurrentSaveVersion();
 
     TArray<uint8> Payload;
