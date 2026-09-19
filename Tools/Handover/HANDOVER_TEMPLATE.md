@@ -43,6 +43,17 @@ Leave blank if this task adds no automation tests.
 
 Leave blank if this task adds no commandlets.
 
+Which commandlet regenerates which assets (`Tools\Build\commandlet.bat <checkout> <name> <sha> ["<extra args>"]`;
+extra arguments go in ONE quoted fourth argument, because cmd splits an unquoted `-Chunk=0,0` at `=` and `,`):
+
+```
+NamecCreateVoxelTables       -> DT_World_VoxelMaterials, DT_World_Climates, DT_World_OreVeins
+NamecCreateBenchmarkTables   -> DT_MP_SplitScreenScalability, DT_Character_Races,
+                                DT_Benchmark_BuildingPieces, DT_EnemyAI_Rules, DT_EnemyAI_BenchmarkWearables
+NamecCreateBenchmarkPCG      -> DT_PCG_Trees, DT_PCG_Rocks, PCG_BenchmarkTrees, PCG_BenchmarkRocks
+NamecMeshExport "-Chunk=0,0" -> Content/Benchmark/TestChunk (derived, ignored)
+```
+
 ## PROVING COMMAND
 
 The single command or test that proves this task's core claim:

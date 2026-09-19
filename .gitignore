@@ -18,6 +18,8 @@ design-references/*
 # Unreal Engine build artifacts
 Content/Map/Baked/
 Content/Placeholder/
+# Derived by NamecMeshExport. The file, not the folder: Content/Benchmark/ holds committed assets.
+Content/Benchmark/TestChunk.uasset
 Saved/
 Intermediate/
 DerivedDataCache/
