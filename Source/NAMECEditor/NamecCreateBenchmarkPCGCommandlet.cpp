@@ -1,4 +1,5 @@
 #include "NamecCreateBenchmarkPCGCommandlet.h"
+#include "NamecPCGWiring.h"
 #include "PCGGraph.h"
 #include "Elements/PCGSurfaceSampler.h"
 #include "Elements/PCGStaticMeshSpawner.h"
@@ -87,9 +88,14 @@ bool UNamecCreateBenchmarkPCGCommandlet::CreatePCGGraph(
             TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(MeshPath)), 1));
     }
 
-    // Wire: sampler -> spawner -> graph output
-    Graph->AddEdge(SamplerNode, NAME_None, SpawnerNode,           NAME_None);
-    Graph->AddEdge(SpawnerNode, NAME_None, Graph->GetOutputNode(), NAME_None);
+    // Wire: sampler -> spawner -> graph output. An unwired graph used to be saved as a success.
+    const bool bWired = NamecPCGWiring::ConnectPins(*Graph, SamplerNode, PCGPinConstants::DefaultOutputLabel, SpawnerNode, PCGPinConstants::DefaultInputLabel)
+        && NamecPCGWiring::ConnectPins(*Graph, SpawnerNode, PCGPinConstants::DefaultOutputLabel, Graph->GetOutputNode(), PCGPinConstants::DefaultOutputLabel);
+    if (!bWired)
+    {
+        UE_LOG(LogTemp, Error, TEXT("NamecCreateBenchmarkPCG: %s could not be wired and was not saved"), *PackageName);
+        return false;
+    }
 
     Pkg->MarkPackageDirty();
     FString FilePath = FPackageName::LongPackageNameToFilename(
