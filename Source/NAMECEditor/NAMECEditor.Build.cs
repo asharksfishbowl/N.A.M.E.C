@@ -22,6 +22,7 @@ public class NAMECEditor : ModuleRules
             "StaticMeshDescription",
             "AssetRegistry",
             "RenderCore",
+            "PCG",
         });
     }
 }
