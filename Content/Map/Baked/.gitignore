@@ -1,0 +1,3 @@
+# Baked map assets are derived outputs — not committed to source control.
+*
+!.gitignore

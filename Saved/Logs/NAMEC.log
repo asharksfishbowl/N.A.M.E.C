@@ -1,21 +1,16 @@
-﻿Log file open, 09/16/26 19:54:24
+﻿Log file open, 09/19/26 10:56:52
 LogWindows: Failed to load 'aqProf.dll' (GetLastError=126)
 LogWindows: File 'aqProf.dll' does not exist
-LogProfilingDebugging: Loading WinPixEventRuntime.dll for PIX profiling (from ../../../Engine/Binaries/ThirdParty/Windows/WinPixEventRuntime/x64).
+LogProfilingDebugging: Loading WinPixEventRuntime.dll for PIX profiling (from ../../../../../../Program Files/Epic Games/UE_5.8/Engine/Binaries/ThirdParty/Windows/WinPixEventRuntime/x64).
 LogWindows: Failed to load 'VtuneApi.dll' (GetLastError=126)
 LogWindows: File 'VtuneApi.dll' does not exist
 LogWindows: Failed to load 'VtuneApi32e.dll' (GetLastError=126)
 LogWindows: File 'VtuneApi32e.dll' does not exist
-LogWindows: Started CrashReportClient (pid=17068)
 LogWindows: Enabling Tpause support
 LogWindows: Custom abort handler registered for crash reporting.
 LogInit: Running DelayedAutoRegister Phase StartOfEnginePreInit
-LogInit: Display: Running engine for game: NAMEC
 LogCore: UTS: Unreal Trace Server launched successfully
 LogTrace: Initializing trace...
-LogCore: Display: Requested channels: 'cpu,gpu,frame,log,bookmark,screenshot,region'
-LogCore: No trace connection. Tracing to in-memory cache.
-LogTrace: Display: Control listening on port 32920
 LogTrace: Finished trace initialization.
 LogCsvProfiler: Display: Metadata set : platform="Windows"
 LogCsvProfiler: Display: Metadata set : config="Development"
@@ -30,385 +25,26 @@ LogCsvProfiler: Display: Metadata set : ltoenabled="0"
 LogCsvProfiler: Display: Metadata set : asan="0"
 LogCsvProfiler: Display: Metadata set : mergedmodules="0"
 LogCsvProfiler: Display: Metadata set : compacttset="0"
-LogCsvProfiler: Display: Metadata set : commandline="" C:/Users/ashar/OneDrive/Documents/GitHub/N.A.M.E.C/NAMEC.uproject -AUTH_LOGIN=unused -AUTH_PASSWORD=2a02c738e3394a3d8a6a093cd3a5a662 -AUTH_TYPE=exchangecode -epicapp=UE_5.8 -epicenv=Prod -EpicPortal -epicusername="Shark Clark" -epicuserid=fc304f8b319845d2920de70ab4d2bea2 -epiclocale=en -epicsandboxid=ue""
+LogCsvProfiler: Display: Metadata set : commandline=""""
 LogCsvProfiler: Display: Metadata set : loginid="cafcb7a54d2543d5e202b4a9c4084b05"
 LogCsvProfiler: Display: Metadata set : llm="0"
-LogModuleManager: InternalLoadLibrary: 'StorageServerClient' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-StorageServerClient.dll')
-LogModuleManager: InternalLoadLibrary: 'CookOnTheFly' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-CookOnTheFly.dll')
-LogModuleManager: InternalLoadLibrary: 'StreamingFile' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-StreamingFile.dll')
-LogModuleManager: InternalLoadLibrary: 'NetworkFile' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-NetworkFile.dll')
-LogModuleManager: InternalLoadLibrary: 'PakFile' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-PakFile.dll')
-LogModuleManager: InternalLoadLibrary: 'RSA' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-RSA.dll')
-LogModuleManager: InternalLoadLibrary: 'SandboxFile' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-SandboxFile.dll')
 LogCsvProfiler: Display: Metadata set : zenstreaming="0"
 LogInit: Running DelayedAutoRegister Phase FileSystemReady
+LogProjectManager: Error: Failed to open descriptor file ../../../../../../Program Files/Epic Games/UE_5.8/../../../Users/ashar/repos/N.A.M.E.C/NAMEC.uproject
+LogWindows: Error: Failed to create dialog. The specified resource type cannot be found in the image file. Error: 0x715 (1813)
+Message dialog closed, result: Ok, title: Message, text: Failed to open descriptor file ../../../../../../Program Files/Epic Games/UE_5.8/../../../Users/ashar/repos/N.A.M.E.C/NAMEC.uproject
+LogInit: Warning: Could not find a valid project file, the engine will exit now.
 LogInit: Running DelayedAutoRegister Phase TaskGraphSystemReady
-LogStats: Stats thread started at 0.281228
+LogStats: Stats thread started at 0.164905
 LogInit: Running DelayedAutoRegister Phase StatSystemReady
-LogModuleManager: InternalLoadLibrary: 'CoreUObject' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-CoreUObject.dll')
 LogCsvProfiler: Display: Metadata set : systemresolution.resx="1280"
 LogCsvProfiler: Display: Metadata set : systemresolution.resy="720"
-LogModuleManager: InternalLoadLibrary: 'Engine' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-Engine.dll')
-LogModuleManager: InternalLoadLibrary: 'UniversalObjectLocator' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-UniversalObjectLocator.dll')
-LogModuleManager: InternalLoadLibrary: 'Renderer' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-Renderer.dll')
-LogModuleManager: InternalLoadLibrary: 'AnimGraphRuntime' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-AnimGraphRuntime.dll')
-LogModuleManager: InternalLoadLibrary: 'SlateRHIRenderer' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-SlateRHIRenderer.dll')
-LogModuleManager: InternalLoadLibrary: 'Landscape' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-Landscape.dll')
-LogModuleManager: InternalLoadLibrary: 'RHICore' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-RHICore.dll')
-LogModuleManager: InternalLoadLibrary: 'RenderCore' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-RenderCore.dll')
-LogModuleManager: InternalLoadLibrary: 'TextureCompressor' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-TextureCompressor.dll')
-LogModuleManager: InternalLoadLibrary: 'OpenColorIOWrapper' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-OpenColorIOWrapper.dll')
-LogModuleManager: InternalLoadLibrary: 'Virtualization' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-Virtualization.dll')
-LogModuleManager: InternalLoadLibrary: 'MessageLog' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-MessageLog.dll')
-LogModuleManager: InternalLoadLibrary: 'AudioEditor' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-AudioEditor.dll')
-LogModuleManager: InternalLoadLibrary: 'PropertyEditor' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-PropertyEditor.dll')
-LogModuleManager: InternalLoadLibrary: 'AudioExtensions' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-AudioExtensions.dll')
-LogModuleManager: InternalLoadLibrary: 'SignalProcessing' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-SignalProcessing.dll')
-LogModuleManager: InternalLoadLibrary: 'AudioMixerCore' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-AudioMixerCore.dll')
-LogModuleManager: InternalLoadLibrary: 'AnimationModifiers' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-AnimationModifiers.dll')
 LogICUInternationalization: ICU TimeZone Detection - Raw Offset: -6:00, Platform Override: ''
 LogInit: Session CrashGUID >====================================================
-         Session CrashGUID >   UECC-Windows-3CA5FF7B43AC705FACEB0BBF40C32FC8
+         Session CrashGUID >   UECC-Windows-462067B3449DD977E21C6EAF14137E90
          Session CrashGUID >====================================================
-LogConfig: No local boot hotfix file found at: [../../../../../../Users/ashar/OneDrive/Documents/GitHub/N.A.M.E.C/Saved/PersistentDownloadDir/HotfixForNextBoot.txt]
-LogInit: Running DelayedAutoRegister Phase IniSystemReady
-LogModuleManager: InternalLoadLibrary: 'TargetPlatform' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-TargetPlatform.dll')
-LogModuleManager: InternalLoadLibrary: 'DesktopPlatform' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-DesktopPlatform.dll')
-Launching UnrealBuildTool... [C:/Program Files/Epic Games/UE_5.8/Engine/Build/BatchFiles/Build.bat -Mode=ValidatePlatforms -OutputSDKs  -AllPlatforms  -project="C:/Users/ashar/OneDrive/Documents/GitHub/N.A.M.E.C/NAMEC.uproject" -log="C:/Users/ashar/OneDrive/Documents/GitHub/N.A.M.E.C/Saved/Logs/AutoSDKInfo.txt" -verbose -timestamps]
-LogAudio: Display: Pre-Initializing Audio Device Manager...
-LogModuleManager: InternalLoadLibrary: 'OpusAudioDecoder' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-OpusAudioDecoder.dll')
-LogAudio: Display: AudioInfo: 'OPUS' Registered
-LogModuleManager: InternalLoadLibrary: 'VorbisAudioDecoder' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-VorbisAudioDecoder.dll')
-LogAudioDebug: Display: Lib vorbis DLL was dynamically loaded.
-LogAudio: Display: AudioInfo: 'OGG' Registered
-LogModuleManager: InternalLoadLibrary: 'AdpcmAudioDecoder' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-AdpcmAudioDecoder.dll')
-LogAudio: Display: AudioInfo: 'ADPCM' Registered
-LogAudio: Display: AudioInfo: 'PCM' Registered
-LogModuleManager: InternalLoadLibrary: 'BinkAudioDecoder' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-BinkAudioDecoder.dll')
-LogAudio: Display: AudioInfo: 'BINKA' Registered
-LogModuleManager: InternalLoadLibrary: 'RadAudioDecoder' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-RadAudioDecoder.dll')
-LogAudio: Display: AudioInfo: 'RADA' Registered
-LogAudio: Display: Audio Device Manager Pre-Initialized
-LogModuleManager: InternalLoadLibrary: 'TelemetryUtils' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-TelemetryUtils.dll')
-LogAssetRegistry: Display: FindShardedCacheFiles: 0 via .ref, 0 via migration fallback, 0 total
-LogPluginManager: Looking for build plugins target receipt
-LogAssetRegistry: Display: No AssetDiscovery cache present at ../../../../../../Users/ashar/OneDrive/Documents/GitHub/N.A.M.E.C/Intermediate/CachedAssetRegistryDiscovery.bin. AssetRegistry discovery of files will be uncached.
-LogPluginManager: Unable to find target receipt in path: ../../../../../../Users/ashar/OneDrive/Documents/GitHub/N.A.M.E.C/Binaries/Win64/*.target
-LogConfig: Display: Loading VulkanPC ini files took 0.04 seconds
-LogConfig: Display: Loading IOS ini files took 0.04 seconds
-LogConfig: Display: Loading Android ini files took 0.04 seconds
-LogConfig: Display: Loading Mac ini files took 0.04 seconds
-LogConfig: Display: Loading TVOS ini files took 0.04 seconds
-LogConfig: Display: Loading Windows ini files took 0.05 seconds
-LogConfig: Display: Loading Unix ini files took 0.05 seconds
-LogConfig: Display: Loading VisionOS ini files took 0.05 seconds
-LogConfig: Display: Loading Linux ini files took 0.05 seconds
-LogPluginManager: Found matching target receipt: ../../../Engine/Binaries/Win64/UnrealEditor.target
-LogPluginManager: Looking for enabled plugins target receipt
-LogPluginManager: Unable to find target receipt in path: ../../../../../../Users/ashar/OneDrive/Documents/GitHub/N.A.M.E.C/Binaries/Win64/*.target
-LogPluginManager: Found matching target receipt: ../../../Engine/Binaries/Win64/UnrealEditor.target
-Message dialog closed, result: Yes, title: Missing Plugin, text: This project requires the 'PCGFramework' plugin, which could not be found. Would you like to disable it and continue?
-
-If you do, you will no longer be able to open any assets created with it. If not, the application will close.
-LogPluginManager: Display: Disabled plugin 'PCGFramework' due to missing plugin 'PCGFramework', continuing.
-Message dialog closed, result: Yes, title: Missing Plugin, text: This project requires the 'MotionMatchingAnimGraphNodes' plugin, which could not be found. Would you like to disable it and continue?
-
-If you do, you will no longer be able to open any assets created with it. If not, the application will close.
-LogPluginManager: Display: Disabled plugin 'MotionMatchingAnimGraphNodes' due to missing plugin 'MotionMatchingAnimGraphNodes', continuing.
-Message dialog closed, result: Yes, title: Missing Plugin, text: This project requires the 'SmartObjectsModule' plugin, which could not be found. Would you like to disable it and continue?
-
-If you do, you will no longer be able to open any assets created with it. If not, the application will close.
-LogPluginManager: Display: Disabled plugin 'SmartObjectsModule' due to missing plugin 'SmartObjectsModule', continuing.
-Message dialog closed, result: Yes, title: Missing Plugin, text: This project requires the 'MetaSounds' plugin, which could not be found. Would you like to disable it and continue?
-
-If you do, you will no longer be able to open any assets created with it. If not, the application will close.
-LogPluginManager: Display: Disabled plugin 'MetaSounds' due to missing plugin 'MetaSounds', continuing.
-Message dialog closed, result: Yes, title: Missing Plugin, text: This project requires the 'Substrate' plugin, which could not be found. Would you like to disable it and continue?
-
-If you do, you will no longer be able to open any assets created with it. If not, the application will close.
-LogPluginManager: Display: Disabled plugin 'Substrate' due to missing plugin 'Substrate', continuing.
-LogPluginManager: Mounting Engine plugin AudioInsights
-LogPluginManager: Mounting Engine plugin AudioInsightsRuntime
-LogPluginManager: Mounting Engine plugin AudioModulationInsights
-LogPluginManager: Mounting Engine plugin BaseMaterial
-LogPluginManager: Mounting Engine plugin Bridge
-LogPluginManager: Mounting Engine plugin ChaosCloth
-LogPluginManager: Mounting Engine plugin ChaosInsights
-LogPluginManager: Mounting Engine plugin ChaosVD
-LogPluginManager: Mounting Engine plugin CmdLinkServer
-LogPluginManager: Mounting Engine plugin Dataflow
-LogPluginManager: Mounting Engine plugin DerivedDataBuildController
-LogPluginManager: Mounting Engine plugin EnhancedInput
-LogPluginManager: Mounting Engine plugin Fab
-LogPluginManager: Mounting Engine plugin IoStoreInsights
-LogPluginManager: Mounting Engine plugin MassInsights
-LogPluginManager: Mounting Engine plugin MeshPainting
-LogPluginManager: Mounting Engine plugin Mutable
-LogPluginManager: Mounting Engine plugin PCG
-LogPluginManager: Mounting Engine plugin RenderGraphInsights
-LogPluginManager: Mounting Engine plugin RenderTraceInsights
-LogPluginManager: Mounting Engine plugin UbaController
-LogPluginManager: Mounting Engine plugin TraceUtilities
-LogPluginManager: Mounting Engine plugin WorldMetrics
-LogPluginManager: Mounting Engine plugin XGEController
-LogPluginManager: Mounting Engine plugin OodleNetwork
-LogPluginManager: Mounting Engine plugin AnimationSharing
-LogPluginManager: Mounting Engine plugin DumpGPUServices
-LogPluginManager: Mounting Engine plugin CodeLiteSourceCodeAccess
-LogPluginManager: Mounting Engine plugin GitSourceControl
-LogPluginManager: Mounting Engine plugin GPUReshape
-LogPluginManager: Mounting Engine plugin KDevelopSourceCodeAccess
-LogPluginManager: Mounting Engine plugin CLionSourceCodeAccess
-LogPluginManager: Mounting Engine plugin N10XSourceCodeAccess
-LogPluginManager: Mounting Engine plugin NamingTokens
-LogPluginManager: Mounting Engine plugin NullSourceCodeAccess
-LogPluginManager: Mounting Engine plugin PerforceSourceControl
-LogPluginManager: Mounting Engine plugin PlasticSourceControl
-LogPluginManager: Mounting Engine plugin PixWinPlugin
-LogPluginManager: Mounting Engine plugin PluginUtils
-LogPluginManager: Mounting Engine plugin PropertyAccessNode
-LogPluginManager: Mounting Engine plugin RiderSourceCodeAccess
-LogPluginManager: Mounting Engine plugin ProjectLauncher
-LogPluginManager: Mounting Engine plugin RenderDocPlugin
-LogPluginManager: Mounting Engine plugin SubversionSourceControl
-LogPluginManager: Mounting Engine plugin UObjectPlugin
-LogPluginManager: Mounting Engine plugin VisualStudioCodeSourceCodeAccess
-LogPluginManager: Mounting Engine plugin VisualStudioSourceCodeAccess
-LogPluginManager: Mounting Engine plugin XCodeSourceCodeAccess
-LogPluginManager: Mounting Engine plugin Niagara
-LogPluginManager: Mounting Engine plugin Cascade
-LogPluginManager: Mounting Engine plugin NiagaraPreviewContent
-LogPluginManager: Mounting Engine plugin NiagaraSimCaching
-LogPluginManager: Mounting Engine plugin NiagaraInsights
-LogPluginManager: Mounting Engine plugin AlembicImporter
-LogPluginManager: Mounting Engine plugin AndroidMedia
-LogPluginManager: Mounting Engine plugin AvfMedia
-LogPluginManager: Mounting Engine plugin ImgMedia
-LogPluginManager: Mounting Engine plugin MediaCompositing
-LogPluginManager: Mounting Engine plugin MediaPlate
-LogPluginManager: Mounting Engine plugin MediaPlayerEditor
-LogPluginManager: Mounting Engine plugin MP4Utilities
-LogPluginManager: Mounting Engine plugin TmvMedia
-LogPluginManager: Mounting Engine plugin WebMMedia
-LogPluginManager: Mounting Engine plugin UdpMessaging
-LogPluginManager: Mounting Engine plugin WmfMedia
-LogPluginManager: Mounting Engine plugin TcpMessaging
-LogPluginManager: Mounting Engine plugin DatasmithContent
-LogPluginManager: Mounting Engine plugin GLTFExporter
-LogPluginManager: Mounting Engine plugin VariantManager
-LogPluginManager: Mounting Engine plugin VariantManagerContent
-LogPluginManager: Mounting Engine plugin InterchangeEditor
-LogPluginManager: Mounting Engine plugin InterchangeAssets
-LogPluginManager: Mounting Engine plugin Interchange
-LogPluginManager: Mounting Engine plugin AutomatedPerfTestTools
-LogPluginManager: Mounting Engine plugin ActorSequence
-LogPluginManager: Mounting Engine plugin LevelSequenceEditor
-LogPluginManager: Mounting Engine plugin SequenceValidator
-LogPluginManager: Mounting Engine plugin SequencerScripting
-LogPluginManager: Mounting Engine plugin TemplateSequence
-LogPluginManager: Mounting Engine plugin MetaHumanSDK
-LogPluginManager: Mounting Engine plugin NNEDenoiser
-LogPluginManager: Mounting Engine plugin NNERuntimeORT
-LogPluginManager: Mounting Engine plugin EOSShared
-LogPluginManager: Mounting Engine plugin OnlineBase
-LogPluginManager: Mounting Engine plugin OnlineServices
-LogPluginManager: Mounting Engine plugin OnlineSubsystem
-LogPluginManager: Mounting Engine plugin OnlineSubsystemNull
-LogPluginManager: Mounting Engine plugin OnlineSubsystemUtils
-LogPluginManager: Mounting Engine plugin ActorLayerUtilities
-LogPluginManager: Mounting Engine plugin AndroidDeviceProfileSelector
-LogPluginManager: Mounting Engine plugin AndroidFileServer
-LogPluginManager: Mounting Engine plugin AndroidPermission
-LogPluginManager: Mounting Engine plugin AppleMoviePlayer
-LogPluginManager: Mounting Engine plugin AppleImageUtils
-LogPluginManager: Mounting Engine plugin AndroidMoviePlayer
-LogPluginManager: Mounting Engine plugin AudioCapture
-LogPluginManager: Mounting Engine plugin ArchVisCharacter
-LogPluginManager: Mounting Engine plugin AudioSynesthesia
-LogPluginManager: Mounting Engine plugin CableComponent
-LogPluginManager: Mounting Engine plugin ComputeFramework
-LogPluginManager: Mounting Engine plugin ChunkDownloader
-LogPluginManager: Mounting Engine plugin CustomMeshComponent
-LogPluginManager: Mounting Engine plugin AudioWidgets
-LogPluginManager: Mounting Engine plugin AssetTags
-LogPluginManager: Mounting Engine plugin ExampleDeviceProfileSelector
-LogPluginManager: Mounting Engine plugin GeometryCache
-LogPluginManager: Mounting Engine plugin GeometryProcessing
-LogPluginManager: Mounting Engine plugin GeometryScripting
-LogPluginManager: Mounting Engine plugin GooglePAD
-LogPluginManager: Mounting Engine plugin GoogleCloudMessaging
-LogPluginManager: Mounting Engine plugin HairStrands
-LogPluginManager: Mounting Engine plugin InputDebugging
-LogPluginManager: Mounting Engine plugin IOSDeviceProfileSelector
-LogPluginManager: Mounting Engine plugin LinuxDeviceProfileSelector
-LogPluginManager: Mounting Engine plugin LocationServicesBPLibrary
-LogPluginManager: Mounting Engine plugin Metasound
-LogPluginManager: Mounting Engine plugin MobilePatchingUtils
-LogPluginManager: Mounting Engine plugin MeshModelingToolset
-LogPluginManager: Mounting Engine plugin ModelViewViewModel
-LogPluginManager: Mounting Engine plugin MsQuic
-LogPluginManager: Mounting Engine plugin PropertyAccessEditor
-LogPluginManager: Mounting Engine plugin PropertyBindingUtils
-LogPluginManager: Mounting Engine plugin ResonanceAudio
-LogPluginManager: Mounting Engine plugin SignificanceManager
-LogPluginManager: Mounting Engine plugin RigVM
-LogPluginManager: Mounting Engine plugin SoundFields
-LogPluginManager: Mounting Engine plugin SkeletalMerging
-LogPluginManager: Mounting Engine plugin StateTree
-LogPluginManager: Mounting Engine plugin ProceduralMeshComponent
-LogPluginManager: Mounting Engine plugin Synthesis
-LogPluginManager: Mounting Engine plugin WaveTable
-LogPluginManager: Mounting Engine plugin WebMMoviePlayer
-LogPluginManager: Mounting Engine plugin WindowsDeviceProfileSelector
-LogPluginManager: Mounting Engine plugin WindowsMoviePlayer
-LogPluginManager: Mounting Engine plugin AISupport
-LogPluginManager: Mounting Engine plugin EnvironmentQueryEditor
-LogPluginManager: Mounting Engine plugin AnimationData
-LogPluginManager: Mounting Engine plugin ACLPlugin
-LogPluginManager: Mounting Engine plugin AnimationModifierLibrary
-LogPluginManager: Mounting Engine plugin AnimatorKit
-LogPluginManager: Mounting Engine plugin BlendSpaceMotionAnalysis
-LogPluginManager: Mounting Engine plugin ControlRig
-LogPluginManager: Mounting Engine plugin ControlRigModules
-LogPluginManager: Mounting Engine plugin ControlRigSpline
-LogPluginManager: Mounting Engine plugin EaseCurveTool
-LogPluginManager: Mounting Engine plugin DeformerGraph
-LogPluginManager: Mounting Engine plugin GameplayInsights
-LogPluginManager: Mounting Engine plugin IKRig
-LogPluginManager: Mounting Engine plugin Paper2D
-LogPluginManager: Mounting Engine plugin PhysicsControl
-LogPluginManager: Mounting Engine plugin TweeningUtils
-LogPluginManager: Mounting Engine plugin SkeletalMeshModelingTools
-LogPluginManager: Mounting Engine plugin EngineCameras
-LogPluginManager: Mounting Engine plugin RigLogic
-LogPluginManager: Mounting Engine plugin GameplayCameras
-LogPluginManager: Mounting Engine plugin CameraShakePreviewer
-LogPluginManager: Mounting Engine plugin CompositeCore
-LogPluginManager: Mounting Engine plugin AssetManagerEditor
-LogPluginManager: Mounting Engine plugin BlueprintHeaderView
-LogPluginManager: Mounting Engine plugin BlueprintMaterialTextureNodes
-LogPluginManager: Mounting Engine plugin ChangelistReview
-LogPluginManager: Mounting Engine plugin ConsoleVariables
-LogPluginManager: Mounting Engine plugin ColorGrading
-LogPluginManager: Mounting Engine plugin EditorScriptingUtilities
-LogPluginManager: Mounting Engine plugin EngineAssetDefinitions
-LogPluginManager: Mounting Engine plugin EditorDebugTools
-LogPluginManager: Mounting Engine plugin FacialAnimation
-LogPluginManager: Mounting Engine plugin CurveEditorTools
-LogPluginManager: Mounting Engine plugin DataValidation
-LogPluginManager: Mounting Engine plugin GeometryMode
-LogPluginManager: Mounting Engine plugin MacGraphicsSwitching
-LogPluginManager: Mounting Engine plugin CryptoKeys
-LogPluginManager: Mounting Engine plugin GameplayTagsEditor
-LogPluginManager: Mounting Engine plugin MaterialAssetWizard
-LogPluginManager: Mounting Engine plugin MaterialAnalyzer
-LogPluginManager: Mounting Engine plugin MeshLODToolset
-LogPluginManager: Mounting Engine plugin MobileLauncherProfileWizard
-LogPluginManager: Mounting Engine plugin ModelingToolsEditorMode
-LogPluginManager: Mounting Engine plugin ProxyLODPlugin
-LogPluginManager: Mounting Engine plugin SpeedTreeImporter
-LogPluginManager: Mounting Engine plugin StylusInput
-LogPluginManager: Mounting Engine plugin UVEditor
-LogPluginManager: Mounting Engine plugin UMGWidgetPreview
-LogPluginManager: Mounting Engine plugin PluginBrowser
-LogPluginManager: Mounting Engine plugin WorldPartitionHLODUtilities
-LogPluginManager: Mounting Engine plugin SequencerAnimTools
-LogPluginManager: Mounting Engine plugin AdvancedRenamer
-LogPluginManager: Mounting Engine plugin AutomationUtils
-LogPluginManager: Mounting Engine plugin BackChannel
-LogPluginManager: Mounting Engine plugin ChaosCaching
-LogPluginManager: Mounting Engine plugin ChaosEditor
-LogPluginManager: Mounting Engine plugin ChaosNiagara
-LogPluginManager: Mounting Engine plugin ChaosUserDataPT
-LogPluginManager: Mounting Engine plugin ChaosSolverPlugin
-LogPluginManager: Mounting Engine plugin CharacterAI
-LogPluginManager: Mounting Engine plugin Buoyancy
-LogPluginManager: Mounting Engine plugin ControlRigPhysics
-LogPluginManager: Mounting Engine plugin EditorDataStorageFeatures
-LogPluginManager: Mounting Engine plugin EditorDataStorage
-LogPluginManager: Mounting Engine plugin EditorPerformance
-LogPluginManager: Mounting Engine plugin EditorTelemetry
-LogPluginManager: Mounting Engine plugin EditorTRSGizmo
-LogPluginManager: Mounting Engine plugin FullBodyIK
-LogPluginManager: Mounting Engine plugin Fracture
-LogPluginManager: Mounting Engine plugin GeometryDataflow
-LogPluginManager: Mounting Engine plugin GeometryCollectionPlugin
-LogPluginManager: Mounting Engine plugin GeometryFlow
-LogPluginManager: Mounting Engine plugin GlobalConfigurationData
-LogPluginManager: Mounting Engine plugin HttpInsights
-LogPluginManager: Mounting Engine plugin GizmoFramework
-LogPluginManager: Mounting Engine plugin Landmass
-LogPluginManager: Mounting Engine plugin LevelSequenceNavigatorBridge
-LogPluginManager: Mounting Engine plugin LowLevelNetTrace
-LogPluginManager: Mounting Engine plugin LocalizableMessage
-LogPluginManager: Mounting Engine plugin MeshModelingToolsetExp
-LogPluginManager: Mounting Engine plugin MutableAssetUserData
-LogPluginManager: Mounting Engine plugin NFORDenoise
-LogPluginManager: Mounting Engine plugin PlatformCrypto
-LogPluginManager: Mounting Engine plugin PlanarCut
-LogPluginManager: Mounting Engine plugin PythonScriptPlugin
-LogPluginManager: Mounting Engine plugin RuntimeTelemetry
-LogPluginManager: Mounting Engine plugin SequenceNavigator
-LogPluginManager: Mounting Engine plugin SkeletalReduction
-LogPluginManager: Mounting Engine plugin ToolPresets
-LogPluginManager: Mounting Engine plugin Water
-LogPluginManager: Mounting Engine plugin LauncherChunkInstaller
-LogPluginManager: Mounting Engine plugin InterchangeTests
-LogPluginManager: Mounting Engine plugin Takes
-LogPluginManager: Mounting Engine plugin OnlineSubsystemIOS
-LogPluginManager: Mounting Engine plugin XInputDevice
-LogPluginManager: Mounting Engine plugin Scribble
-LogPluginManager: Mounting Engine plugin BaseCharacterFXEditor
-LogPluginManager: Mounting Engine plugin FileSandbox
-LogPluginManager: Mounting Engine plugin ConcertMain
-LogPluginManager: Mounting Engine plugin InterchangeAxfAssets
-LogPluginManager: Mounting Engine plugin OnlineSubsystemGooglePlay
-LogPluginManager: Mounting Engine plugin SQLiteCore
-LogPluginManager: Mounting Engine plugin PortableObjectFileDataSource
-LogPluginManager: Mounting Engine plugin ObjectMixer
-LogPluginManager: Mounting Engine plugin LightMixer
-LogPluginManager: Mounting Engine plugin ContentBrowserAssetDataSource
-LogPluginManager: Mounting Engine plugin ContentBrowserFileDataSource
-LogPluginManager: Mounting Engine plugin ContentBrowserClassDataSource
-LogPluginManager: Mounting Engine plugin ConcertSyncCore
-LogPluginManager: Mounting Engine plugin ConcertSyncClient
-LogPluginManager: Mounting Engine plugin ConcertSharedSlate
-LogModuleManager: InternalLoadLibrary: 'DerivedDataBuildController' ('C:/Program Files/Epic Games/UE_5.8/Engine/Plugins/DerivedDataBuildController/Binaries/Win64/UnrealEditor-DerivedDataBuildController.dll')
-LogModuleManager: InternalLoadLibrary: 'UbaController' ('C:/Program Files/Epic Games/UE_5.8/Engine/Plugins/UbaController/Binaries/Win64/UnrealEditor-UbaController.dll')
-LogModuleManager: InternalLoadLibrary: 'XGEController' ('C:/Program Files/Epic Games/UE_5.8/Engine/Plugins/XGEController/Binaries/Win64/UnrealEditor-XGEController.dll')
-LogModuleManager: InternalLoadLibrary: 'PerforceSourceControl' ('C:/Program Files/Epic Games/UE_5.8/Engine/Plugins/Developer/PerforceSourceControl/Binaries/Win64/UnrealEditor-PerforceSourceControl.dll')
-LogModuleManager: InternalLoadLibrary: 'SourceControl' ('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-SourceControl.dll')
-SourceControl: Revision control is disabled
-SourceControl: Revision control is disabled
-LogModuleManager: InternalLoadLibrary: 'PlasticSourceControl' ('C:/Program Files/Epic Games/UE_5.8/Engine/Plugins/Developer/PlasticSourceControl/Binaries/Win64/UnrealEditor-PlasticSourceControl.dll')
-SourceControl: Revision control is disabled
-LogModuleManager: InternalLoadLibrary: 'PlatformCrypto' ('C:/Program Files/Epic Games/UE_5.8/Engine/Plugins/Experimental/PlatformCrypto/Binaries/Win64/UnrealEditor-PlatformCrypto.dll')
-LogModuleManager: InternalLoadLibrary: 'PlatformCryptoTypes' ('C:/Program Files/Epic Games/UE_5.8/Engine/Plugins/Experimental/PlatformCrypto/Binaries/Win64/UnrealEditor-PlatformCryptoTypes.dll')
-LogModuleManager: InternalLoadLibrary: 'PlatformCryptoContext' ('C:/Program Files/Epic Games/UE_5.8/Engine/Plugins/Experimental/PlatformCrypto/Binaries/Win64/UnrealEditor-PlatformCryptoContext.dll')
-LogModuleManager: InternalLoadLibrary: 'PythonScriptPluginPreload' ('C:/Program Files/Epic Games/UE_5.8/Engine/Plugins/Experimental/PythonScriptPlugin/Binaries/Win64/UnrealEditor-PythonScriptPluginPreload.dll')
-LogInit: Running DelayedAutoRegister Phase EarliestPossiblePluginsLoaded
-Launching UnrealBuildTool... [C:/Program Files/Epic Games/UE_5.8/Engine/Build/BatchFiles/Build.bat -Mode=QueryTargets -Project="C:/Users/ashar/OneDrive/Documents/GitHub/N.A.M.E.C/NAMEC.uproject" -Output="C:/Users/ashar/OneDrive/Documents/GitHub/N.A.M.E.C/Intermediate/TargetInfo.json" -IncludeAllTargets -DontIncludeParentAssembly -DontIncludeProgramTargets]
-LogInit: Warning: Incompatible or missing module: NAMEC
-LogInit: Warning: Incompatible or missing module: NAMECEditor
-Running C:/Program Files/Epic Games/UE_5.8/Engine/Build/BatchFiles/Build.bat Development Win64 -Project="C:/Users/ashar/OneDrive/Documents/GitHub/N.A.M.E.C/NAMEC.uproject" -TargetType=Editor -Progress -NoEngineChanges -NoHotReloadFromIDE
-Using bundled DotNet SDK version: 10.0 win-x64
-Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" Development Win64 -Project="C:/Users/ashar/OneDrive/Documents/GitHub/N.A.M.E.C/NAMEC.uproject" -TargetType=Editor -Progress -NoEngineChanges -NoHotReloadFromIDE
-Log file: C:\Users\ashar\AppData\Local\UnrealBuildTool\Log.txt
-No valid Visual C++ toolchain was found (minimum version 14.38.33130, preferred version 14.50.35717). Please download and install Visual Studio 17.8 or later and verify that the "MSVC Build Tools v14.50 for x64/x86" component is selected in the Visual Studio installation options.
-Visual Studio x64 must be installed in order to build this target.
-
-Result: Failed (OtherCompilationError)
-Total execution time: 0.59 seconds
-Trace written to file C:\Users\ashar\AppData\Local\UnrealBuildTool\Trace.uba with size 621b
-LogInit: Warning: Still incompatible or missing module: NAMEC
-LogInit: Warning: Still incompatible or missing module: NAMECEditor
 LogCore: Engine exit requested (reason: EngineExit() was called)
-LogAsyncCompilation: Display: MemorySharingInfo: UsedMemory=307MiB, MaxMemoryAvailable=35029MiB
-LogAudio: Display: Beginning Audio Device Manager Shutdown (Module: )...
-LogAudio: Display: Audio Device Manager Shutdown
 LogExit: Preparing to exit.
-LogXGEController: Cannot use XGE Controller as Incredibuild is not installed on this machine.
-LogXGEController: Cleaning working directory: C:/Users/ashar/AppData/Local/Temp/UnrealXGEWorkingDir/
 LogPakFile: Destroying PakPlatformFile
 LogExit: Exiting.
-Log file closed, 09/16/26 19:55:11
+Log file closed, 09/19/26 10:56:52
