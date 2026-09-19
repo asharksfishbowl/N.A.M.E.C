@@ -27,8 +27,7 @@ struct NAMEC_API FNamecLocalPlayerSettings
     bool bExecutionPrompts = true;
 };
 
-// GIQuality and ShadowQuality share FNamecScalabilityTierRow's units, so the Split ceiling is a
-// per-field min. The two percentages get their tier columns with the ceiling itself.
+// The four graphics values use FNamecScalabilityTierRow's units, so the Split ceiling is a per-field min.
 USTRUCT()
 struct NAMEC_API FNamecMachineSettings
 {
