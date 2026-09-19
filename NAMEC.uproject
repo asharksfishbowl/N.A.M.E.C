@@ -45,6 +45,10 @@
 			"Enabled": true
 		},
 		{
+			"Name": "GameplayStateTree",
+			"Enabled": true
+		},
+		{
 			"Name": "SmartObjects",
 			"Enabled": true
 		},
