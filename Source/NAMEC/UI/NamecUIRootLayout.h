@@ -9,6 +9,7 @@ class UCommonActivatableWidget;
 class UCommonActivatableWidgetStack;
 class UNamecSaveFileService;
 class UOverlay;
+class UTextBlock;
 
 // One per local player: a menu stack and a HUD layer. Later phases push their screens on the
 // stack and their HUD widgets on the layer.
@@ -29,6 +30,10 @@ public:
     UCommonActivatableWidgetStack* GetMenuStack() const { return MenuStack; }
     UOverlay* GetHudLayer() const { return HudLayer; }
 
+    // One line of text on the HUD layer, replacing the last one. Later phases own its look and timing.
+    void ShowHudNotice(const FText& Notice);
+    FText GetHudNotice() const;
+
 private:
     void OnMainMenuEntrySelected(ENamecMainMenuEntry Entry);
     void ShowCharacterList();
@@ -38,6 +43,9 @@ private:
 
     UPROPERTY()
     TObjectPtr<UOverlay> HudLayer;
+
+    UPROPERTY()
+    TObjectPtr<UTextBlock> HudNotice;
 
     UPROPERTY()
     TObjectPtr<UNamecSaveFileService> SaveFiles;

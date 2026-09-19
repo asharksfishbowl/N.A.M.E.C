@@ -9,9 +9,8 @@
 #include "Core/Tests/NamecTestWorld.h"
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/WidgetNavigation.h"
-#include "CommonInputSettings.h"
+#include "UI/Tests/NamecUITestHelpers.h"
 #include "CommonUITypes.h"
-#include "ICommonInputModule.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
 
@@ -19,8 +18,7 @@ using namespace NamecSaveTestHelpers;
 
 namespace
 {
-    // A root layout with its Slate widgets built, which is what makes the menu stack live. UMG
-    // keeps only a weak pointer to them: in the game the viewport owns the strong one, here this does.
+    // A root layout with its Slate widgets built, which is what makes the menu stack live.
     struct FNamecTestRootLayout
     {
         UNamecUIRootLayout* Root;
@@ -28,10 +26,8 @@ namespace
 
         FNamecTestRootLayout(UWorld* World, UNamecSaveFileService& SaveFiles)
             : Root(CreateWidget<UNamecUIRootLayout>(World))
-            , SlateRoot(Root->TakeWidget())
+            , SlateRoot(NamecUITestHelpers::BuildSlate(*Root))
         {
-            // In the game UCommonInputSubsystem::Initialize does this for each local player; a test has none.
-            ICommonInputModule::GetSettings().LoadData();
             Root->UseSaveFiles(SaveFiles);
         }
 
@@ -202,8 +198,8 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FNamecUIInputSettingsTest, "Namec.Foundation.UI
 
 bool FNamecUIInputSettingsTest::RunTest(const FString& Parameters)
 {
-    UCommonInputSettings& InputSettings = ICommonInputModule::GetSettings();
-    InputSettings.LoadData();
+    NamecUITestHelpers::LoadCommonInputData();
+    const UCommonInputSettings& InputSettings = ICommonInputModule::GetSettings();
     TestFalse(TEXT("The Experimental Enhanced Input bridge is off under the project config"), InputSettings.GetEnableEnhancedInputSupport());
 
     const FCommonInputActionDataBase* Click = InputSettings.GetDefaultClickAction().GetRow<FCommonInputActionDataBase>(TEXT("Test"));
