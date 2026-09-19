@@ -1,6 +1,7 @@
 #include "NamecCreateFoundationTablesCommandlet.h"
 #include "NamecDataTableAuthoring.h"
 #include "Core/Input/NamecCoreInputRow.h"
+#include "Multiplayer/NamecSessionRules.h"
 #include "Save/NamecAutosaveSubsystem.h"
 #include "Engine/DataTable.h"
 
@@ -10,6 +11,7 @@ int32 UNamecCreateFoundationTablesCommandlet::Main(const FString& Params)
 {
     bool bOk = CreateCoreSaveTable();
     bOk &= CreateCoreInputTable();
+    bOk &= CreateSessionTable();
     if (!bOk)
     {
         UE_LOG(LogTemp, Error, TEXT("NamecCreateFoundationTables: one or more tables failed to save."));
@@ -39,6 +41,18 @@ bool UNamecCreateFoundationTablesCommandlet::CreateCoreInputTable()
         [](UDataTable* Table)
         {
             Table->AddRow(NamecCoreInput::RowName, FNamecCoreInputRow());
+        }
+    );
+}
+
+bool UNamecCreateFoundationTablesCommandlet::CreateSessionTable()
+{
+    return CreateAndSaveDataTable(
+        NamecSessionRules::TablePackageName,
+        FNamecSessionRow::StaticStruct(),
+        [](UDataTable* Table)
+        {
+            Table->AddRow(NamecSessionRules::RowName, FNamecSessionRow());
         }
     );
 }
