@@ -59,6 +59,8 @@ unlocked as a map revision. World Partition stays Evaluate, moved to the Phase 4
 
 ### Build environment
 
+**Superseded in part on 2026-09-18:** the pipeline now builds, runs commandlets and runs `-nullrhi` automation on the reference PC over SSH without the user; only GPU-bound and editor-only steps are sittings. See the roadmap's "Build environment split". The 2026-09-16 text follows.
+
 Nothing is compiled, run or measured in the pipeline container. The pipeline authors C++ and
 text; the user compiles, tests and measures on the reference PC and pastes results back. Every
 Phase 1 task ends "awaiting verification" with a handover note (assumed engine APIs, exact
