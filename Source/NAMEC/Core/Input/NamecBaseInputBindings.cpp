@@ -8,6 +8,7 @@
 
 const FName NamecBaseInput::ChordModifierActionName(TEXT("ChordModifier"));
 const FName NamecBaseInput::CameraToggleActionName(TEXT("CameraToggle"));
+const FName NamecBaseInput::InteractActionName(TEXT("Interact"));
 
 namespace
 {

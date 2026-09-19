@@ -2,6 +2,7 @@
 #include "UI/NamecUIRootLayout.h"
 #include "Save/NamecAutosaveSubsystem.h"
 #include "Save/NamecSaveFileService.h"
+#include "Save/NamecWorldLoader.h"
 #include "Engine/GameInstance.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
@@ -35,9 +36,10 @@ void UNamecUILayerSubsystem::OnPlayerControllerChanged(APlayerController* NewPla
     CreateRootLayout(*NewPlayerController->GetWorld(), NewPlayerController, GetLocalPlayer()->GetLocalPlayerIndex() + 1, *SaveFiles, *Autosave)->AddToPlayerScreen();
 }
 
-UNamecUIRootLayout* UNamecUILayerSubsystem::CreateRootLayout(UWorld& World, APlayerController* OwningPlayer, int32 SlotNumber, UNamecSaveFileService& SaveFiles, UNamecAutosaveSubsystem& Autosave)
+UNamecUIRootLayout* UNamecUILayerSubsystem::CreateRootLayout(UWorld& World, APlayerController* OwningPlayer, int32 InSlotNumber, UNamecSaveFileService& SaveFiles, UNamecAutosaveSubsystem& Autosave)
 {
     RemoveRootLayout();
+    SlotNumber = InSlotNumber;
 
     RootLayout = OwningPlayer ? CreateWidget<UNamecUIRootLayout>(OwningPlayer) : CreateWidget<UNamecUIRootLayout>(&World);
     RootLayout->UseSaveFiles(SaveFiles);
@@ -61,6 +63,14 @@ void UNamecUILayerSubsystem::RemoveRootLayout()
     {
         RootLayout->RemoveFromParent();
         RootLayout = nullptr;
+    }
+}
+
+void UNamecUILayerSubsystem::ShowWorldLoadNotice(const FNamecWorldLoadDecision& Decision)
+{
+    if (SlotNumber == 1 && RootLayout && Decision.Outcome == ENamecWorldLoadOutcome::LoadWithRevisionUpdate)
+    {
+        RootLayout->ShowHudNotice(Decision.Message);
     }
 }
 

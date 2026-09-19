@@ -1,4 +1,7 @@
 #include "World/Structures/NamecTerrainUpdatedMarker.h"
+#include "Save/NamecWorldSave.h"
+#include "World/NamecVoxelWorld.h"
+#include "Engine/World.h"
 #include "Net/UnrealNetwork.h"
 
 ANamecTerrainUpdatedMarker::ANamecTerrainUpdatedMarker()
@@ -14,4 +17,19 @@ void ANamecTerrainUpdatedMarker::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(ANamecTerrainUpdatedMarker, ChunkCoord);
+}
+
+void ANamecTerrainUpdatedMarker::OnInteract(AActor* Interactor)
+{
+    if (IsActorBeingDestroyed())
+    {
+        return;
+    }
+
+    const UNamecVoxelWorld* VoxelWorld = GetWorld()->GetSubsystem<UNamecVoxelWorld>();
+    if (VoxelWorld && VoxelWorld->WorldSave)
+    {
+        VoxelWorld->WorldSave->PendingTerrainMarkers.Remove(ChunkCoord);
+    }
+    Destroy();
 }

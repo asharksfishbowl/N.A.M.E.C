@@ -22,6 +22,15 @@ public:
     void ToggleCamera();
     bool IsFirstPerson() const { return bFirstPerson; }
 
+    // The one interact RPC. The server ignores a target that is not an INamecInteractable. No reach
+    // rule yet: no spec gives a distance.
+    UFUNCTION(Server, Reliable)
+    void ServerInteract(AActor* Target);
+
+    // What IA_Interact acts on. The trace and targeting rules that choose it belong to the phases
+    // that add doors and pickups.
+    void SetInteractTarget(AActor* Target) { InteractTarget = Target; }
+
     // Called from input on the owning client; forwards to server for authority.
     UFUNCTION(Server, Reliable)
     void ServerApplyTerrainEdit(FVector CentreMetres, float RadiusMetres,
@@ -42,4 +51,7 @@ private:
     UPROPERTY(VisibleAnywhere) TObjectPtr<UCustomizableSkeletalComponent> MutableBody;
 
     bool bFirstPerson = false;
+
+    void InteractWithTarget();
+    TWeakObjectPtr<AActor> InteractTarget;
 };
