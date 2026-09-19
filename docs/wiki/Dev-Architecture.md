@@ -201,7 +201,7 @@ Each machine uses the High tier (1–2 viewports) or Split tier (3–4 viewports
 | `NamecLocalPlayerManager.h` | Controller join prompt, local player add/remove, controller disconnect handling |
 | `NamecCharacterPayload.h` | Serializable character state struct for join and save sync, including race, sex, `FNamecAppearance`, item dye colors, current Health and Mana, gold, reputation and quest state |
 | `NamecSplitScreenLayout.h` | Viewport layout rules for 1–4 players |
-| `NamecSplitScreenScalabilitySubsystem.h` | Picks the High or Split rendering tier from the machine's local viewport count and applies the user's graphics settings unchanged (High) or min(user setting, Split value) per setting (Split), recomputing on a settings change |
+| `NamecScalabilitySubsystem.h` | Picks the High or Split rendering tier from the machine's local viewport count and applies the user's graphics settings unchanged (High) or min(user setting, Split value) per setting (Split), recomputing on a settings change |
 
 ### `Source/NAMEC/Factions/`
 
