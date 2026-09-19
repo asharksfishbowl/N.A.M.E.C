@@ -1,7 +1,9 @@
 #include "UI/NamecUILayerSubsystem.h"
 #include "UI/NamecUIRootLayout.h"
 #include "Save/NamecAutosaveSubsystem.h"
+#include "Core/Input/NamecInputContextSubsystem.h"
 #include "Save/NamecSaveFileService.h"
+#include "Save/NamecSettingsService.h"
 #include "Save/NamecWorldLoader.h"
 #include "Engine/GameInstance.h"
 #include "Engine/LocalPlayer.h"
@@ -29,24 +31,28 @@ void UNamecUILayerSubsystem::OnPlayerControllerChanged(APlayerController* NewPla
     }
 
     UGameInstance* GameInstance = GetLocalPlayer()->GetGameInstance();
-    UNamecSaveFileService* SaveFiles = GameInstance->GetSubsystem<UNamecSaveFileService>();
-    UNamecAutosaveSubsystem* Autosave = GameInstance->GetSubsystem<UNamecAutosaveSubsystem>();
-    check(SaveFiles && Autosave);
+    FNamecUILayerServices Services;
+    Services.SaveFiles = GameInstance->GetSubsystem<UNamecSaveFileService>();
+    Services.Autosave = GameInstance->GetSubsystem<UNamecAutosaveSubsystem>();
+    Services.Settings = GameInstance->GetSubsystem<UNamecSettingsService>();
+    Services.InputContexts = GetLocalPlayer()->GetSubsystem<UNamecInputContextSubsystem>();
 
-    CreateRootLayout(*NewPlayerController->GetWorld(), NewPlayerController, GetLocalPlayer()->GetLocalPlayerIndex() + 1, *SaveFiles, *Autosave)->AddToPlayerScreen();
+    CreateRootLayout(*NewPlayerController->GetWorld(), NewPlayerController, GetLocalPlayer()->GetLocalPlayerIndex() + 1, Services)->AddToPlayerScreen();
 }
 
-UNamecUIRootLayout* UNamecUILayerSubsystem::CreateRootLayout(UWorld& World, APlayerController* OwningPlayer, int32 InSlotNumber, UNamecSaveFileService& SaveFiles, UNamecAutosaveSubsystem& Autosave)
+UNamecUIRootLayout* UNamecUILayerSubsystem::CreateRootLayout(UWorld& World, APlayerController* OwningPlayer, int32 InSlotNumber, const FNamecUILayerServices& Services)
 {
+    check(Services.SaveFiles && Services.Autosave && Services.Settings && Services.InputContexts);
     RemoveRootLayout();
     SlotNumber = InSlotNumber;
 
     RootLayout = OwningPlayer ? CreateWidget<UNamecUIRootLayout>(OwningPlayer) : CreateWidget<UNamecUIRootLayout>(&World);
-    RootLayout->UseSaveFiles(SaveFiles);
+    RootLayout->UseSaveFiles(*Services.SaveFiles);
+    RootLayout->UseSettings(*Services.Settings, *Services.InputContexts, SlotNumber);
 
     if (SlotNumber == 1)
     {
-        WarningSource = &Autosave;
+        WarningSource = Services.Autosave;
         WarningSource->OnSaveWarning.AddUObject(this, &UNamecUILayerSubsystem::ShowSaveWarning);
     }
     return RootLayout;

@@ -29,7 +29,6 @@ bool UNamecMessageModal::Initialize()
         Box->AddChildToVerticalBox(OkButton);
         Tree->RootWidget = Box;
     }
-    bIsBackHandler = true;
     return Super::Initialize();
 }
 
@@ -43,20 +42,9 @@ FText UNamecMessageModal::GetMessage() const
     return MessageText->GetText();
 }
 
-void UNamecMessageModal::Dismiss()
-{
-    DeactivateWidget();
-}
-
 UWidget* UNamecMessageModal::NativeGetDesiredFocusTarget() const
 {
     return OkButton;
-}
-
-bool UNamecMessageModal::NativeOnHandleBackAction()
-{
-    Dismiss();
-    return true;
 }
 
 #undef LOCTEXT_NAMESPACE

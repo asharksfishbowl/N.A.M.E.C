@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CommonActivatableWidget.h"
+#include "UI/NamecBackableScreen.h"
 #include "NamecCharacterListScreen.generated.h"
 
 class UNamecMenuButton;
@@ -28,7 +28,7 @@ struct FNamecCharacterListing
 // Lists this machine's character saves. It creates and deletes nothing yet: character creation
 // is Phase 3.
 UCLASS()
-class NAMEC_API UNamecCharacterListScreen : public UCommonActivatableWidget
+class NAMEC_API UNamecCharacterListScreen : public UNamecBackableScreen
 {
     GENERATED_BODY()
 
@@ -41,11 +41,8 @@ public:
 
     const TArray<TObjectPtr<UNamecMenuButton>>& GetCharacterButtons() const { return CharacterButtons; }
 
-    void GoBack();
-
 protected:
     virtual UWidget* NativeGetDesiredFocusTarget() const override;
-    virtual bool NativeOnHandleBackAction() override;
 
 private:
     UPROPERTY()

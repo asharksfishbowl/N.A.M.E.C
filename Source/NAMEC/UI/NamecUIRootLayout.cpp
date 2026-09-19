@@ -1,6 +1,8 @@
 #include "UI/NamecUIRootLayout.h"
 #include "UI/NamecCharacterListScreen.h"
 #include "UI/NamecMessageModal.h"
+#include "UI/Settings/InputRemapScreen/NamecInputRemapScreen.h"
+#include "UI/Settings/NamecSettingsScreen.h"
 #include "UI/NamecCppWidgetTree.h"
 #include "Components/Overlay.h"
 #include "Components/TextBlock.h"
@@ -40,6 +42,13 @@ FText UNamecUIRootLayout::GetHudNotice() const
     return HudNotice->GetText();
 }
 
+void UNamecUIRootLayout::UseSettings(UNamecSettingsService& InSettings, UNamecInputContextSubsystem& InInputContexts, int32 InSlotNumber)
+{
+    Settings = &InSettings;
+    InputContexts = &InInputContexts;
+    SlotNumber = InSlotNumber;
+}
+
 UNamecMainMenuScreen* UNamecUIRootLayout::ShowMainMenu()
 {
     // The stack pools its screens: this may be an instance this layout already bound to.
@@ -64,7 +73,9 @@ void UNamecUIRootLayout::OnMainMenuEntrySelected(ENamecMainMenuEntry Entry)
     case ENamecMainMenuEntry::Quit:
         UKismetSystemLibrary::QuitGame(this, GetOwningPlayer(), EQuitPreference::Quit, false);
         break;
-    case ENamecMainMenuEntry::Settings: // its screen is task "Settings and input remap screens"
+    case ENamecMainMenuEntry::Settings:
+        ShowSettings();
+        break;
     case ENamecMainMenuEntry::NewWorld:
     case ENamecMainMenuEntry::LoadWorld:
     case ENamecMainMenuEntry::JoinLanGame:
@@ -85,4 +96,20 @@ void UNamecUIRootLayout::ShowCharacterList()
         return;
     }
     MenuStack->AddWidget<UNamecCharacterListScreen>(UNamecCharacterListScreen::StaticClass())->ShowCharacters(Listing);
+}
+
+void UNamecUIRootLayout::ShowSettings()
+{
+    check(Settings);
+    // The stack pools its screens: this may be an instance this layout already bound to.
+    UNamecSettingsScreen* SettingsScreen = MenuStack->AddWidget<UNamecSettingsScreen>(UNamecSettingsScreen::StaticClass());
+    SettingsScreen->OnOpenInputRemap.RemoveAll(this);
+    SettingsScreen->OnOpenInputRemap.AddUObject(this, &UNamecUIRootLayout::ShowInputRemap);
+    SettingsScreen->OpenFor(*Settings, SlotNumber);
+}
+
+void UNamecUIRootLayout::ShowInputRemap()
+{
+    check(Settings && InputContexts);
+    MenuStack->AddWidget<UNamecInputRemapScreen>(UNamecInputRemapScreen::StaticClass())->OpenFor(*InputContexts, *Settings, SlotNumber);
 }
