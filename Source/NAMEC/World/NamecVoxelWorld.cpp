@@ -7,9 +7,8 @@
 static FNamecVoxelData DecompressChunk(const FNamecChunkData& ChunkData, FIntPoint ChunkKey,
     float VoxelSizeMetres)
 {
-    // Wire format: [RawSize:4][Zlib-compressed [SizeX:4][SizeY:4][SizeZ:4][voxels]]
-    constexpr int32 KRawSzBytes  = sizeof(int32); // leading raw-size prefix
-    constexpr int32 KHeaderBytes = 12;            // SizeX(4)+SizeY(4)+SizeZ(4)
+    constexpr int32 KRawSzBytes  = sizeof(int32);
+    constexpr int32 KHeaderBytes = 12;
 
     FNamecVoxelData Out;
     if (ChunkData.Bytes.Num() < KRawSzBytes + KHeaderBytes) return Out;
@@ -37,32 +36,112 @@ static FNamecVoxelData DecompressChunk(const FNamecChunkData& ChunkData, FIntPoi
 void UNamecVoxelWorld::AddOrUpdateChunk(FIntPoint ChunkCoord)
 {
     if (!MapAssetOverride) return;
+    if (!MapAssetOverride->BakedChunks.Contains(ChunkCoord)) return;
+    OnTerrainEdited.Broadcast(ChunkCoord);
+    // Listeners call GetChunkVoxelData(ChunkCoord) to get the current voxel state.
+}
 
+FNamecVoxelData UNamecVoxelWorld::GetChunkVoxelData(FIntPoint ChunkCoord) const
+{
+    if (!MapAssetOverride) return {};
     const FNamecChunkData* Packed = MapAssetOverride->BakedChunks.Find(ChunkCoord);
-    if (!Packed) return;
+    if (!Packed) return {};
 
     const float VoxSize = MapAssetOverride->VoxelResolutionCm / 100.f;
+    FNamecVoxelData Data = DecompressChunk(*Packed, ChunkCoord, VoxSize);
 
-    FNamecVoxelData BaseData = DecompressChunk(*Packed, ChunkCoord, VoxSize);
-    // TODO (Task 6): apply stored edit deltas on top of BaseData before meshing.
-    // For Phase 1 no runtime edits persist; base data is the authoritative state.
+    if (const TMap<int32, uint8>* Deltas = EditDeltas.Find(ChunkCoord))
+        for (const auto& KV : *Deltas)
+            if (Data.MaterialIndex.IsValidIndex(KV.Key))
+                Data.MaterialIndex[KV.Key] = KV.Value;
 
-    OnTerrainEdited.Broadcast(ChunkCoord);
+    return Data;
 }
 
 void UNamecVoxelWorld::ApplyTerrainEdit(FVector CentreMetres, float RadiusMetres,
-    ENamecEditMode Mode, FName MaterialRow, int32 ToolTier) {}
+    ENamecEditMode Mode, FName MaterialRow, int32 ToolTier,
+    TArray<FIntPoint>& OutChunkCoords,
+    TArray<TArray<FNamecVoxelDelta>>& OutPerChunkDeltas)
+{
+    if (!MapAssetOverride) return;
+    if (Mode == ENamecEditMode::Dig && !IsWithinDigDepth(CentreMetres)) return;
+
+    const float ChunkMetres = ChunkSizeMetres();
+
+    const int32 MinCX = FMath::FloorToInt((CentreMetres.X - RadiusMetres) / ChunkMetres);
+    const int32 MaxCX = FMath::FloorToInt((CentreMetres.X + RadiusMetres) / ChunkMetres);
+    const int32 MinCY = FMath::FloorToInt((CentreMetres.Y - RadiusMetres) / ChunkMetres);
+    const int32 MaxCY = FMath::FloorToInt((CentreMetres.Y + RadiusMetres) / ChunkMetres);
+
+    for (int32 CX = MinCX; CX <= MaxCX; ++CX)
+    for (int32 CY = MinCY; CY <= MaxCY; ++CY)
+    {
+        const FIntPoint Coord(CX, CY);
+        FNamecVoxelData Data = GetChunkVoxelData(Coord);
+        if (Data.SizeX == 0) continue;
+
+        TArray<uint8> Before = Data.MaterialIndex;
+        FNamecVoxelWriteKernel::Apply(Data, CentreMetres, RadiusMetres, Mode, MaterialRow, ToolTier);
+
+        TArray<FNamecVoxelDelta> NewDeltas;
+        for (int32 i = 0; i < Before.Num(); ++i)
+            if (Before[i] != Data.MaterialIndex[i])
+                NewDeltas.Add({ i, Data.MaterialIndex[i] });
+
+        if (NewDeltas.IsEmpty()) continue;
+
+        OutChunkCoords.Add(Coord);
+        OutPerChunkDeltas.Add(MoveTemp(NewDeltas));
+    }
+}
+
+void UNamecVoxelWorld::ApplyDelta(FIntPoint ChunkCoord, const TArray<FNamecVoxelDelta>& Deltas)
+{
+    TMap<int32, uint8>& Stored = EditDeltas.FindOrAdd(ChunkCoord);
+    for (const FNamecVoxelDelta& D : Deltas)
+        Stored.Add(D.LinearIdx, D.Material);
+    OnTerrainEdited.Broadcast(ChunkCoord);
+}
+
+void UNamecVoxelWorld::RevertArenaEdits(FVector ArenaCentreMetres, float ArenaRadiusMetres)
+{
+    if (!MapAssetOverride) return;
+    const float ChunkMetres = ChunkSizeMetres();
+    const float R2          = ArenaRadiusMetres * ArenaRadiusMetres;
+
+    TArray<FIntPoint> ToRevert;
+    for (const auto& KV : EditDeltas)
+    {
+        // AABB vs circle overlap in the XY plane.
+        const float MinX = KV.Key.X * ChunkMetres, MaxX = MinX + ChunkMetres;
+        const float MinY = KV.Key.Y * ChunkMetres, MaxY = MinY + ChunkMetres;
+        const float NearX = FMath::Clamp((float)ArenaCentreMetres.X, MinX, MaxX);
+        const float NearY = FMath::Clamp((float)ArenaCentreMetres.Y, MinY, MaxY);
+        if (FMath::Square(ArenaCentreMetres.X - NearX) +
+            FMath::Square(ArenaCentreMetres.Y - NearY) <= R2)
+            ToRevert.Add(KV.Key);
+    }
+
+    for (const FIntPoint& Coord : ToRevert)
+    {
+        EditDeltas.Remove(Coord);
+        OnTerrainEdited.Broadcast(Coord); // re-mesh from baked base only
+    }
+}
+
+float UNamecVoxelWorld::ChunkSizeMetres() const
+{
+    return MapAssetOverride ? NamecChunkH * (MapAssetOverride->VoxelResolutionCm / 100.f) : 0.f;
+}
 
 bool UNamecVoxelWorld::IsWithinDigDepth(FVector PositionMetres) const
 {
-    // Delegate to the query object which owns the decompression logic.
     return DigDepthQuery && DigDepthQuery->IsWithinDigDepth(PositionMetres);
 }
 
 void UNamecVoxelWorld::Load(UNamecVoxelMapAsset* MapAsset)
 {
     MapAssetOverride = MapAsset;
-
     DigDepthQuery = NewObject<UNamecDigDepthQuery>(this);
     DigDepthQuery->MapAsset = MapAsset;
 }

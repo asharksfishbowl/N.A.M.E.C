@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Components/PrimitiveComponent.h"
 #include "Async/Future.h"
+#include "Interfaces/Interface_CollisionDataProvider.h"
 #include "World/NamecVoxelTypes.h"
 #include "World/NamecVoxelSceneProxy.h"
 
@@ -22,7 +23,8 @@ enum ENamecTransitionFace : uint8
 
 // Renders one voxel chunk using a custom scene proxy.
 UCLASS(ClassGroup="NAMEC", meta=(BlueprintSpawnableComponent))
-class NAMEC_API UNamecVoxelChunkComponent : public UPrimitiveComponent
+class NAMEC_API UNamecVoxelChunkComponent : public UPrimitiveComponent,
+                                             public IInterface_CollisionDataProvider
 {
     GENERATED_BODY()
 
@@ -48,6 +50,13 @@ public:
     virtual UMaterialInterface* GetMaterial(int32 ElementIndex) const override;
     virtual void SetMaterial(int32 ElementIndex, UMaterialInterface* InMaterial) override;
     virtual int32 GetNumMaterials() const override { return 1; }
+    virtual UBodySetup* GetBodySetup() override;
+
+    // IInterface_CollisionDataProvider
+    virtual bool GetPhysicsTriMeshData(FTriMeshCollisionData* CollisionData,
+                                       bool bInUseAllTriData) override;
+    virtual bool ContainsPhysicsTriMeshData(bool bInUseAllTriData) const override
+        { return !PhysicsMesh.Indices.IsEmpty(); }
 
     // Build a marching-cubes mesh at the given LOD stride with optional transition faces.
     // LODLevel 0 = stride 1 (full res), 1 = stride 2, 2 = stride 4.
@@ -75,6 +84,10 @@ private:
     bool bHasPendingMesh = false;
     int32 PendingLOD = 0;
     uint8 PendingTransitionFaces = 0;
+
+    // Collision: kept separately so GetPhysicsTriMeshData can serve it without a proxy.
+    FNamecVoxelMeshData PhysicsMesh;
+    UPROPERTY() TObjectPtr<UBodySetup> BodySetup;
 
     UPROPERTY()
     TObjectPtr<UMaterialInterface> Material;

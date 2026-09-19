@@ -3,6 +3,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "EnhancedInputComponent.h"
+#include "World/NamecVoxelWorld.h"
 
 ANamecPlayerCharacter::ANamecPlayerCharacter()
 {
@@ -15,7 +16,6 @@ ANamecPlayerCharacter::ANamecPlayerCharacter()
     ThirdPersonCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
     ThirdPersonCamera->bUsePawnControlRotation = false;
 
-    // First-person camera. Blueprint subclass attaches to head socket via SetupAttachment override.
     FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
     FirstPersonCamera->SetupAttachment(GetMesh());
     FirstPersonCamera->bUsePawnControlRotation = true;
@@ -47,4 +47,30 @@ void ANamecPlayerCharacter::ToggleCamera()
     FirstPersonCamera->SetActive(bFirstPerson);
     ArmMesh->SetVisibility(bFirstPerson);
     GetMesh()->SetOwnerNoSee(bFirstPerson);
+}
+
+void ANamecPlayerCharacter::ServerApplyTerrainEdit_Implementation(
+    FVector CentreMetres, float RadiusMetres,
+    ENamecEditMode Mode, FName MaterialRow, int32 ToolTier)
+{
+    UWorld* W = GetWorld();
+    UNamecVoxelWorld* VoxelWorld = W ? W->GetSubsystem<UNamecVoxelWorld>() : nullptr;
+    if (!VoxelWorld) return;
+
+    TArray<FIntPoint>               ChunkCoords;
+    TArray<TArray<FNamecVoxelDelta>> PerChunkDeltas;
+    VoxelWorld->ApplyTerrainEdit(CentreMetres, RadiusMetres, Mode, MaterialRow, ToolTier,
+                                  ChunkCoords, PerChunkDeltas);
+
+    for (int32 i = 0; i < ChunkCoords.Num(); ++i)
+        Multicast_TerrainDelta(ChunkCoords[i], PerChunkDeltas[i]);
+}
+
+void ANamecPlayerCharacter::Multicast_TerrainDelta_Implementation(
+    FIntPoint ChunkCoord, const TArray<FNamecVoxelDelta>& Deltas)
+{
+    UWorld* W = GetWorld();
+    UNamecVoxelWorld* VoxelWorld = W ? W->GetSubsystem<UNamecVoxelWorld>() : nullptr;
+    if (VoxelWorld)
+        VoxelWorld->ApplyDelta(ChunkCoord, Deltas);
 }

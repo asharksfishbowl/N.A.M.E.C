@@ -31,3 +31,12 @@ struct FNamecVoxelData
         MaterialIndex.SetNumZeroed(SizeX * SizeY * SizeZ);
     }
 };
+
+// Single-voxel edit record for in-session delta store and network replication.
+USTRUCT()
+struct FNamecVoxelDelta
+{
+    GENERATED_BODY()
+    UPROPERTY() int32 LinearIdx = 0;
+    UPROPERTY() uint8 Material  = 0;
+};

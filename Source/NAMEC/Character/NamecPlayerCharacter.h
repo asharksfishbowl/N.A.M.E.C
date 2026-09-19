@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Character/NamecCharacterBase.h"
 #include "MuCO/CustomizableSkeletalComponent.h"
+#include "World/NamecVoxelTypes.h"
 #include "NamecPlayerCharacter.generated.h"
 
 class USpringArmComponent;
@@ -22,16 +23,23 @@ public:
     UPROPERTY(EditDefaultsOnly, Category="Input")
     TObjectPtr<UInputAction> CameraToggleAction;
 
+    // Called from input on the owning client; forwards to server for authority.
+    UFUNCTION(Server, Reliable)
+    void ServerApplyTerrainEdit(FVector CentreMetres, float RadiusMetres,
+                                ENamecEditMode Mode, FName MaterialRow, int32 ToolTier);
+
+    // Server-to-all replication of a single chunk's voxel changes.
+    UFUNCTION(NetMulticast, Reliable)
+    void Multicast_TerrainDelta(FIntPoint ChunkCoord,
+                                const TArray<FNamecVoxelDelta>& Deltas);
+
 private:
-    // Third-person spring arm + camera.
     UPROPERTY(VisibleAnywhere) TObjectPtr<USpringArmComponent> CameraBoom;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UCameraComponent>    ThirdPersonCamera;
 
-    // First-person camera attached to head socket; arm mesh renders only for local player.
     UPROPERTY(VisibleAnywhere) TObjectPtr<UCameraComponent>       FirstPersonCamera;
     UPROPERTY(VisibleAnywhere) TObjectPtr<USkeletalMeshComponent> ArmMesh;
 
-    // Mutable body customization instance. Blueprint assigns CO_NamecBody via CustomizableObject.
     UPROPERTY(VisibleAnywhere) TObjectPtr<UCustomizableSkeletalComponent> MutableBody;
 
     bool bFirstPerson = false;
