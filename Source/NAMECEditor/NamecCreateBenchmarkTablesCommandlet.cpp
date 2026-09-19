@@ -36,6 +36,7 @@ bool UNamecCreateBenchmarkTablesCommandlet::CreateScalabilityTable()
             High.LumenMaxViews         = 2; High.GIQuality    = 3;
             High.ShadowQuality         = 3; High.FoliageQuality = 2;
             High.PostProcessQuality    = 3; High.DynamicResOperationMode = 2;
+            High.FoliageDensityPercent = 100.f; High.ViewDistancePercent = 100.f;
             Table->AddRow(FName("High"), High);
 
             FNamecScalabilityTierRow Split;
@@ -44,6 +45,7 @@ bool UNamecCreateBenchmarkTablesCommandlet::CreateScalabilityTable()
             Split.LumenMaxViews        = 4; Split.GIQuality    = 2;
             Split.ShadowQuality        = 2; Split.FoliageQuality = 1;
             Split.PostProcessQuality   = 2; Split.DynamicResOperationMode = 2;
+            Split.FoliageDensityPercent = 50.f; Split.ViewDistancePercent = 70.f;
             Table->AddRow(FName("Split"), Split);
         }
     );

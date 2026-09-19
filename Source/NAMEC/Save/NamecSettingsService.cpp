@@ -18,6 +18,8 @@ namespace
         {
             Defaults->Settings.Machine.GIQuality = HighRow->GIQuality;
             Defaults->Settings.Machine.ShadowQuality = HighRow->ShadowQuality;
+            Defaults->Settings.Machine.FoliageDensityPercent = HighRow->FoliageDensityPercent;
+            Defaults->Settings.Machine.ViewDistancePercent = HighRow->ViewDistancePercent;
         }
         else
         {
