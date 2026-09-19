@@ -45,6 +45,9 @@ public:
     // Never rewrites, renames or deletes the file, whatever the result.
     FNamecSaveLoadOutcome Load(const FString& FileName, TSubclassOf<UNamecVersionedSave> SaveClass) const;
 
+    // Bare names of the `<Prefix>*.sav` files in the save directory, sorted. Temp and .bak files never match.
+    TArray<FString> FindSaveFiles(const FString& Prefix) const;
+
     static FString GetSaveFilePath(const FString& FileName);
 
     static FString GetTempFilePath(const FString& FileName);

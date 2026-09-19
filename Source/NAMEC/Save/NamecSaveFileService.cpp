@@ -56,6 +56,14 @@ FString UNamecSaveFileService::GetTempFilePath(const FString& FileName)
     return GetSaveFilePath(FileName) + TEXT(".tmp");
 }
 
+TArray<FString> UNamecSaveFileService::FindSaveFiles(const FString& Prefix) const
+{
+    TArray<FString> FileNames;
+    IFileManager::Get().FindFiles(FileNames, *(FNamecPlatform::Get().GetSaveDirectory() / (Prefix + TEXT("*.sav"))), true, false);
+    FileNames.Sort();
+    return FileNames;
+}
+
 FString UNamecSaveFileService::GetBakFilePath(const FString& FileName)
 {
     return GetSaveFilePath(FileName) + TEXT(".bak");
