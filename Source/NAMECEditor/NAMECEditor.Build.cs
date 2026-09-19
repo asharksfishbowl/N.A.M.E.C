@@ -24,6 +24,7 @@ public class NAMECEditor : ModuleRules
             "RenderCore",
             "PCG",
             "EnhancedInput",
+            "InputCore",
         });
     }
 }
