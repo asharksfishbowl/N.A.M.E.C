@@ -1,4 +1,4 @@
-#include "AI/NamecEnemyEquipComponent.h"
+#include "EnemyAI/NamecEnemyEquipComponent.h"
 #include "MuCO/CustomizableSkeletalComponent.h"
 #include "MuCO/CustomizableObjectInstance.h"
 #include "Engine/DataTable.h"
