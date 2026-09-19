@@ -37,3 +37,8 @@ Content/Developers/
 *.VC.db
 *.VC.opendb
 .idea/
+/Binaries
+/Intermediate
+/Saved
+/Saved
+Saved/Logs/NAMEC.log
