@@ -2,7 +2,6 @@
 #include "Save/NamecSaveFileService.h"
 #include "Save/NamecVersionedSave.h"
 #include "Engine/GameInstance.h"
-#include "Misc/PackageName.h"
 #include "TimerManager.h"
 
 #define LOCTEXT_NAMESPACE "NamecAutosave"
@@ -34,8 +33,7 @@ void UNamecAutosaveSubsystem::Initialize(FSubsystemCollectionBase& Collection)
     check(SaveFileService);
     UseSaveFiles(*SaveFileService);
 
-    const FString TableObjectPath = FString::Printf(TEXT("%s.%s"), CoreSaveTablePackageName, *FPackageName::GetLongPackageAssetName(CoreSaveTablePackageName));
-    if (const UDataTable* CoreSaveTable = LoadObject<UDataTable>(nullptr, *TableObjectPath))
+    if (const UDataTable* CoreSaveTable = LoadObject<UDataTable>(nullptr, CoreSaveTablePackageName))
     {
         StartAutosaveTimer(*CoreSaveTable);
     }

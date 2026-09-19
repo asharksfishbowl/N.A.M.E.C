@@ -12,15 +12,6 @@ using namespace NamecSaveTestHelpers;
 
 namespace
 {
-    // One start of the game: a fresh service reading whatever the save directory holds.
-    UNamecSettingsService* StartSettingsService()
-    {
-        UGameInstance* GameInstance = NewGameInstance();
-        UNamecSettingsService* Service = NewObject<UNamecSettingsService>(GameInstance);
-        Service->LoadSettings(*NewObject<UNamecSaveFileService>(GameInstance));
-        return Service;
-    }
-
     FString SettingsFilePath()
     {
         return UNamecSaveFileService::GetSaveFilePath(UNamecSettingsService::SettingsFileName);
