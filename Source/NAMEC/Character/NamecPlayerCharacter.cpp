@@ -4,6 +4,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "EnhancedInputComponent.h"
 #include "Core/Input/NamecBaseInputBindings.h"
+#include "Core/NamecInteractable.h"
 #include "InputAction.h"
 #include "World/NamecVoxelWorld.h"
 
@@ -45,6 +46,31 @@ void ANamecPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
         {
             UE_LOG(LogTemp, Error, TEXT("IA_CameraToggle is missing. Run -run=NamecCreateInputAssets"));
         }
+
+        if (const UInputAction* InteractAction = NamecBaseInput::LoadAction(NamecBaseInput::InteractActionName))
+        {
+            EIC->BindAction(InteractAction, ETriggerEvent::Triggered, this, &ANamecPlayerCharacter::InteractWithTarget);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("IA_Interact is missing. Run -run=NamecCreateInputAssets"));
+        }
+    }
+}
+
+void ANamecPlayerCharacter::InteractWithTarget()
+{
+    if (AActor* Target = InteractTarget.Get())
+    {
+        ServerInteract(Target);
+    }
+}
+
+void ANamecPlayerCharacter::ServerInteract_Implementation(AActor* Target)
+{
+    if (INamecInteractable* Interactable = Cast<INamecInteractable>(Target))
+    {
+        Interactable->OnInteract(this);
     }
 }
 

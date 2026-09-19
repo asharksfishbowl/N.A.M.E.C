@@ -59,6 +59,8 @@ namespace NamecBaseInput
 
     NAMEC_API extern const FName CameraToggleActionName;
 
+    NAMEC_API extern const FName InteractActionName;
+
     NAMEC_API TConstArrayView<FNamecBaseAction> GetActions();
     NAMEC_API TConstArrayView<FNamecBaseBinding> GetBindings(ENamecInputDevice Device);
 
