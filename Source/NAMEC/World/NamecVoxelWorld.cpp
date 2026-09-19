@@ -2,6 +2,7 @@
 #include "World/Map/NamecVoxelMapAsset.h"
 #include "World/NamecVoxelWriteKernel.h"
 #include "World/NamecDigDepthQuery.h"
+#include "Save/NamecWorldSave.h"
 #include "Misc/Compression.h"
 
 static FNamecVoxelData DecompressChunk(const FNamecChunkData& ChunkData, FIntPoint ChunkKey,
@@ -97,6 +98,11 @@ void UNamecVoxelWorld::ApplyTerrainEdit(FVector CentreMetres, float RadiusMetres
 
 void UNamecVoxelWorld::ApplyDelta(FIntPoint ChunkCoord, const TArray<FNamecVoxelDelta>& Deltas)
 {
+    if (WorldSave && MapAssetOverride && !EditDeltas.Contains(ChunkCoord))
+    {
+        WorldSave->RecordFirstEditOfChunk(ChunkCoord, *MapAssetOverride);
+    }
+
     TMap<int32, uint8>& Stored = EditDeltas.FindOrAdd(ChunkCoord);
     for (const FNamecVoxelDelta& D : Deltas)
         Stored.Add(D.LinearIdx, D.Material);
