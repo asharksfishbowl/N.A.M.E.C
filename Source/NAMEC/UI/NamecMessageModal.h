@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CommonActivatableWidget.h"
+#include "UI/NamecBackableScreen.h"
 #include "NamecMessageModal.generated.h"
 
 class UNamecMenuButton;
@@ -16,7 +16,7 @@ namespace NamecSaveMessages
 
 // The one message surface: a line of text and an OK entry. Back dismisses it too.
 UCLASS()
-class NAMEC_API UNamecMessageModal : public UCommonActivatableWidget
+class NAMEC_API UNamecMessageModal : public UNamecBackableScreen
 {
     GENERATED_BODY()
 
@@ -26,12 +26,11 @@ public:
     void SetMessage(const FText& InMessage);
     FText GetMessage() const;
 
-    // Deactivates it, which returns the stack to the screen underneath.
-    void Dismiss();
+    // OK and Back both do this.
+    void Dismiss() { GoBack(); }
 
 protected:
     virtual UWidget* NativeGetDesiredFocusTarget() const override;
-    virtual bool NativeOnHandleBackAction() override;
 
 private:
     UPROPERTY()
