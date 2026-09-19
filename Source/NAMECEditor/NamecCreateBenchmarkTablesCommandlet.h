@@ -25,8 +25,6 @@ class UNamecCreateBenchmarkTablesCommandlet : public UCommandlet
 public:
     virtual int32 Main(const FString& Params) override;
 private:
-    bool CreateAndSaveDataTable(const FString& PackageName, UScriptStruct* RowStruct,
-        TFunctionRef<void(UDataTable*)> PopulateRows);
     bool CreateScalabilityTable();
     bool CreateCharacterRacesTable();
     bool CreateBuildingPiecesTable();

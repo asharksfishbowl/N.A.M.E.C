@@ -83,6 +83,6 @@ void UNamecSettingsService::Persist()
     const ENamecSaveWriteResult Result = SaveFiles->Write(*SettingsSave, SettingsFileName);
     if (Result != ENamecSaveWriteResult::Ok)
     {
-        UE_LOG(LogNamecSettings, Warning, TEXT("Settings were applied but not written (result %d)"), static_cast<int32>(Result));
+        UE_LOG(LogNamecSettings, Warning, TEXT("Settings were applied but not written (%s)"), LexToString(Result));
     }
 }

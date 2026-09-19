@@ -35,6 +35,17 @@ namespace
     }
 }
 
+const TCHAR* LexToString(ENamecSaveWriteResult Result)
+{
+    switch (Result)
+    {
+    case ENamecSaveWriteResult::Ok: return TEXT("Ok");
+    case ENamecSaveWriteResult::DiskFull: return TEXT("DiskFull");
+    case ENamecSaveWriteResult::WriteFailed: return TEXT("WriteFailed");
+    }
+    return TEXT("Unknown");
+}
+
 FString UNamecSaveFileService::GetSaveFilePath(const FString& FileName)
 {
     return FNamecPlatform::Get().GetSaveDirectory() / FileName;

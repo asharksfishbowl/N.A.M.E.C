@@ -1,9 +1,9 @@
 #include "NamecCreateVoxelTablesCommandlet.h"
+#include "NamecDataTableAuthoring.h"
 #include "World/NamecWorldDataTables.h"
 #include "Engine/DataTable.h"
-#include "UObject/SavePackage.h"
-#include "Misc/PackageName.h"
-#include "HAL/FileManager.h"
+
+using NamecDataTableAuthoring::CreateAndSaveDataTable;
 
 int32 UNamecCreateVoxelTablesCommandlet::Main(const FString& Params)
 {
@@ -17,28 +17,6 @@ int32 UNamecCreateVoxelTablesCommandlet::Main(const FString& Params)
     }
     UE_LOG(LogTemp, Display, TEXT("NamecCreateVoxelTables: all tables written successfully."));
     return 0;
-}
-
-bool UNamecCreateVoxelTablesCommandlet::CreateAndSaveDataTable(
-    const FString& PackageName, UScriptStruct* RowStruct,
-    TFunctionRef<void(UDataTable*)> PopulateRows)
-{
-    UPackage* Package = CreatePackage(*PackageName);
-    Package->FullyLoad();
-    FString AssetName = FPackageName::GetLongPackageAssetName(PackageName);
-    UDataTable* Table = NewObject<UDataTable>(Package, *AssetName, RF_Public | RF_Standalone);
-    Table->RowStruct = RowStruct;
-    PopulateRows(Table);
-    Package->MarkPackageDirty();
-    FString FilePath = FPackageName::LongPackageNameToFilename(
-        PackageName, FPackageName::GetAssetPackageExtension());
-    IFileManager::Get().MakeDirectory(*FPaths::GetPath(FilePath), true);
-    FSavePackageArgs SaveArgs;
-    SaveArgs.TopLevelFlags = RF_Public | RF_Standalone;
-    bool bSaved = UPackage::SavePackage(Package, Table, *FilePath, SaveArgs);
-    UE_LOG(LogTemp, Log, TEXT("NamecCreateVoxelTables: %s → %s"),
-        *PackageName, bSaved ? TEXT("OK") : TEXT("FAILED"));
-    return bSaved;
 }
 
 bool UNamecCreateVoxelTablesCommandlet::CreateVoxelMaterialsTable()
