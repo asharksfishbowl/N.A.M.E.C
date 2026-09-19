@@ -1,4 +1,5 @@
 #include "Multiplayer/NamecScalabilitySubsystem.h"
+#include "Core/NamecDataTableRows.h"
 #include "Engine/DataTable.h"
 #include "Engine/GameInstance.h"
 #include "Engine/LocalPlayer.h"
@@ -14,9 +15,7 @@ UDataTable* UNamecScalabilitySubsystem::LoadTierTable()
 
 TOptional<FNamecScalabilityTierRow> UNamecScalabilitySubsystem::FindTierRow(FName RowName)
 {
-    const UDataTable* Table = LoadTierTable();
-    const FNamecScalabilityTierRow* Row = Table ? Table->FindRow<FNamecScalabilityTierRow>(RowName, TEXT("FindTierRow"), false) : nullptr;
-    return Row ? TOptional<FNamecScalabilityTierRow>(*Row) : TOptional<FNamecScalabilityTierRow>();
+    return NamecDataTableRows::LoadRow<FNamecScalabilityTierRow>(GTablePath, RowName);
 }
 
 void UNamecScalabilitySubsystem::Initialize(FSubsystemCollectionBase& Collection)

@@ -15,4 +15,5 @@ public:
 private:
     bool CreateCoreSaveTable();
     bool CreateCoreInputTable();
+    bool CreateSessionTable();
 };
