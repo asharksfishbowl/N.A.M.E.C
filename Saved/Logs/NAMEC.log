@@ -1,4 +1,4 @@
-﻿Log file open, 09/19/26 10:56:52
+﻿Log file open, 09/19/26 11:00:05
 LogWindows: Failed to load 'aqProf.dll' (GetLastError=126)
 LogWindows: File 'aqProf.dll' does not exist
 LogProfilingDebugging: Loading WinPixEventRuntime.dll for PIX profiling (from ../../../../../../Program Files/Epic Games/UE_5.8/Engine/Binaries/ThirdParty/Windows/WinPixEventRuntime/x64).
@@ -35,16 +35,16 @@ LogWindows: Error: Failed to create dialog. The specified resource type cannot b
 Message dialog closed, result: Ok, title: Message, text: Failed to open descriptor file ../../../../../../Program Files/Epic Games/UE_5.8/../../../Users/ashar/repos/N.A.M.E.C/NAMEC.uproject
 LogInit: Warning: Could not find a valid project file, the engine will exit now.
 LogInit: Running DelayedAutoRegister Phase TaskGraphSystemReady
-LogStats: Stats thread started at 0.164905
+LogStats: Stats thread started at 0.177589
 LogInit: Running DelayedAutoRegister Phase StatSystemReady
 LogCsvProfiler: Display: Metadata set : systemresolution.resx="1280"
 LogCsvProfiler: Display: Metadata set : systemresolution.resy="720"
 LogICUInternationalization: ICU TimeZone Detection - Raw Offset: -6:00, Platform Override: ''
 LogInit: Session CrashGUID >====================================================
-         Session CrashGUID >   UECC-Windows-462067B3449DD977E21C6EAF14137E90
+         Session CrashGUID >   UECC-Windows-E8B720EB4832FC443C4A1A9FAB615BF7
          Session CrashGUID >====================================================
 LogCore: Engine exit requested (reason: EngineExit() was called)
 LogExit: Preparing to exit.
 LogPakFile: Destroying PakPlatformFile
 LogExit: Exiting.
-Log file closed, 09/19/26 10:56:52
+Log file closed, 09/19/26 11:00:05
