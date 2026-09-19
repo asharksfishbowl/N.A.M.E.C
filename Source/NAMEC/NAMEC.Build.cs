@@ -39,6 +39,7 @@ public class NAMEC : ModuleRules
             "MetasoundEngine",
             "OnlineSubsystem",
             "OnlineSubsystemNull",
+            "Projects",
         });
     }
 }
