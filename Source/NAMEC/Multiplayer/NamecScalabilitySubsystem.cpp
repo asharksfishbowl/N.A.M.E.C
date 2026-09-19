@@ -1,4 +1,4 @@
-#include "Settings/NamecScalabilitySubsystem.h"
+#include "Multiplayer/NamecScalabilitySubsystem.h"
 #include "Engine/DataTable.h"
 #include "Engine/GameInstance.h"
 #include "Engine/LocalPlayer.h"

@@ -20,8 +20,18 @@ Replace with the exact command used. Include any flags required.
 ## AUTOMATION TESTS
 
 ```
-<!-- exact -run=AutomationTest commands for any automation tests added by this task -->
+<!-- one line per filter this task adds, e.g. -->
+Tools\Build\automation.bat <checkout> Namec.Foundation.<Area> <sha>
 ```
+
+The wrapper runs `UnrealEditor-Cmd.exe -ExecCmds="Automation RunTests <filter>;Quit"` with `-nullrhi`.
+Unreal 5.8 has no `-run=AutomationTest` commandlet. Measured over SSH on 2026-09-19:
+
+- A passing filter exits 0 and writes `Saved\Automation\<sha>\index.json`.
+- A filter matching no test exits 255 and writes no report. The engine logs
+  `No automation tests matched '<filter>'`.
+- Read the exit code from the SSH exit status, or with `cmd /v:on /c "... & echo !ERRORLEVEL!"`.
+  `& echo %ERRORLEVEL%` on the same line is expanded before the run and always prints 0.
 
 Leave blank if this task adds no automation tests.
 

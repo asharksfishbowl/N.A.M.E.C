@@ -1,5 +1,5 @@
-#include "AI/NamecAILODSubsystem.h"
-#include "AI/NamecEnemyCharacter.h"
+#include "EnemyAI/NamecAILODSubsystem.h"
+#include "EnemyAI/NamecEnemyCharacter.h"
 #include "World/NamecVoxelWorld.h"
 #include "World/Map/NamecVoxelMapAsset.h"
 #include "World/NamecVoxelTypes.h"

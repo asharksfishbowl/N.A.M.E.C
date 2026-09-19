@@ -1,5 +1,5 @@
-#include "AI/NamecEnemyCharacter.h"
-#include "AI/NamecAIController.h"
+#include "EnemyAI/NamecEnemyCharacter.h"
+#include "EnemyAI/NamecAIController.h"
 #include "Components/StateTreeComponent.h"
 #include "Net/UnrealNetwork.h"
 
