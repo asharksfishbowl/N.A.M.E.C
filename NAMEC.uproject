@@ -25,6 +25,10 @@
 			"Enabled": true
 		},
 		{
+			"Name": "CommonUI",
+			"Enabled": true
+		},
+		{
 			"Name": "Mutable",
 			"Enabled": true
 		},
