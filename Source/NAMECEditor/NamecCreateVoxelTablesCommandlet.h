@@ -12,8 +12,6 @@ class UNamecCreateVoxelTablesCommandlet : public UCommandlet
 public:
     virtual int32 Main(const FString& Params) override;
 private:
-    bool CreateAndSaveDataTable(const FString& PackageName, UScriptStruct* RowStruct,
-        TFunctionRef<void(UDataTable*)> PopulateRows);
     bool CreateVoxelMaterialsTable();
     bool CreateClimatesTable();
     bool CreateOreVeinsTable();

@@ -22,6 +22,8 @@ enum class ENamecSaveLoadResult : uint8
     NewerVersion,
 };
 
+NAMEC_API const TCHAR* LexToString(ENamecSaveWriteResult Result);
+
 struct FNamecSaveLoadOutcome
 {
     ENamecSaveLoadResult Result = ENamecSaveLoadResult::Missing;
