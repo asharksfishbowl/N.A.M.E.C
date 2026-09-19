@@ -7,8 +7,19 @@
 class APlayerController;
 class UNamecAutosaveSubsystem;
 class UNamecSaveFileService;
+class UNamecInputContextSubsystem;
+class UNamecSettingsService;
 class UNamecUIRootLayout;
 struct FNamecWorldLoadDecision;
+
+// What a root layout's screens work through. All four are required.
+struct FNamecUILayerServices
+{
+    UNamecSaveFileService* SaveFiles = nullptr;
+    UNamecAutosaveSubsystem* Autosave = nullptr;
+    UNamecSettingsService* Settings = nullptr;
+    UNamecInputContextSubsystem* InputContexts = nullptr;
+};
 
 // Gives each local player its own UNamecUIRootLayout on its own screen, so every viewport has an
 // independent menu stack and HUD layer (multiplayer Requirement 6).
@@ -23,7 +34,7 @@ public:
 
     // Creates and wires the layout without putting it on a screen. Public because a test has no
     // viewport. SlotNumber is 1 to 4; only slot 1 shows the autosave warning (Edge Case 4).
-    UNamecUIRootLayout* CreateRootLayout(UWorld& World, APlayerController* OwningPlayer, int32 InSlotNumber, UNamecSaveFileService& SaveFiles, UNamecAutosaveSubsystem& Autosave);
+    UNamecUIRootLayout* CreateRootLayout(UWorld& World, APlayerController* OwningPlayer, int32 InSlotNumber, const FNamecUILayerServices& Services);
 
     void RemoveRootLayout();
 

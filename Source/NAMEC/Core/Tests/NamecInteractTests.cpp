@@ -9,7 +9,7 @@
 #include "Save/Tests/NamecSaveTestHelpers.h"
 #include "UI/NamecUILayerSubsystem.h"
 #include "UI/NamecUIRootLayout.h"
-#include "UI/Tests/NamecUITestHelpers.h"
+#include "UI/Tests/NamecTestLocalPlayerUI.h"
 #include "World/NamecVoxelWorld.h"
 #include "World/Structures/NamecTerrainUpdatedMarker.h"
 #include "Engine/LocalPlayer.h"
@@ -62,16 +62,13 @@ bool FNamecInteractLoadNoticeTest::RunTest(const FString& Parameters)
 {
     FNamecScopedTestPlatform Platform;
     FNamecScopedTestWorld World;
-    UGameInstance* GameInstance = NewGameInstance();
-    UNamecSaveFileService* SaveFiles = NewObject<UNamecSaveFileService>(GameInstance);
-    UNamecAutosaveSubsystem* Autosave = NewObject<UNamecAutosaveSubsystem>(GameInstance);
-
-    UNamecUILayerSubsystem* PlayerOneLayer = NewObject<UNamecUILayerSubsystem>(NewObject<ULocalPlayer>(GEngine));
-    UNamecUILayerSubsystem* PlayerTwoLayer = NewObject<UNamecUILayerSubsystem>(NewObject<ULocalPlayer>(GEngine));
-    UNamecUIRootLayout* PlayerOneRoot = PlayerOneLayer->CreateRootLayout(*World.Get(), nullptr, 1, *SaveFiles, *Autosave);
-    UNamecUIRootLayout* PlayerTwoRoot = PlayerTwoLayer->CreateRootLayout(*World.Get(), nullptr, 2, *SaveFiles, *Autosave);
-    const TSharedRef<SWidget> PlayerOneSlate = NamecUITestHelpers::BuildSlate(*PlayerOneRoot);
-    const TSharedRef<SWidget> PlayerTwoSlate = NamecUITestHelpers::BuildSlate(*PlayerTwoRoot);
+    const FNamecTestMachine Machine;
+    const FNamecTestLocalPlayerUI PlayerOne(*World.Get(), 1, Machine);
+    const FNamecTestLocalPlayerUI PlayerTwo(*World.Get(), 2, Machine);
+    UNamecUILayerSubsystem* PlayerOneLayer = PlayerOne.Layer;
+    UNamecUILayerSubsystem* PlayerTwoLayer = PlayerTwo.Layer;
+    const UNamecUIRootLayout* PlayerOneRoot = PlayerOne.Root;
+    const UNamecUIRootLayout* PlayerTwoRoot = PlayerTwo.Root;
 
     FNamecWorldLoadDecision HashMismatch;
     HashMismatch.Outcome = ENamecWorldLoadOutcome::LoadWithMapHashMismatch;

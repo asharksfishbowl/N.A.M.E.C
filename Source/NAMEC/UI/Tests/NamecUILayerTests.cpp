@@ -7,29 +7,11 @@
 #include "Save/NamecAutosaveSubsystem.h"
 #include "Save/NamecCharacterSave.h"
 #include "Save/Tests/NamecSaveTestHelpers.h"
-#include "UI/Tests/NamecUITestHelpers.h"
+#include "UI/Tests/NamecTestLocalPlayerUI.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
 
 using namespace NamecSaveTestHelpers;
-
-namespace
-{
-    // One local player's UI layer with its Slate widgets held alive, as its viewport would.
-    struct FNamecTestUILayer
-    {
-        UNamecUILayerSubsystem* Layer;
-        UNamecUIRootLayout* Root;
-        TSharedRef<SWidget> SlateRoot;
-
-        FNamecTestUILayer(UWorld& World, int32 SlotNumber, UNamecSaveFileService& SaveFiles, UNamecAutosaveSubsystem& Autosave)
-            : Layer(NewObject<UNamecUILayerSubsystem>(NewObject<ULocalPlayer>(GEngine)))
-            , Root(Layer->CreateRootLayout(World, nullptr, SlotNumber, SaveFiles, Autosave))
-            , SlateRoot(NamecUITestHelpers::BuildSlate(*Root))
-        {
-        }
-    };
-}
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FNamecUILayerTest, "Namec.Foundation.UILayer.EachLocalPlayerHasItsOwnMenuStackAndHudLayer", NamecFoundationTestFlags)
 
@@ -37,13 +19,10 @@ bool FNamecUILayerTest::RunTest(const FString& Parameters)
 {
     FNamecScopedTestPlatform Platform;
     FNamecScopedTestWorld World;
-    UGameInstance* GameInstance = NewGameInstance();
-    UNamecSaveFileService* SaveFiles = NewObject<UNamecSaveFileService>(GameInstance);
-    UNamecAutosaveSubsystem* Autosave = NewObject<UNamecAutosaveSubsystem>(GameInstance);
-    Autosave->UseSaveFiles(*SaveFiles);
-
-    const FNamecTestUILayer PlayerOne(*World.Get(), 1, *SaveFiles, *Autosave);
-    const FNamecTestUILayer PlayerTwo(*World.Get(), 2, *SaveFiles, *Autosave);
+    const FNamecTestMachine Machine;
+    UNamecAutosaveSubsystem* Autosave = Machine.Autosave;
+    const FNamecTestLocalPlayerUI PlayerOne(*World.Get(), 1, Machine);
+    const FNamecTestLocalPlayerUI PlayerTwo(*World.Get(), 2, Machine);
 
     TestTrue(TEXT("Each local player has its own root layout"), PlayerOne.Root && PlayerTwo.Root && PlayerOne.Root != PlayerTwo.Root);
     TestTrue(TEXT("And its own menu stack"), PlayerOne.Root->GetMenuStack() != PlayerTwo.Root->GetMenuStack());

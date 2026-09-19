@@ -46,7 +46,6 @@ bool UNamecCharacterListScreen::Initialize()
         Box->AddChildToVerticalBox(BackButton);
         Tree->RootWidget = Box;
     }
-    bIsBackHandler = true;
     return Super::Initialize();
 }
 
@@ -73,21 +72,10 @@ void UNamecCharacterListScreen::ShowCharacters(const FNamecCharacterListing& Lis
     NamecMenuNavigation::LinkVertically(FocusableEntries);
 }
 
-void UNamecCharacterListScreen::GoBack()
-{
-    DeactivateWidget();
-}
-
 UWidget* UNamecCharacterListScreen::NativeGetDesiredFocusTarget() const
 {
     UNamecMenuButton* FirstEnabled = NamecMenuNavigation::FindFirstEnabled(CharacterButtons);
     return FirstEnabled ? FirstEnabled : BackButton.Get();
-}
-
-bool UNamecCharacterListScreen::NativeOnHandleBackAction()
-{
-    GoBack();
-    return true;
 }
 
 #undef LOCTEXT_NAMESPACE
