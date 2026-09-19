@@ -6,6 +6,7 @@
 
 #include "Save/NamecSaveEnvelope.h"
 #include "Save/NamecSaveFileService.h"
+#include "Save/NamecSettingsService.h"
 #include "Save/NamecVersionedSave.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
@@ -24,6 +25,15 @@ namespace NamecSaveTestHelpers
     inline UNamecSaveFileService* NewSaveFileService()
     {
         return NewObject<UNamecSaveFileService>(NewGameInstance());
+    }
+
+    // One start of the game: a fresh settings service reading whatever the save directory holds.
+    inline UNamecSettingsService* StartSettingsService()
+    {
+        UGameInstance* GameInstance = NewGameInstance();
+        UNamecSettingsService* Service = NewObject<UNamecSettingsService>(GameInstance);
+        Service->LoadSettings(*NewObject<UNamecSaveFileService>(GameInstance));
+        return Service;
     }
 
     inline TArray<uint8> ReadFileBytes(const FString& FilePath)

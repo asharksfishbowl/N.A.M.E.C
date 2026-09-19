@@ -3,6 +3,8 @@
 #include "Camera/CameraComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "EnhancedInputComponent.h"
+#include "Core/Input/NamecBaseInputBindings.h"
+#include "InputAction.h"
 #include "World/NamecVoxelWorld.h"
 
 ANamecPlayerCharacter::ANamecPlayerCharacter()
@@ -34,9 +36,15 @@ void ANamecPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
     Super::SetupPlayerInputComponent(PlayerInputComponent);
     if (auto* EIC = Cast<UEnhancedInputComponent>(PlayerInputComponent))
     {
-        if (CameraToggleAction)
-            EIC->BindAction(CameraToggleAction, ETriggerEvent::Triggered, this,
-                &ANamecPlayerCharacter::ToggleCamera);
+        // The action is the base contexts' own asset, so it is not a per-Blueprint property.
+        if (const UInputAction* CameraToggleAction = NamecBaseInput::LoadAction(NamecBaseInput::CameraToggleActionName))
+        {
+            EIC->BindAction(CameraToggleAction, ETriggerEvent::Triggered, this, &ANamecPlayerCharacter::ToggleCamera);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("IA_CameraToggle is missing. Run -run=NamecCreateInputAssets"));
+        }
     }
 }
 

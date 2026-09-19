@@ -14,4 +14,5 @@ public:
     virtual int32 Main(const FString& Params) override;
 private:
     bool CreateCoreSaveTable();
+    bool CreateCoreInputTable();
 };

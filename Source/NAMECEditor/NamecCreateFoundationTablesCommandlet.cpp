@@ -1,5 +1,6 @@
 #include "NamecCreateFoundationTablesCommandlet.h"
 #include "NamecDataTableAuthoring.h"
+#include "Core/Input/NamecCoreInputRow.h"
 #include "Save/NamecAutosaveSubsystem.h"
 #include "Engine/DataTable.h"
 
@@ -7,7 +8,8 @@ using NamecDataTableAuthoring::CreateAndSaveDataTable;
 
 int32 UNamecCreateFoundationTablesCommandlet::Main(const FString& Params)
 {
-    const bool bOk = CreateCoreSaveTable();
+    bool bOk = CreateCoreSaveTable();
+    bOk &= CreateCoreInputTable();
     if (!bOk)
     {
         UE_LOG(LogTemp, Error, TEXT("NamecCreateFoundationTables: one or more tables failed to save."));
@@ -25,6 +27,18 @@ bool UNamecCreateFoundationTablesCommandlet::CreateCoreSaveTable()
         [](UDataTable* Table)
         {
             Table->AddRow(UNamecAutosaveSubsystem::CoreSaveRowName, FNamecCoreSaveRow());
+        }
+    );
+}
+
+bool UNamecCreateFoundationTablesCommandlet::CreateCoreInputTable()
+{
+    return CreateAndSaveDataTable(
+        NamecCoreInput::TablePackageName,
+        FNamecCoreInputRow::StaticStruct(),
+        [](UDataTable* Table)
+        {
+            Table->AddRow(NamecCoreInput::RowName, FNamecCoreInputRow());
         }
     );
 }

@@ -23,6 +23,7 @@ public class NAMECEditor : ModuleRules
             "AssetRegistry",
             "RenderCore",
             "PCG",
+            "EnhancedInput",
         });
     }
 }

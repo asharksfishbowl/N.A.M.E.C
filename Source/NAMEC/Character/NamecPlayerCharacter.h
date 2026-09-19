@@ -9,7 +9,6 @@
 class USpringArmComponent;
 class UCameraComponent;
 class USkeletalMeshComponent;
-class UInputAction;
 
 UCLASS()
 class NAMEC_API ANamecPlayerCharacter : public ANamecCharacterBase
@@ -20,8 +19,8 @@ public:
     ANamecPlayerCharacter();
     virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
-    UPROPERTY(EditDefaultsOnly, Category="Input")
-    TObjectPtr<UInputAction> CameraToggleAction;
+    void ToggleCamera();
+    bool IsFirstPerson() const { return bFirstPerson; }
 
     // Called from input on the owning client; forwards to server for authority.
     UFUNCTION(Server, Reliable)
@@ -43,5 +42,4 @@ private:
     UPROPERTY(VisibleAnywhere) TObjectPtr<UCustomizableSkeletalComponent> MutableBody;
 
     bool bFirstPerson = false;
-    void ToggleCamera();
 };
