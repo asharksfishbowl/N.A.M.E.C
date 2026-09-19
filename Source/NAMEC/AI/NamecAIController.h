@@ -11,4 +11,7 @@ class NAMEC_API ANamecAIController : public AAIController
 
 public:
     ANamecAIController();
+
+protected:
+    virtual void OnPossess(APawn* InPawn) override;
 };

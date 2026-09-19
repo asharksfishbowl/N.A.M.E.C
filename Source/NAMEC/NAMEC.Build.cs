@@ -19,6 +19,7 @@ public class NAMEC : ModuleRules
             "GameplayTags",
             "EnhancedInput",
             "AIModule",
+            "NavigationSystem",
             "GeometryCollectionEngine",
             "RenderCore",
             "RHI",
@@ -27,6 +28,7 @@ public class NAMEC : ModuleRules
         PrivateDependencyModuleNames.AddRange(new string[]
         {
             "StateTreeModule",
+            "GameplayStateTreeModule",
             "SmartObjectsModule",
             "PCG",
             "CustomizableObject",
