@@ -1,5 +1,5 @@
-#include "AI/NamecAIController.h"
-#include "AI/NamecEnemyCharacter.h"
+#include "EnemyAI/NamecAIController.h"
+#include "EnemyAI/NamecEnemyCharacter.h"
 #include "Components/StateTreeComponent.h"
 
 ANamecAIController::ANamecAIController() {}

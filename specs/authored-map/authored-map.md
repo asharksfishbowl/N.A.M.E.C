@@ -177,7 +177,7 @@ N.A.M.E.C ships one hand-authored voxel map instead of seeded, generated worlds.
 - `Source/NAMECEditor/Map/NamecMapBakeCommandlet.h` — new; `UNamecMapBakeCommandlet` (Requirements 8–10).
 - `Source/NAMECEditor/Map/NamecSculptBrushEdMode.h` — new; `FNamecSculptBrushEdMode` appending strokes (Requirement 12; Phase 4).
 - `Source/NAMECEditor/Map/NamecMapValidator.h` — new; `UNamecMapValidator` rules 1–10 (Requirement 14).
-- `Source/NAMEC/Benchmark/NamecBenchmarkDirector.h` — changes: writes `content-manifest.json` (Requirement 35).
+- `Source/NAMEC/Core/Benchmark/NamecBenchmarkDirector.h` — changes: writes `content-manifest.json` (Requirement 35).
 - `Content/Map/Source/Benchmark/Strokes.namecstrokes` — new; hand-written benchmark strokes (Requirement 13).
 - `Content/Map/Source/Benchmark/BakeSettings.json` — new; 1 km × 1 km benchmark settings (Requirement 3).
 - `Source/NAMECEditor/Map/NamecMapBakePasses.h` — new; stateless voxelisation (tiles and noise), cave pass and ore pass functions (Requirements 8 and 8a).

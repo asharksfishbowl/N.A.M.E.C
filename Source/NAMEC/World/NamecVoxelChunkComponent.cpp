@@ -1,6 +1,6 @@
 #include "World/NamecVoxelChunkComponent.h"
 #include "World/NamecVoxelSceneProxy.h"
-#include "Settings/NamecScalabilitySubsystem.h"
+#include "Multiplayer/NamecScalabilitySubsystem.h"
 #include "Materials/Material.h"
 #include "Engine/Engine.h"
 #include "Async/Async.h"
