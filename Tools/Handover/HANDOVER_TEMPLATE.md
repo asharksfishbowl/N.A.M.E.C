@@ -82,7 +82,7 @@ record and for the Researcher/Director to read):
 
 ## SSH IDENTITY
 
-Pipeline SSH account: ashar (key ~/.ssh/id_ed25519_refpc, alias refpc).
+Pipeline SSH account: ashar (key /var/lib/dex/ssh/namec_ref_pc, alias refpc).
 ⛔ Never launch two reference-PC builds concurrently from the container — the
 cross-account WaitMutex does not queue; a second build fails immediately.
 
