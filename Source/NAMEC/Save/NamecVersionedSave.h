@@ -25,6 +25,9 @@ public:
 
     int32 GetCurrentSaveVersion() const;
 
+    // Runs at the start of every UNamecSaveFileService::Write, for fields that must be current on disk.
+    virtual void OnBeforeWrite() {}
+
     // Returns false, changing nothing, when SaveVersion is outside 1..current.
     bool MigrateToCurrent();
 };
