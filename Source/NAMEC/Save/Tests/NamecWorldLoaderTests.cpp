@@ -104,6 +104,8 @@ bool FNamecWorldLoaderRevisionTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("A marked chunk's recorded hash becomes the asset's"), Save->EditedChunkBaseHashes.FindRef(FIntPoint(1, 0)), FString(TEXT("b-changed")));
     TestEqual(TEXT("No edited chunk loses its entry"), Save->EditedChunkBaseHashes.Num(), 3);
 
+    TestEqual(TEXT("An accepted save is bound: it now carries the asset's revision"), Save->MapRevision, 12);
+
     UNamecWorldLoader::ApplyDecision(Decision, *Save, *MapAsset);
     TestEqual(TEXT("Applying twice adds no duplicate"), Save->PendingTerrainMarkers.Num(), 2);
     return true;
@@ -129,9 +131,50 @@ bool FNamecWorldLoaderRefusalTest::RunTest(const FString& Parameters)
     }
     const FNamecWorldLoadDecision Decision = UNamecWorldLoader::EvaluateLoadRule(*Loaded, *MapAsset);
     UNamecWorldLoader::ApplyDecision(Decision, *Loaded, *MapAsset);
+    TestTrue(TEXT("File bytes are identical after evaluating and applying"), ReadFileBytes(UNamecSaveFileService::GetSaveFilePath(TEXT("World.sav"))) == Before);
 
     TestTrue(TEXT("The load is refused"), Decision.IsRefused());
     TestEqual(TEXT("A refusal marks nothing"), Loaded->PendingTerrainMarkers.Num(), 0);
+    TestEqual(TEXT("A refused save still holds its original MapId"), Loaded->MapId, FGuid(4, 4, 4, 4));
+
+    // Its next write must not stamp this asset's identity onto another map's world.
+    SaveFiles->Write(*Loaded, TEXT("World.sav"));
+    const UNamecWorldSave* Rewritten = Cast<UNamecWorldSave>(SaveFiles->Load(TEXT("World.sav"), UNamecWorldSave::StaticClass()).Save);
+    if (TestNotNull(TEXT("Rewritten world save"), Rewritten))
+    {
+        TestEqual(TEXT("A refused save written again keeps its MapId"), Rewritten->MapId, FGuid(4, 4, 4, 4));
+    }
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FNamecWorldLoaderNoIdentityTest, "Namec.Foundation.WorldLoader.ASaveWithNoMapIdentityIsRefusedWithItsOwnMessage", NamecFoundationTestFlags)
+
+bool FNamecWorldLoaderNoIdentityTest::RunTest(const FString& Parameters)
+{
+    FNamecScopedTestPlatform Platform;
+    const UNamecVoxelMapAsset* MapAsset = NewLoaderTestMapAsset();
+    UNamecSaveFileService* SaveFiles = NewSaveFileService();
+
+    UNamecWorldSave* NoIdentity = NewObject<UNamecWorldSave>();
+    NoIdentity->WorldName = TEXT("Damaged");
+    SaveFiles->Write(*NoIdentity, TEXT("World.sav"));
+    const TArray<uint8> Before = ReadFileBytes(UNamecSaveFileService::GetSaveFilePath(TEXT("World.sav")));
+
+    UNamecWorldSave* Loaded = Cast<UNamecWorldSave>(SaveFiles->Load(TEXT("World.sav"), UNamecWorldSave::StaticClass()).Save);
+    if (!TestNotNull(TEXT("Loaded world save"), Loaded))
+    {
+        return true;
+    }
+
+    AddExpectedMessage(TEXT("the save has no MapId and was refused"), ELogVerbosity::Warning, EAutomationExpectedMessageFlags::Contains, 1);
+    const FNamecWorldLoadDecision Decision = UNamecWorldLoader::EvaluateLoadRule(*Loaded, *MapAsset);
+    UNamecWorldLoader::ApplyDecision(Decision, *Loaded, *MapAsset);
+
+    TestEqual(TEXT("Outcome"), Decision.Outcome, ENamecWorldLoadOutcome::RefuseNoMapIdentity);
+    TestTrue(TEXT("It is a refusal"), Decision.IsRefused());
+    TestEqual(TEXT("Its own message"), Decision.Message.ToString(), FString(TEXT("This world file has no map identity and cannot be loaded. The file may be damaged.")));
+    TestNotEqual(TEXT("Not the different-map message"), Decision.Message.ToString(), FString(TEXT("This world belongs to a different map")));
+    TestFalse(TEXT("The save is left with no identity"), Loaded->MapId.IsValid());
     TestTrue(TEXT("File bytes are identical afterwards"), ReadFileBytes(UNamecSaveFileService::GetSaveFilePath(TEXT("World.sav"))) == Before);
     return true;
 }

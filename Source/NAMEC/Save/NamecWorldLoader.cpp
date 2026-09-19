@@ -11,14 +11,22 @@ DEFINE_LOG_CATEGORY_STATIC(LogNamecWorldLoader, Log, All);
 
 bool FNamecWorldLoadDecision::IsRefused() const
 {
-    return Outcome == ENamecWorldLoadOutcome::RefuseDifferentMap || Outcome == ENamecWorldLoadOutcome::RefuseNewerMapRevision;
+    return Outcome == ENamecWorldLoadOutcome::RefuseNoMapIdentity
+        || Outcome == ENamecWorldLoadOutcome::RefuseDifferentMap
+        || Outcome == ENamecWorldLoadOutcome::RefuseNewerMapRevision;
 }
 
 FNamecWorldLoadDecision UNamecWorldLoader::EvaluateLoadRule(const UNamecWorldSave& Save, const UNamecVoxelMapAsset& MapAsset)
 {
     FNamecWorldLoadDecision Decision;
 
-    if (Save.MapId != MapAsset.MapId)
+    // Its own outcome: "a different map" is false for a damaged or hand-edited file.
+    if (!Save.MapId.IsValid())
+    {
+        Decision.Outcome = ENamecWorldLoadOutcome::RefuseNoMapIdentity;
+        Decision.Message = LOCTEXT("NoMapIdentity", "This world file has no map identity and cannot be loaded. The file may be damaged.");
+    }
+    else if (Save.MapId != MapAsset.MapId)
     {
         Decision.Outcome = ENamecWorldLoadOutcome::RefuseDifferentMap;
         Decision.Message = LOCTEXT("DifferentMap", "This world belongs to a different map");
@@ -49,6 +57,15 @@ FNamecWorldLoadDecision UNamecWorldLoader::EvaluateLoadRule(const UNamecWorldSav
 
 void UNamecWorldLoader::ApplyDecision(const FNamecWorldLoadDecision& Decision, UNamecWorldSave& Save, const UNamecVoxelMapAsset& MapAsset)
 {
+    if (Decision.Outcome == ENamecWorldLoadOutcome::RefuseNoMapIdentity)
+    {
+        UE_LOG(LogNamecWorldLoader, Warning, TEXT("World '%s': the save has no MapId and was refused"), *Save.WorldName);
+    }
+    if (Decision.IsRefused())
+    {
+        return;
+    }
+
     if (Decision.Outcome == ENamecWorldLoadOutcome::LoadWithMapHashMismatch)
     {
         UE_LOG(LogNamecWorldLoader, Warning, TEXT("World '%s': MapHash differs from the map asset at the same MapRevision %d"), *Save.WorldName, MapAsset.MapRevision);
@@ -60,6 +77,8 @@ void UNamecWorldLoader::ApplyDecision(const FNamecWorldLoadDecision& Decision, U
         Save.PendingTerrainMarkers.AddUnique(Chunk);
         Save.EditedChunkBaseHashes.Add(Chunk, MapAsset.BaseChunkHashes.FindRef(Chunk));
     }
+
+    Save.BindMapAsset(MapAsset);
 }
 
 TArray<ANamecTerrainUpdatedMarker*> UNamecWorldLoader::SpawnPendingMarkers(UWorld& World, const UNamecWorldSave& Save)
